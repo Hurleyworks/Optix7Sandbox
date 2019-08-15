@@ -1,9 +1,8 @@
 
-
 local ROOT = "../../"
 
-language "C++"
-cppdialect "C++17"
+	language "C++"
+
 	defines{
 		"NANOGUI_GLAD", "JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED", "POCO_NO_AUTOMATIC_LIBS",
 		"_USE_MATH_DEFINES", "_ENABLE_EXTENDED_ALIGNED_STORAGE"
@@ -15,7 +14,6 @@ cppdialect "C++17"
 	local JAHLEY_DIR = ROOT .. "core/source/jahley/"
 	local THIRD_PARTY_DIR = "../../thirdparty/"
 	local MODULE_DIR = "../../modules/"
-	--local NVIDIA_DIR = "../../../../../NVIDIA/dist/"
 	local CUDA_INCLUDE_DIR = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/include"
 	local CUDA_EXTRA_DIR = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/extras/cupti/include"
 	local CUDA_LIB_DIR =  "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/lib/x64"
@@ -26,7 +24,6 @@ cppdialect "C++17"
 		CORE_DIR,
 		JAHLEY_DIR,
 		MODULE_DIR,
-		--NVIDIA_DIR,
 		CUDA_INCLUDE_DIR,
 		CUDA_EXTRA_DIR,
 		OPTIX7_INCLUDE_DIR,
@@ -79,7 +76,6 @@ cppdialect "C++17"
 		symbols "On"
 		libdirs { THIRD_PARTY_DIR .. "builds/bin/" .. outputdir .. "/**",
 				  THIRD_PARTY_DIR .. "precompiled/bin/" .. outputdir .. "/**",
-				 -- NVIDIA_DIR .. "libs/debug",
 				  CUDA_LIB_DIR
 		}
 		
@@ -88,7 +84,6 @@ cppdialect "C++17"
 		optimize "On"
 		libdirs { THIRD_PARTY_DIR .. "builds/bin/" .. outputdir .. "/**",
 				  THIRD_PARTY_DIR .. "precompiled/bin/" .. outputdir .. "/**",
-				 -- NVIDIA_DIR .. "libs/release",
 				  CUDA_LIB_DIR
 		}
 	

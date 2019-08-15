@@ -1,6 +1,7 @@
 
 project "cs_signal"
 	if _ACTION == "vs2019" then
+		cppdialect "C++17"
 		location ("../builds/VisualStudio2019/projects")
 	end
 	if _ACTION == "vs2017" then
@@ -12,7 +13,7 @@ project "cs_signal"
 	
     kind "StaticLib"
     language "C++"
-    cppdialect "C++17"
+   
     flags { "MultiProcessorCompile"}
 	defines {"OPENVDB_STATICLIB", "OPENVDB_OPENEXR_STATICLIB", "NOMINMAX"}
 	targetdir ("../builds/bin/" .. outputdir .. "/%{prj.name}")

@@ -31,11 +31,11 @@ local ROOT = "../../"
 project "CoreLibrary"
     kind "StaticLib"
     language "C++"
-	cppdialect "C++17"
 	defines { "NANOGUI_GLAD", "POCO_NO_AUTOMATIC_LIBS", "JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED", "NANOVG_GL3", "_ENABLE_EXTENDED_ALIGNED_STORAGE"}
 	flags { "MultiProcessorCompile", "NoMinimalRebuild" }
 	
 	if _ACTION == "vs2019" then
+		cppdialect "C++17"
 		location "builds/VisualStudio2019/projects"
 	end
 	if _ACTION == "vs2017" then
@@ -87,7 +87,7 @@ project "CoreLibrary"
 	
 	filter {} -- clear filter!
 	
-	 -- WHERE THIS GOES IS IMPORTANT --- must go after files and includedirs
+	 -- must go after files and includedirs
     filter { "files:modules/**/excludeFromBuild/**.cpp"}
 		flags {"ExcludeFromBuild"}
 		
@@ -122,10 +122,8 @@ project "CoreLibrary"
 		}
 	
 	filter "configurations:Debug"
-        defines {"HZ_DEBUG", "USE_DEBUG_EXCEPTIONS"}
-                
-    filter "configurations:Release"
-        defines "HZ_RELEASE"
+        defines {"USE_DEBUG_EXCEPTIONS"}
+               
      
   
 -- add sandbox projects here

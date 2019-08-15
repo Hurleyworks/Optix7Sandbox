@@ -2,6 +2,7 @@ local ROOT = "../../"
 
 project  "HelloPtx"
 	if _ACTION == "vs2019" then
+		cppdialect "C++17"
 		location (ROOT .. "builds/VisualStudio2019/projects")
     end
 	if _ACTION == "vs2017" then
