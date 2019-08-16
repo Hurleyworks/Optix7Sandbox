@@ -26,7 +26,6 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 #include "PtxHandler.h"
 #include <nvrtc.h>
 
@@ -84,7 +83,7 @@ void PtxHandler::findCudaFiles(const std::string & cudaFolder)
 		File file(path);
 		if (!file.existsAsFile()) continue;
 
-		std::cout << "Found cuda file: " << file.getFileName() << std::endl;
+		LOG(DBUG) << "Found cuda file: " << file.getFileName();
 		cudaFilePaths.push_back(path.toStdString());
 	}
 }
@@ -126,7 +125,7 @@ void PtxHandler::createPtxHeaders(const std::string & ptxFolder)
 		File file(path);
 		if (!file.existsAsFile()) continue;
 
-		std::cout << "Found ptx file: " << file.getFileName() << std::endl;
+		LOG(DBUG) << "Found ptx file: " << file.getFileName();
 		createPtxHeader(path.toStdString());
 	}
 }
@@ -273,7 +272,7 @@ void PtxHandler::createPtxHeader(const std::string & filePath)
 
 	header.replaceWithText(out.joinIntoString("\n"));
 
-	std::cout << "Created header file: " << header.getFileName() << std::endl;
+	LOG(DBUG) << "Created header file: " << header.getFileName();
 }
 
 // beginSection
