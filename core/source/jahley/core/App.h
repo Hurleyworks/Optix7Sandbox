@@ -5,6 +5,9 @@
 #pragma once
 
 #include "Log.h"
+#include "window/WindowData.h"
+#include "window/InputHandler.h"
+#include "window/platform/opengl/OpenglWindow.h"
 
 namespace Jahley
 { 
@@ -17,20 +20,25 @@ namespace Jahley
 		virtual void update() {}
 		bool isWindowApp() const { return windowApp; }
 
-		// crash handler
+		// crash handling
 		void preCrash();
 		void onFatalError(g3::FatalMessagePtr fatal_message);
 
 	  protected:
-		App(bool windowApp = false);
+		App(DesktopWindowSettings settings = DesktopWindowSettings(), bool windowApp = false);
 		bool isRunning = true;
-	
+		InputHandler input;
+		OpenglWindowHandle window;
+
 	  private:
 		bool windowApp = false;
 		FatalErrorCallback errorCallback = nullptr;
 		PreCrashCallback preCrashCallback = nullptr;
-
+		
 		LogHandler log;
+		int refreshRate = DEFAULT_DESKTOP_WINDOW_REFRESH_RATE; // 60 fps
+		std::chrono::milliseconds refreshTime;
+		Vector4f bgColor = DEFAULT_DESKTOP_WINDOW_BACKGROUND_COLOR;
 
 	}; // end class App
 

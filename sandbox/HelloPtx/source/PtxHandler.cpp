@@ -199,7 +199,7 @@ void PtxHandler::compileCudaSource(const std::string & filePath)
 	File f(out);
 	f.replaceWithText(String(ptx));
 
-	LOG(DBUG)<< "Saving ptx file: " << f.getFileName() << std::endl;
+	LOG(DBUG) << "Saving ptx file: " << f.getFileName();
 
 	// Cleanup
 	NVRTC_CHECK_ERROR(nvrtcDestroyProgram(&prog));

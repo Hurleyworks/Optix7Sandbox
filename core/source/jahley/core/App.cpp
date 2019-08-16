@@ -9,13 +9,31 @@ namespace Jahley
 {
 
 	// ctor
-	App::App (bool windowApp)
+	App::App (DesktopWindowSettings settings, bool windowApp)
 		: windowApp(windowApp),
 		  errorCallback(std::bind(&App::onFatalError, this, std::placeholders::_1)),
 		  preCrashCallback(std::bind(&App::preCrash, this)),
-		  log(errorCallback, preCrashCallback)
+		  log(errorCallback, preCrashCallback),
+		  refreshTime(settings.refreshRate)
 	{	
 		
+		if (windowApp)
+		{
+			try
+			{
+				bgColor = settings.bgColor;
+				window = std::make_unique<OpenglWindow>(input);
+				window->create(Vector2i(settings.width, settings.height), settings.name);
+			}
+			catch (std::exception& e)
+			{
+				LOG(CRITICAL) << e.what();
+			}
+			catch (...)
+			{
+				LOG(CRITICAL) << "Caught unknown exception!";
+			}
+		}
 	}
 
 	// dtor
@@ -26,11 +44,21 @@ namespace Jahley
 
 	void App::run()
 	{
-		while (isRunning)
+		while (input.windowIsOpen())
 		{
+			window->renderBegin(bgColor);
+
 			// let the client update
 			update();
+
+			window->renderEnd(true); // true means glfw will wait for events instead of polling
+
+			// post an empty event to GLFW
+			std::this_thread::sleep_for(refreshTime);
+			glfwPostEmptyEvent();
 		}
+
+		window.reset();
 	}
 
 	// preCrash
@@ -50,5 +78,4 @@ namespace Jahley
 		// now ready to exit, instead of reinventing the wheel we do it the g3log way
 		g3::internal::pushFatalMessageToLogger(fatal_message);
 	}
-
 }

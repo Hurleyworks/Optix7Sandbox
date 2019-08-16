@@ -128,6 +128,7 @@ project "CoreLibrary"
 -- add sandbox projects here
 include "sandbox/HelloWorld"
 include "sandbox/HelloPtx"
+include "sandbox/HelloWindow"
 
 
 	

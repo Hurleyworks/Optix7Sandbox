@@ -22,7 +22,14 @@ const LEVELS CRITICAL{ WARNING.value + 1, "CRTICAL" };
 
 #define BIT(x) (1 << x)
 
-#define BIND_EVENT_FN(fn) std::bind(&##fn, this, std::placeholders::_1)
+
+// default window settings
+const float PHI = 1.618f;
+const float DEFAULT_DESKTOP_WINDOW_HEIGHT = 720.0f;
+const float DEFAULT_DESKTOP_WINDOW_WIDTH = 800 * PHI;
+const std::string DEFAULT_DESKTOP_WINDOW_NAME = "DesktopWindow";
+const int DEFAULT_DESKTOP_WINDOW_REFRESH_RATE = 16;
+const Eigen::Vector4f DEFAULT_DESKTOP_WINDOW_BACKGROUND_COLOR = Eigen::Vector4f(1.01, 1.0f, 1.0f, 1.0f);
 
 using ItemID = int64_t;
 const int64_t INVALID_ID = -1;
@@ -38,6 +45,27 @@ using RenderedFloatPixels = std::vector<float>;
 using ImagePixels = std::vector<uint8_t>;
 using ImageFloatPixels = std::vector<float>;
 typedef float Float;
+
+const int DEFAULT_MIN_WINDOW = 10;
+const int DEFAULT_CHANNELS = 3;
+
+struct ImageInfo
+{
+	int width = DEFAULT_MIN_WINDOW;
+	int height = DEFAULT_MIN_WINDOW;
+	int channels = DEFAULT_CHANNELS;
+};
+
+
+typedef Eigen::Matrix<uint32_t, Eigen::Dynamic, Eigen::Dynamic> MatrixXu;
+typedef Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic>      MatrixXi;
+typedef Eigen::Matrix<uint32_t, Eigen::Dynamic, 1>              VectorXu;
+typedef Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>    MatrixXf;
+typedef Eigen::Matrix<bool, Eigen::Dynamic, 1>                  VectorXb;
+typedef Eigen::Matrix<Float, 3, 3>                              Matrix3f;
+typedef Eigen::Matrix<uint32_t, 1, 3>                           Vector3u;
+typedef Eigen::Matrix<uint32_t, 1, 4>                           Vector4u;
+typedef Eigen::Matrix<Float, Eigen::Dynamic, 1>                 VectorXf;
 
 // from Rohan Sawhney https://github.com/rohan-sawhney?tab=repositories
 template <typename T>
