@@ -39,6 +39,7 @@ local ROOT = "../../"
 		THIRD_PARTY_DIR .. "openexr/source/*",
 		THIRD_PARTY_DIR .. "blosc/include",
 		THIRD_PARTY_DIR .. "taskflow",
+		THIRD_PARTY_DIR .. "stb/include",
 	}
 	
 	links 
@@ -56,6 +57,7 @@ local ROOT = "../../"
 		"cudart_static",
 		"cuda",
 		"nvrtc",
+		"stb"
     }
 	
 	targetdir (ROOT .. "builds/bin/" .. outputdir .. "/%{prj.name}")
