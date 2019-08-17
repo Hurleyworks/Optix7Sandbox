@@ -44,7 +44,7 @@ class Application : public Jahley::App
 		}
 		else
 		{
-			LOG(CRITICAL) << "Failed to load image from relative path: " << path;
+			LOG(CRITICAL) << "Failed to load image from " << path;
 		}
 	}
 
@@ -57,7 +57,7 @@ class Application : public Jahley::App
 Jahley::App* Jahley::CreateApplication()
 {
 	DesktopWindowSettings settings;
-	settings.name = APP_NAME + std::to_string(settings.width) + " x " + std::to_string(settings.height);
+	settings.name = APP_NAME;
 	settings.bgColor = Eigen::Vector4f(0.2f, 0.23f, 0.26f, 1.0f);
 
 	return new Application(settings, true);

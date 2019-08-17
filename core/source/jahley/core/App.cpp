@@ -42,9 +42,15 @@ namespace Jahley
 
 	void App::run()
 	{
+		// let the client initialize
+		onInit();
+
 		while (input.windowIsOpen())
 		{
 			window->renderBegin(bgColor);
+
+			for (RenderLayerRef layer : layers)
+				layer->onUpdate();
 
 			// let the client update
 			update();
@@ -57,6 +63,16 @@ namespace Jahley
 		}
 
 		window.reset();
+	}
+
+	void App::pushLayer(RenderLayerRef layer, bool attach)
+	{
+		layers.pushLayer(layer);
+	}
+
+	void App::pushOverlay(RenderLayerRef layer, bool attach)
+	{
+		layers.pushOverlay(layer);
 	}
 
 	// preCrash

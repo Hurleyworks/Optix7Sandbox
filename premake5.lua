@@ -130,6 +130,7 @@ project "CoreLibrary"
 include "sandbox/HelloWorld"
 include "sandbox/HelloPtx"
 include "sandbox/HelloWindow"
+include "sandbox/HelloOptix"
 
 
 	

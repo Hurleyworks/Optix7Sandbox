@@ -8,6 +8,9 @@
 #include "window/WindowData.h"
 #include "window/InputHandler.h"
 #include "window/platform/opengl/OpenglWindow.h"
+#include "window/RenderStack.h"
+#include "window/NanoguiLayer.h"
+#include  "window/OptixLayer.h"
 
 namespace Jahley
 { 
@@ -18,7 +21,14 @@ namespace Jahley
 
 		virtual void run();
 		virtual void update() {}
+		virtual void onInit() {}
+
 		bool isWindowApp() const { return windowApp; }
+
+		// rendering
+		void pushLayer(RenderLayerRef layer, bool attach);
+		void pushOverlay(RenderLayerRef layer, bool attach);
+
 
 		// crash handling
 		void preCrash();
@@ -39,6 +49,8 @@ namespace Jahley
 		int refreshRate = DEFAULT_DESKTOP_WINDOW_REFRESH_RATE; // 60 fps
 		std::chrono::milliseconds refreshTime;
 		Vector4f bgColor = DEFAULT_DESKTOP_WINDOW_BACKGROUND_COLOR;
+
+		RenderStack layers;
 
 	}; // end class App
 
