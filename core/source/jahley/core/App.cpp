@@ -31,6 +31,9 @@ namespace Jahley
 			{
 				LOG(CRITICAL) << "Caught unknown exception!";
 			}
+
+			// hook up output from the InputHandler to the render layers
+			connect(input, &InputHandler::onEvent, *this, &App::onInputEvent);
 		}
 	}
 
@@ -73,6 +76,13 @@ namespace Jahley
 	void App::pushOverlay(RenderLayerRef layer, bool attach)
 	{
 		layers.pushOverlay(layer);
+	}
+
+	void App::onInputEvent(InputEvent e)
+	{
+		for (RenderLayerRef layer : layers)
+			layer->onInput(e);
+
 	}
 
 	// preCrash

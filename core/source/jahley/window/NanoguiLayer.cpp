@@ -4,6 +4,7 @@
 
 #include "berserkpch.h"
 #include "NanoguiLayer.h"
+#include "InputEvent.h"
 
 // ctor
 NanoguiLayer::NanoguiLayer ()
@@ -17,6 +18,11 @@ NanoguiLayer::~NanoguiLayer ()
 
 void NanoguiLayer::onUpdate()
 {
-	LOG(DBUG) << _FN_;
+	//LOG(DBUG) << _FN_;
+}
+
+void NanoguiLayer::onInput(const InputEvent& input)
+{
+	//LOG(DBUG) << _FN_;
 }
 

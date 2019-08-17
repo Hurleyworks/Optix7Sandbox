@@ -4,6 +4,7 @@
 
 #include "berserkpch.h"
 #include "OptixLayer.h"
+#include "InputEvent.h"
 
 // ctor
 OptixLayer::OptixLayer ()
@@ -17,6 +18,16 @@ OptixLayer::~OptixLayer ()
 
 void OptixLayer::onUpdate()
 {
-	LOG(DBUG) << _FN_;
+	//LOG(DBUG) << _FN_;
+}
+
+void OptixLayer::onInput(const InputEvent& input)
+{
+	InputEvent::Type type = input.getType();
+	if (type == InputEvent::Type::Press || type == InputEvent::Drag)
+	{
+		
+		LOG(DBUG) << "Dragging at: " << input.getX() << ", " << input.getY();
+	}
 }
 

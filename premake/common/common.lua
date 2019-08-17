@@ -41,6 +41,7 @@ local ROOT = "../../"
 		THIRD_PARTY_DIR .. "taskflow",
 		THIRD_PARTY_DIR .. "stb/include",
 		THIRD_PARTY_DIR .. "libigl/include",
+		THIRD_PARTY_DIR .. "cs_signal/source",
 	}
 	
 	links 
@@ -58,7 +59,8 @@ local ROOT = "../../"
 		"cudart_static",
 		"cuda",
 		"nvrtc",
-		"stb"
+		"stb",
+		"cs_signal",
     }
 	
 	targetdir (ROOT .. "builds/bin/" .. outputdir .. "/%{prj.name}")

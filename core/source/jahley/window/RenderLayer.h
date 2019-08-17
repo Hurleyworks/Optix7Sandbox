@@ -9,6 +9,8 @@
 
 using RenderLayerRef = std::shared_ptr<class RenderLayer>;
 
+class InputEvent;
+
 class RenderLayer
 {
 
@@ -17,5 +19,6 @@ class RenderLayer
 	~RenderLayer ();
 
 	virtual void onUpdate() = 0;
+	virtual void onInput(const InputEvent& input) = 0;
 
 }; // end class RenderLayer

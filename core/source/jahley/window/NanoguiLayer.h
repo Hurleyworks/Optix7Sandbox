@@ -13,5 +13,6 @@ class NanoguiLayer : public RenderLayer
 	~NanoguiLayer ();
 
 	void onUpdate() override;
+	void onInput(const InputEvent& input) override;
 
 }; // end class NanoguiLayer

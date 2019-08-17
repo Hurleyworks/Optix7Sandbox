@@ -27,7 +27,9 @@
 #include <Eigen/Geometry>
 #include<Eigen/StdVector>
 
-
+// copper spice signal/slots
+#include <cs_signal.h>
+#include <cs_slot.h>
 
 // juce
 #include "../juce_core/juce_core.h"

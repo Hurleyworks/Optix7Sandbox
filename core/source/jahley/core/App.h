@@ -14,7 +14,7 @@
 
 namespace Jahley
 { 
-	class App
+	class App : public CsSignal::SlotBase
 	{
 	  public:
 		virtual ~App();
@@ -29,6 +29,7 @@ namespace Jahley
 		void pushLayer(RenderLayerRef layer, bool attach);
 		void pushOverlay(RenderLayerRef layer, bool attach);
 
+		void onInputEvent(InputEvent e);
 
 		// crash handling
 		void preCrash();

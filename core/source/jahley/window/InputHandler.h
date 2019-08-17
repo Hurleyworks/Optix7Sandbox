@@ -30,8 +30,12 @@ using juce::StringArray;
 using juce::String;
 using mace::FileServices;
 
-class InputHandler
+class InputHandler : public CsSignal::SignalBase
 {
+
+ public:
+	SIGNAL_1(void onEvent(InputEvent e))
+	SIGNAL_2(onEvent, e)
 
  public:
 	InputHandler() = default;
@@ -49,13 +53,14 @@ class InputHandler
 		if (type == InputEvent::Type::Press || type == InputEvent::Drag)
 		{
 			input.setType(InputEvent::Drag);
-
-			LOG(DBUG) << "Dragging at: " << input.getX() << ", " << input.getY();
 		}
 		else
 		{
 			input.setType(InputEvent::Move);
 		}
+
+		// emit the event
+		onEvent(input);
 	}
 
 	void onMouseButtonEvent(int button, int action, int mods)
@@ -89,6 +94,9 @@ class InputHandler
 			default:
 				break;
 		}
+
+		// emit the event
+		onEvent(input);
 	}
 
 	void onDrop(const std::vector<std::string> & fileList)
@@ -115,6 +123,8 @@ class InputHandler
 				LOG(DBUG) << filename;
 			}
 		}
+
+		
 	}
 
  private:

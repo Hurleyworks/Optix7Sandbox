@@ -13,5 +13,6 @@ class OptixLayer : public RenderLayer
 	~OptixLayer ();
 
 	void onUpdate() override;
+	void onInput(const InputEvent& input) override;
 
 }; // end class OptixLayer

@@ -84,6 +84,7 @@ project "CoreLibrary"
 		THIRD_PARTY_DIR .. "g3log/src",
 		THIRD_PARTY_DIR .. "PocoFoundationLite/include",
 		THIRD_PARTY_DIR .. "libigl/include",
+		THIRD_PARTY_DIR .. "cs_signal/source",
 	}
 	
 	filter {} -- clear filter!

@@ -18,6 +18,8 @@ class Application : public Jahley::App
 
 		nanoguiLayer = std::make_shared<NanoguiLayer>();
 		pushOverlay(nanoguiLayer, true);
+
+	
 	}
 
 	void update() override
