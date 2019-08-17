@@ -1,5 +1,7 @@
 #include "Jahley.h"
 
+const std::string APP_NAME = "HelloWindow";
+
 class Application : public Jahley::App
 {
 

@@ -25,21 +25,20 @@
 #define MOUSE_PRESS                  1
 #define MOUSE_REPEAT                 2
 
+using juce::File;
+using juce::StringArray;
+using juce::String;
+using mace::FileServices;
+
 class InputHandler
 {
 
  public:
-	InputHandler()
-	{
-		
-	}
+	InputHandler() = default;
+	~InputHandler() = default;
 
 	bool windowIsOpen() const { return windowOpen; }
-
-	void onWindowClose()
-	{
-		windowOpen = false;
-	}
+	void onWindowClose() {windowOpen = false;}
 
 	void onCursorPos(double xPos, double yPos)
 	{
@@ -94,9 +93,27 @@ class InputHandler
 
 	void onDrop(const std::vector<std::string> & fileList)
 	{
-		for (auto path : fileList)
+		for (auto p : fileList)
 		{
-			LOG(DBUG) << path;
+			File f(p);
+			if (f.isDirectory())
+			{
+				StringArray files;
+				String wildCard("*.*");
+				FileServices::getFiles(f.getFullPathName(), files, wildCard);
+
+				for (auto path : files)
+				{
+					File f(path);
+					std::string filename = f.getFullPathName().toStdString();
+					LOG(DBUG) << filename;
+				}
+			}
+			else if (f.existsAsFile())
+			{
+				std::string filename = f.getFullPathName().toStdString();
+				LOG(DBUG) << filename;
+			}
 		}
 	}
 

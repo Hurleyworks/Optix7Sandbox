@@ -7,3 +7,16 @@
 #include "jahley/AppConfig.h"
 #include "jahley/core/App.h"
 #include "jahley/EntryPoint.h"
+
+using juce::String;
+using juce::File;
+const String REPOSITORY_NAME = "Optix7Sandbox";
+
+inline String getResourcePath(const String& appName)
+{
+	File exe = File::getSpecialLocation(File::SpecialLocationType::currentExecutableFile);
+	String exefullPath = exe.getFullPathName();
+
+	String pathToRepro = exefullPath.upToFirstOccurrenceOf(REPOSITORY_NAME, true, false);
+	return pathToRepro + "/resources/" + appName;
+}

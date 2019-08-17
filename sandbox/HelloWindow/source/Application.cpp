@@ -2,6 +2,8 @@
 
 using handleType = std::unique_ptr<uint8_t[], void(*)(void*)>;
 
+const std::string APP_NAME = "HelloWindow";
+
 class Application : public Jahley::App
 {
 
@@ -16,8 +18,9 @@ class Application : public Jahley::App
 		if (!imageIsLoaded)
 		{
 			// the one and only JahleyBlue
-			const std::string fileName = "../../../scratch/images/jahley.jpg";
-			loadImage(fileName); 
+			const String fileName = getResourcePath(APP_NAME) + "/images/jahley.jpg";
+			loadImage(fileName.toStdString()); 
+
 			imageIsLoaded = true;
 		}
 	}
@@ -54,7 +57,7 @@ class Application : public Jahley::App
 Jahley::App* Jahley::CreateApplication()
 {
 	DesktopWindowSettings settings;
-	settings.name = "Hello Window " + std::to_string(settings.width) + " x " + std::to_string(settings.height);
+	settings.name = APP_NAME + std::to_string(settings.width) + " x " + std::to_string(settings.height);
 	settings.bgColor = Eigen::Vector4f(0.2f, 0.23f, 0.26f, 1.0f);
 
 	return new Application(settings, true);

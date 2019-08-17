@@ -40,6 +40,7 @@ local ROOT = "../../"
 		THIRD_PARTY_DIR .. "blosc/include",
 		THIRD_PARTY_DIR .. "taskflow",
 		THIRD_PARTY_DIR .. "stb/include",
+		THIRD_PARTY_DIR .. "libigl/include",
 	}
 	
 	links 

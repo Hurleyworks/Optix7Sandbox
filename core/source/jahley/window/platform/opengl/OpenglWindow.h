@@ -20,7 +20,7 @@ class OpenglWindow
 	~OpenglWindow ();
 
 	void renderBegin(const Vector4f & clearColor);
-	void renderImage(ImagePixels&& pixels, ImageInfo& spec);
+	void renderImage(ImagePixels&& pixels, const ImageInfo& spec);
 	void renderEnd(bool wait);
 
 	void create(const Vector2i & size, const std::string & caption,

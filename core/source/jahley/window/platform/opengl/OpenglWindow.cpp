@@ -32,7 +32,7 @@ void OpenglWindow::renderEnd(bool wait)
 	glfwSwapBuffers(window);
 }
 
-void OpenglWindow::renderImage(ImagePixels && pixels, ImageInfo& spec)
+void OpenglWindow::renderImage(ImagePixels && pixels, const ImageInfo& spec)
 {
 	if (!textureID)
 	{
@@ -75,7 +75,7 @@ void OpenglWindow::renderBegin(const Eigen::Vector4f & clearColor)
 	glClearColor(clearColor.x(), clearColor.y(), clearColor.z(), clearColor.w());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// draw image on full screen textured quad
+	// draw image on full screen textured triangles
 	if (textureID != 0)
 		quad.draw(textureID);
 

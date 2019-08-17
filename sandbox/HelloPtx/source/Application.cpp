@@ -1,7 +1,7 @@
 #include "Jahley.h"
 #include "PtxHandler.h"
 
-using juce::File;
+const std::string APP_NAME = "HelloPtx";
 
 class Application : public Jahley::App
 {
@@ -10,8 +10,9 @@ class Application : public Jahley::App
 	Application(DesktopWindowSettings settings = DesktopWindowSettings(), bool windowApp = false)
 		: Jahley::App(settings, windowApp)
 	{
-		const std::string cudaFolder("../../../scratch/cuda");
-		const std::string ptxFolder("../../../scratch/ptx");
+		String resourceFolder = getResourcePath(APP_NAME);
+		const std::string cudaFolder = (resourceFolder + "/cuda").toStdString();;
+		const std::string ptxFolder = (resourceFolder + "/ptx").toStdString();;
 
 		File cuda(cudaFolder);
 		File ptx(ptxFolder);
