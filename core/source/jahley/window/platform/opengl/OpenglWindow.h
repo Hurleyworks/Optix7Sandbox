@@ -8,8 +8,8 @@
 
 using Eigen::Vector2i;
 using Eigen::Vector4f;
-
 using OpenglWindowHandle = std::unique_ptr<class OpenglWindow>;
+
 class InputHandler;
 
 class OpenglWindow
@@ -20,10 +20,8 @@ class OpenglWindow
 	~OpenglWindow ();
 
 	void renderBegin(const Vector4f & clearColor);
+	void renderImage(ImagePixels&& pixels, ImageInfo& spec);
 	void renderEnd(bool wait);
-
-	void renderImage(ImagePixels && pixels, ImageInfo & spec);
-	void renderImage(ImageFloatPixels && pixels, ImageInfo& spec);
 
 	void create(const Vector2i & size, const std::string & caption,
 				bool resizable = true, bool fullscreen = false, int colorBits = 8,
@@ -38,16 +36,12 @@ class OpenglWindow
 	 NVGcontext * nanovgContext = nullptr;
 	 bool gladInitialized = false;
 
-	 bool running = true;
-	 bool isFloatImage = false;
-
-	 // full screen textured quad from 2 triangles
+	 // full screen texture for displaying
+	 // renders and other images
 	 OpenglUtil::FullScreenQuad quad;
 	 ImagePixels imagePixels;
-	 ImageFloatPixels floatPixels;
 	 GLuint textureID = 0;
-	 GLuint floatTextureID = 0;
-
+	 
 	 // handle window events here
 	 void onWindowFocus(int focused);
 	 void onWindowResize(int width, int height);

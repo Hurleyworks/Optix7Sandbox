@@ -117,9 +117,8 @@ namespace OpenglUtil
 	struct FullScreenQuad
 	{
 		FullScreenQuad()
-		{
-			
-		}
+		{}
+		
 		~FullScreenQuad()
 		{
 			if(shader)

@@ -7,8 +7,8 @@ class Application : public Jahley::App
 {
 
   public:
-	Application(bool windowApp = false)
-		: Jahley::App(windowApp)
+	Application(DesktopWindowSettings settings = DesktopWindowSettings(), bool windowApp = false)
+		: Jahley::App(settings, windowApp)
 	{
 		const std::string cudaFolder("../../../scratch/cuda");
 		const std::string ptxFolder("../../../scratch/ptx");

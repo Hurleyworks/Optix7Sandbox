@@ -26,7 +26,7 @@ const LEVELS CRITICAL{ WARNING.value + 1, "CRTICAL" };
 // default window settings
 const float PHI = 1.618f;
 const float DEFAULT_DESKTOP_WINDOW_HEIGHT = 720.0f;
-const float DEFAULT_DESKTOP_WINDOW_WIDTH = 800 * PHI;
+const float DEFAULT_DESKTOP_WINDOW_WIDTH = DEFAULT_DESKTOP_WINDOW_HEIGHT * PHI;
 const std::string DEFAULT_DESKTOP_WINDOW_NAME = "DesktopWindow";
 const int DEFAULT_DESKTOP_WINDOW_REFRESH_RATE = 16;
 const Eigen::Vector4f DEFAULT_DESKTOP_WINDOW_BACKGROUND_COLOR = Eigen::Vector4f(1.01, 1.0f, 1.0f, 1.0f);

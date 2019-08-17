@@ -92,9 +92,12 @@ class InputHandler
 		}
 	}
 
-	void onDrop(const std::vector<std::string>& fileList)
+	void onDrop(const std::vector<std::string> & fileList)
 	{
-		
+		for (auto path : fileList)
+		{
+			LOG(DBUG) << path;
+		}
 	}
 
  private:

@@ -37,8 +37,8 @@ project "g3log"
     }
     
 	filter "system:windows"
+	    staticruntime "On"
         systemversion "latest"
-        staticruntime "On"
         disablewarnings { "4244", "5030" }
 		characterset "MBCS"
         files
@@ -54,8 +54,3 @@ project "g3log"
             "_CRT_SECURE_NO_WARNINGS"
 		}
 	
-	filter { "system:windows", "configurations:Release"}
-		buildoptions "/MT"     
-
-	filter { "system:windows", "configurations:Debug"}
-		buildoptions "/MTd"  

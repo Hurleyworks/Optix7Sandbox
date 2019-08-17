@@ -7,7 +7,6 @@
 
 namespace Jahley
 {
-
 	// ctor
 	App::App (DesktopWindowSettings settings, bool windowApp)
 		: windowApp(windowApp),
@@ -16,7 +15,6 @@ namespace Jahley
 		  log(errorCallback, preCrashCallback),
 		  refreshTime(settings.refreshRate)
 	{	
-		
 		if (windowApp)
 		{
 			try

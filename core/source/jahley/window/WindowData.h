@@ -2,8 +2,6 @@
 
 #include <mace_core/mace_core.h>
 
-
-
 struct DesktopWindowSettings
 {
 	int width = DEFAULT_DESKTOP_WINDOW_WIDTH;

@@ -4,8 +4,8 @@ class Application : public Jahley::App
 {
 
   public:
-	Application(bool windowApp = false)
-		: Jahley::App(windowApp)
+	Application(DesktopWindowSettings settings = DesktopWindowSettings(), bool windowApp = false)
+		: Jahley::App(settings, windowApp)
 	{
 		LOG(DBUG) << "Hello World!";	
 		mace::CPU cpu;

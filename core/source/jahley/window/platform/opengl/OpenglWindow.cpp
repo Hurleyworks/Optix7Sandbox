@@ -21,13 +21,8 @@ OpenglWindow::~OpenglWindow ()
 {	
 	glfwTerminate();
 
-	running = false;
-
 	if(textureID)
 		glDeleteTextures(1, &textureID);
-
-	if(floatTextureID)
-		glDeleteTextures(1, &floatTextureID);
 }
 
 void OpenglWindow::renderEnd(bool wait)
@@ -71,13 +66,6 @@ void OpenglWindow::renderImage(ImagePixels && pixels, ImageInfo& spec)
 	OpenglUtil::gl_check_error(__FILE__, __LINE__);
 }
 
-void OpenglWindow::renderImage(ImageFloatPixels && pixels,ImageInfo& spec)
-{
-
-	floatPixels = std::move(pixels);
-
-}
-
 void OpenglWindow::renderBegin(const Eigen::Vector4f & clearColor)
 {
 	int width, height;
@@ -87,16 +75,12 @@ void OpenglWindow::renderBegin(const Eigen::Vector4f & clearColor)
 	glClearColor(clearColor.x(), clearColor.y(), clearColor.z(), clearColor.w());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if (textureID != 0 && !isFloatImage)
+	// draw image on full screen textured quad
+	if (textureID != 0)
 		quad.draw(textureID);
-
-	/*if(floatTextureID != 0 && isFloatImage)
-		quad.draw(floatTextureID);*/
 
 	OpenglUtil::gl_check_error(__FILE__, __LINE__);
 }
-
-
 
 void OpenglWindow::onWindowFocus(int focused)
 {
