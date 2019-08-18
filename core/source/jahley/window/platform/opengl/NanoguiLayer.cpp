@@ -60,7 +60,7 @@ void NanoguiLayer::onInput(const InputEvent& input)
 			break;
 
 		case InputEvent::Drag:
-			Screen:cursorPosCallbackEvent((float)input.getX(), (float)input.getY());
+			Screen::cursorPosCallbackEvent((float)input.getX(), (float)input.getY());
 			//LOG(DBUG) << "DRAG";
 			break;
 	}
@@ -95,7 +95,6 @@ void NanoguiLayer::postQuestiongMessage(const std::string& title, const std::str
 
 		});
 }
-
 
 void NanoguiLayer::drawPerformanceGraph(NVGcontext* const ctx)
 {

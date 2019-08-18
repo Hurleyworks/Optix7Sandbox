@@ -31,7 +31,7 @@ void Controller::onInput(const InputEvent& e)
 			break;
 
 		case InputEvent::Drag:
-			LOG(DBUG) << "Dragging: " << e.getX() << ", " << e.getY();
+			//LOG(DBUG) << "Dragging: " << e.getX() << ", " << e.getY();
 			break;
 	}
 }

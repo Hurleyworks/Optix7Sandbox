@@ -2,7 +2,6 @@
 
 struct PropertyService
 {
-
 	PropertyService() = default;
 	~PropertyService() = default;
 
@@ -10,11 +9,10 @@ struct PropertyService
 	{
 		imageProps = std::make_shared<ImagingProperties>();
 		worldProps = std::make_shared<WorldProperties>();
-		
+		renderProps = std::make_shared<RenderProperties>();
 	}
 
-	
 	ImagingPropsRef imageProps = nullptr;
 	WorldPropsRef worldProps = nullptr;
-	
+	RenderPropsRef renderProps = nullptr;	
 };

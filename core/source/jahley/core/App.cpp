@@ -21,7 +21,7 @@ namespace Jahley
 		{
 			try
 			{
-				bgColor = settings.bgColor;
+				bgColor = properties.renderProps->getVal<Eigen::Vector4f>(RenderKey::BackgroundColor);
 				window = std::make_unique<OpenglWindow>(input);
 				window->create(Vector2i(settings.width, settings.height), settings.name, settings.resizable);
 
@@ -51,6 +51,9 @@ namespace Jahley
 		properties.worldProps->addDefault(WorldKey::TotalInstances, DEFAULT_INSTANCES_COUNT);
 		properties.worldProps->addDefault(WorldKey::TotalRealTriangles, DEFAULT_TRIANGLE_COUNT);
 		properties.worldProps->addDefault(WorldKey::TotalInstancedTriangles, DEFAULT_INSTANCED_TRIANGLE_COUNT);
+
+		// render properties
+		properties.renderProps->addDefault(RenderKey::BackgroundColor, DEFAULT_DESKTOP_WINDOW_BACKGROUND_COLOR);
 	}
 
 	App::~App ()
@@ -65,7 +68,7 @@ namespace Jahley
 
 		while (input.windowIsOpen())
 		{
-			window->renderBegin(bgColor);
+			window->renderBegin(properties.renderProps->getVal<Vector4f>(RenderKey::BackgroundColor));
 
 			for (RenderLayerRef layer : layers)
 				layer->onUpdate();

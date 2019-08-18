@@ -54,4 +54,5 @@ namespace sabi
 
 #include "excludeFromBuild/properties/ImageProps.h"
 #include "excludeFromBuild/properties/WorldProps.h"
+#include "excludeFromBuild/properties/RenderProps.h"
 #include "excludeFromBuild/properties/PropertiesServices.h"

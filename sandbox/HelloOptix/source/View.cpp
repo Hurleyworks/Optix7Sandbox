@@ -30,36 +30,22 @@ void View::create(NanoguiLayer* const gui)
 	auto ctx = gui->nvgContext();
 	nvgCtx = ctx;
 
-	Window* window = new Window(gui, "Button demo");
+	Window* window = new Window(gui, "Hello Optix");
 	window->setPosition(Vector2i(15, 15));
 	window->setLayout(new GroupLayout());
 
-	/* No need to store a pointer, the data structure will be automatically
-	   freed when the parent window is deleted */
-	new Label(window, "Push buttons", "sans-bold");
+	new Label(window, "Background color:", "sans-bold");
+	auto cp = new ColorPicker(window, { 51, 56, 61, 255 });
+	cp->setFixedSize({ 100, 20 });
+	cp->setCallback([&](const Color& c) {
+		Eigen::Vector4f bg(c.r(), c.g(), c.b(), c.w());
+		properties.renderProps->setValue(RenderKey::BackgroundColor, bg);
+		});
 
-	Button* b = new Button(window, "Plain button");
-	b->setCallback([&] { cout << "pushed!" << endl; });
-	b->setTooltip("short tooltip");
-
-	/* Alternative construction notation using variadic template */
-	b = window->add<Button>("Styled", ENTYPO_ICON_ROCKET);
-	b->setBackgroundColor(Color(0, 0, 255, 25));
-	b->setCallback([&] { cout << "pushed!" << endl; });
-	b->setTooltip("This button has a fairly long tooltip. It is so long, in "
-		"fact, that the shown text will span several lines.");
-
-	new Label(window, "Toggle buttons", "sans-bold");
-	b = new Button(window, "Toggle me");
-	b->setFlags(Button::ToggleButton);
-	b->setChangeCallback([](bool state) { cout << "Toggle button state: " << state << endl; });
-
-	new Label(window, "Radio buttons", "sans-bold");
-	b = new Button(window, "Radio button 1");
-	b->setFlags(Button::RadioButton);
-	b = new Button(window, "Radio button 2");
-	b->setFlags(Button::RadioButton);
-
+	cp->setFinalCallback([&](const Color& c) {
+		Eigen::Vector4f bg(c.r(), c.g(), c.b(), c.w());
+		properties.renderProps->setValue(RenderKey::BackgroundColor, bg);
+		});
 
 	Button * about = new Button(window->buttonPanel(), "", ENTYPO_ICON_INFO);
 	about->setCallback([=]() {
