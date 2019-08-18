@@ -54,6 +54,11 @@ project "CoreLibrary"
 	local SOURCE_DIR = "core/source/"
 	local BERSERKO_DIR = "core/source/jahley/"
 	local MODULE_ROOT = "modules/"
+	local CUDA_INCLUDE_DIR = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/include"
+	local CUDA_EXTRA_DIR = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/extras/cupti/include"
+	local CUDA_LIB_DIR =  "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/lib/x64"
+	local OPTIX_ROOT = "C:/ProgramData/NVIDIA Corporation"
+	local OPTIX7_INCLUDE_DIR = OPTIX_ROOT .. "/OptiX SDK 7.0.0/include"
 
     files
     { 
@@ -73,6 +78,9 @@ project "CoreLibrary"
 		SOURCE_DIR,
 		MODULE_ROOT,
 		BERSERKO_DIR,
+		CUDA_INCLUDE_DIR,
+		CUDA_EXTRA_DIR,
+		OPTIX7_INCLUDE_DIR,
 		THIRD_PARTY_DIR,
 		THIRD_PARTY_DIR .. "openexr/source",
 		THIRD_PARTY_DIR .. "openexr/source/*",

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <sabi_core/sabi_core.h>
+
 class Model
 {
 	//https://www.bogotobogo.com/DesignPatterns/mvc_model_view_controller_pattern.php
@@ -15,5 +17,7 @@ class Model
  public:
 	Model ();
 	~Model ();
+
+	void onDrop(const std::vector<std::string>& fileList);
 	
 }; // end class Model

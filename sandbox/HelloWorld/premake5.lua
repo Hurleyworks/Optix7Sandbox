@@ -50,3 +50,4 @@ project  "HelloWorld"
 -- add settings common to all project
 dofile("../../premake/common/common.lua")
 
+

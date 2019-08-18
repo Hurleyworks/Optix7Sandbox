@@ -18,7 +18,7 @@ local ROOT = "../../"
 	local CUDA_EXTRA_DIR = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/extras/cupti/include"
 	local CUDA_LIB_DIR =  "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/lib/x64"
 	local OPTIX_ROOT = "C:/ProgramData/NVIDIA Corporation"
-	local OPTIX7_INCLUDE_DIR = OPTIX_ROOT .. "/OptiX SDK 7.0.0/include"
+	local OPTIX7_INCLUDE_DIR = OPTIX_ROOT .. "OptiX SDK 7.0.0/include"
 	includedirs
 	{
 		CORE_DIR,

@@ -28,7 +28,7 @@ class View
  private:
 	 PropertyService properties;
 	 NanoguiLayer* gui = nullptr; // owned by App, don't delete
-	 NVGcontext* nvgCtx = nullptr;
+	 NVGcontext* nvgCtx = nullptr;  // owned by App, don't delete
 	
 	 // button colors
 	 int r = 25;

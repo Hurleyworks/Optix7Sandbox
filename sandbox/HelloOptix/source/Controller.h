@@ -3,6 +3,9 @@
 // Copyright (c) 2019, HurleyWorks
 
 #pragma once
+#include <sabi_core/sabi_core.h>
+
+using sabi::InputEvent;
 
 class Controller
 {
@@ -16,6 +19,6 @@ class Controller
 	Controller ();
 	~Controller ();
 		
-
+	void onInput(const InputEvent& e);
 
 }; // end class Controller

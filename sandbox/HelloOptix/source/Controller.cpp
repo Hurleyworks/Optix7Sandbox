@@ -14,3 +14,25 @@ Controller::~Controller ()
 {	
 }
 
+void Controller::onInput(const InputEvent& e)
+{
+	switch (e.getType())
+	{
+		case InputEvent::Press:
+			//LOG(DBUG) << "PRESS";
+			break;
+
+		case InputEvent::Release:
+			//LOG(DBUG) << "RELEASE";
+			break;
+
+		case InputEvent::Move:
+			//LOG(DBUG) << "MOVE";
+			break;
+
+		case InputEvent::Drag:
+			LOG(DBUG) << "Dragging: " << e.getX() << ", " << e.getY();
+			break;
+	}
+}
+

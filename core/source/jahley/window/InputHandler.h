@@ -7,10 +7,6 @@
 
 #include <sabi_core/sabi_core.h>
 
-using juce::File;
-using juce::StringArray;
-using juce::String;
-using mace::FileServices;
 using sabi::InputEvent;
 
 class InputHandler : public CsSignal::SignalBase
@@ -19,6 +15,9 @@ class InputHandler : public CsSignal::SignalBase
  public:
 	SIGNAL_1(void onEvent(const InputEvent & e))
 	SIGNAL_2(onEvent, e)
+
+	SIGNAL_1(void onDragAndDrop(const std::vector<std::string>& paths))
+	SIGNAL_2(onDragAndDrop, paths)
 
  public:
 	InputHandler() = default;
@@ -84,28 +83,8 @@ class InputHandler : public CsSignal::SignalBase
 
 	void onDrop(const std::vector<std::string> & fileList)
 	{
-		for (auto p : fileList)
-		{
-			File f(p);
-			if (f.isDirectory())
-			{
-				StringArray files;
-				String wildCard("*.*");
-				FileServices::getFiles(f.getFullPathName(), files, wildCard);
-
-				for (auto path : files)
-				{
-					File f(path);
-					std::string filename = f.getFullPathName().toStdString();
-					LOG(DBUG) << filename;
-				}
-			}
-			else if (f.existsAsFile())
-			{
-				std::string filename = f.getFullPathName().toStdString();
-				LOG(DBUG) << filename;
-			}
-		}
+		// emit the drop
+		onDragAndDrop(fileList);
 	}
 
  private:

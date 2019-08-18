@@ -5,11 +5,14 @@
 #include "berserkpch.h"
 #include "OptixLayer.h"
 
+// only once!
+#include <optix_function_table_definition.h>
 
 // ctor
 OptixLayer::OptixLayer (const PropertyService& properties)
 	: RenderLayer(properties)
 {	
+	context = OptixContext::create();
 }
 
 // dtor

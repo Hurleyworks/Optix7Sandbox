@@ -1,6 +1,9 @@
 #include "Jahley.h"
 
+#include "Model.h"
 #include "View.h"
+#include "Controller.h"
+
 const std::string APP_NAME = "HelloOptix";
 
 class Application : public Jahley::App
@@ -11,6 +14,7 @@ class Application : public Jahley::App
 		: Jahley::App(settings, windowApp),
 		  view(properties)
 	{
+		LOG(INFO) << APP_NAME << " is running!";
 	}
 
 	void onInit() override
@@ -27,13 +31,31 @@ class Application : public Jahley::App
 
 	void update() override
 	{
-		
+
+	}
+
+	void onCrash() override
+	{
+		if(nanoguiLayer)
+			nanoguiLayer->postWarningMessage("Unexpected internal error!", "Please save your work!");
+	}
+
+	void onDrop(const std::vector<std::string>& fileList) override
+	{
+		model.onDrop(fileList);
+	}
+
+	void onInput(const InputEvent & e) override
+	{
+		controller.onInput(e);
 	}
 
   private:
 	  RenderLayerRef optixLayer = nullptr;
 	  RenderLayerRef nanoguiLayer = nullptr;
+	  Model model;
 	  View view;
+	  Controller controller;
 };
 
 Jahley::App* Jahley::CreateApplication()

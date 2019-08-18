@@ -10,7 +10,7 @@
 #include "window/platform/opengl/OpenglWindow.h"
 #include "window/RenderStack.h"
 #include "window/platform/opengl/NanoguiLayer.h"
-#include  "window/OptixLayer.h"
+#include  "window/platform/optix/OptixLayer.h"
 
 namespace Jahley
 { 
@@ -22,6 +22,9 @@ namespace Jahley
 		virtual void run();
 		virtual void update() {}
 		virtual void onInit() {}
+		virtual void onCrash() {}
+		virtual void onInput(const InputEvent& e) {}
+		virtual void onDrop(const std::vector<std::string>& fileList) {}
 
 		bool isWindowApp() const { return windowApp; }
 
@@ -56,7 +59,6 @@ namespace Jahley
 		RenderStack layers;
 
 		void resetProperties();
-
 		
 	}; // end class App
 

@@ -3,7 +3,8 @@
 // Copyright (c) 2019, HurleyWorks
 
 #pragma once
-#include "RenderLayer.h"
+#include "../../RenderLayer.h"
+#include "OptixData.h"
 
 class OptixLayer : public RenderLayer
 {
@@ -14,5 +15,8 @@ class OptixLayer : public RenderLayer
 
 	void onUpdate() override;
 	void onInput(const InputEvent& input) override;
+
+private:
+	OptixContexHandle context = nullptr;
 
 }; // end class OptixLayer

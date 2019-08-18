@@ -27,6 +27,9 @@ namespace Jahley
 
 				// broadcast InputHandler events to the render layers
 				connect(input, &InputHandler::onEvent, *this, &App::onInputEvent);
+
+				// send drop to client
+				connect(input, &InputHandler::onDragAndDrop, *this, &App::onDrop);
 			}
 			catch (std::exception& e)
 			{
@@ -94,12 +97,17 @@ namespace Jahley
 	{
 		for (RenderLayerRef layer : layers)
 			layer->onInput(e);
+
+		// send to client
+		onInput(e);
 	}
 
 	// preCrash
 	void App::preCrash()
 	{
-		
+		// let the client throw up a warning if it can
+		onCrash();
+
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
 		__debugbreak();
 #endif
@@ -108,9 +116,8 @@ namespace Jahley
 	// onFatalError
 	void App::onFatalError(g3::FatalMessagePtr fatal_message)
 	{
-		LOG(WARNING) << fatal_message.get()->toString();
+		LOG(CRITICAL) << fatal_message.get()->toString();
 
-		// now ready to exit, instead of reinventing the wheel we do it the g3log way
 		g3::internal::pushFatalMessageToLogger(fatal_message);
 	}
 }

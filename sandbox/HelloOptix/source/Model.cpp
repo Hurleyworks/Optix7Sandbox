@@ -4,6 +4,12 @@
 
 #include "Model.h"
 
+using juce::File;
+using juce::StringArray;
+using juce::String;
+using mace::FileServices;
+using sabi::InputEvent;
+
 // ctor
 Model::Model ()
 {	
@@ -12,5 +18,31 @@ Model::Model ()
 // dtor
 Model::~Model ()
 {	
+}
+
+void Model::onDrop(const std::vector<std::string>& fileList)
+{
+	for (auto p : fileList)
+	{
+		File f(p);
+		if (f.isDirectory())
+		{
+			StringArray files;
+			String wildCard("*.*");
+			FileServices::getFiles(f.getFullPathName(), files, wildCard);
+
+			for (auto path : files)
+			{
+				File f(path);
+				std::string filename = f.getFullPathName().toStdString();
+				LOG(DBUG) << filename;
+			}
+		}
+		else if (f.existsAsFile())
+		{
+			std::string filename = f.getFullPathName().toStdString();
+			LOG(DBUG) << filename;
+		}
+	}
 }
 
