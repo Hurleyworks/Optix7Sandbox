@@ -29,6 +29,7 @@ class OpenglWindow
 				int nSamples = 0, unsigned int glMajor = 4, unsigned int glMinor = 3);
 
 	InputHandler& getInput() { return input; }
+	GLFWwindow* glfw() const { return window; }
 
  private:
 	 InputHandler & input;

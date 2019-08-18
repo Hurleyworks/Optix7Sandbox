@@ -22,6 +22,9 @@ namespace Jahley
 				bgColor = settings.bgColor;
 				window = std::make_unique<OpenglWindow>(input);
 				window->create(Vector2i(settings.width, settings.height), settings.name);
+
+				// broadcast InputHandler events to the render layers
+				connect(input, &InputHandler::onEvent, *this, &App::onInputEvent);
 			}
 			catch (std::exception& e)
 			{
@@ -31,9 +34,6 @@ namespace Jahley
 			{
 				LOG(CRITICAL) << "Caught unknown exception!";
 			}
-
-			// hook up output from the InputHandler to the render layers
-			connect(input, &InputHandler::onEvent, *this, &App::onInputEvent);
 		}
 	}
 
@@ -78,11 +78,10 @@ namespace Jahley
 		layers.pushOverlay(layer);
 	}
 
-	void App::onInputEvent(InputEvent e)
+	void App::onInputEvent(const InputEvent & e)
 	{
 		for (RenderLayerRef layer : layers)
 			layer->onInput(e);
-
 	}
 
 	// preCrash

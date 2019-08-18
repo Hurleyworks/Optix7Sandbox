@@ -34,7 +34,7 @@ class InputHandler : public CsSignal::SignalBase
 {
 
  public:
-	SIGNAL_1(void onEvent(InputEvent e))
+	SIGNAL_1(void onEvent(const InputEvent & e))
 	SIGNAL_2(onEvent, e)
 
  public:
@@ -123,8 +123,6 @@ class InputHandler : public CsSignal::SignalBase
 				LOG(DBUG) << filename;
 			}
 		}
-
-		
 	}
 
  private:

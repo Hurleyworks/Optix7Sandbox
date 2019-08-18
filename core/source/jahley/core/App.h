@@ -9,7 +9,7 @@
 #include "window/InputHandler.h"
 #include "window/platform/opengl/OpenglWindow.h"
 #include "window/RenderStack.h"
-#include "window/NanoguiLayer.h"
+#include "window/platform/opengl/NanoguiLayer.h"
 #include  "window/OptixLayer.h"
 
 namespace Jahley
@@ -29,7 +29,8 @@ namespace Jahley
 		void pushLayer(RenderLayerRef layer, bool attach);
 		void pushOverlay(RenderLayerRef layer, bool attach);
 
-		void onInputEvent(InputEvent e);
+		// slot 
+		void onInputEvent(const InputEvent & e);
 
 		// crash handling
 		void preCrash();
@@ -55,6 +56,6 @@ namespace Jahley
 
 	}; // end class App
 
-	// Implemented by CLIENT
+	// Implemented by client
 	App* CreateApplication();
 }
