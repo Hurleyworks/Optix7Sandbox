@@ -2,7 +2,9 @@
 // Created: 18 Aug 2019 6:10:35 am
 // Copyright (c) 2019, HurleyWorks
 
+#include <stb_image.h>
 #include "jahley/window/platform/opengl/NanoguiLayer.h"
+#include "jahley/window/platform/opengl/OpenglTexture.h"
 #include <sabi_core/sabi_core.h>
 
 #include "View.h"
@@ -26,6 +28,8 @@ View::~View ()
 
 void View::create(NanoguiLayer* const gui)
 {
+	// this is mostly the Nanogui example_1 code
+
 	this->gui = gui;
 
 	auto ctx = gui->nvgContext();
@@ -92,6 +96,80 @@ void View::create(NanoguiLayer* const gui)
 	window->setPosition(Vector2i(200, 15));
 	window->setLayout(new GroupLayout());
 
+	new Label(window, "Message dialog", "sans-bold");
+	tools = new Widget(window);
+	tools->setLayout(new BoxLayout(Orientation::Horizontal,
+		Alignment::Middle, 0, 6));
+	b = new Button(tools, "Info");
+	b->setCallback([=] {
+		auto dlg = new MessageDialog(gui, MessageDialog::Type::Information, "Title", "This is an information message");
+		dlg->setCallback([](int result) { cout << "Dialog result: " << result << endl; });
+		});
+	b = new Button(tools, "Warn");
+	b->setCallback([=] {
+		auto dlg = new MessageDialog(gui, MessageDialog::Type::Warning, "Title", "This is a warning message");
+		dlg->setCallback([](int result) { cout << "Dialog result: " << result << endl; });
+		});
+	b = new Button(tools, "Ask");
+	b->setCallback([=] {
+		auto dlg = new MessageDialog(gui, MessageDialog::Type::Warning, "Title", "This is a question message", "Yes", "No", true);
+		dlg->setCallback([](int result) { cout << "Dialog result: " << result << endl; });
+		});
+
+	std::vector<std::pair<int, std::string>> icons = loadImageDirectory(ctx, resourceFolder + "/icons");
+	std::string resourcesFolderPath = resourceFolder + "/icons/";
+
+	new Label(window, "Image panel & scroll panel", "sans-bold");
+	PopupButton* imagePanelBtn = new PopupButton(window, "Image Panel");
+	imagePanelBtn->setIcon(ENTYPO_ICON_FOLDER);
+	popup = imagePanelBtn->popup();
+	VScrollPanel* vscroll = new VScrollPanel(popup);
+	ImagePanel* imgPanel = new ImagePanel(vscroll);
+	imgPanel->setImages(icons);
+	popup->setFixedSize(Vector2i(245, 150));
+
+	auto imageWindow = new Window(gui, "Selected image");
+	imageWindow->setPosition(Vector2i(710, 15));
+	imageWindow->setLayout(new GroupLayout());
+
+	// Load all of the images by creating a GLTexture object and saving the pixel data.
+	for (auto& icon : icons) 
+	{
+		LOG(DBUG) << icon.second;
+		GLTexture texture(icon.second);
+		auto data = texture.load(icon.second + ".png");
+		mImagesData.emplace_back(std::move(texture), std::move(data));
+	}
+
+	// Set the first texture
+	auto imageView = new ImageView(imageWindow, mImagesData[0].first.texture());
+	mCurrentImage = 0;
+	// Change the active textures.
+	imgPanel->setCallback([this, imageView](int i) {
+		imageView->bindImage(mImagesData[i].first.texture());
+		mCurrentImage = i;
+		cout << "Selected item " << i << '\n';
+		});
+
+	imageView->setGridThreshold(20);
+	imageView->setPixelInfoThreshold(20);
+	imageView->setPixelInfoCallback(
+		[this, imageView](const Vector2i& index) -> std::pair<std::string, Color> {
+			auto& imageData = mImagesData[mCurrentImage].second;
+			auto& textureSize = imageView->imageSize();
+			std::string stringData;
+			uint16_t channelSum = 0;
+			for (int i = 0; i != 4; ++i) {
+				auto& channelData = imageData[4 * index.y() * textureSize.x() + 4 * index.x() + i];
+				channelSum += channelData;
+				stringData += (std::to_string(static_cast<int>(channelData)) + "\n");
+			}
+			float intensity = static_cast<float>(255 - (channelSum / 4)) / 255.0f;
+			float colorScale = intensity > 0.5f ? (intensity + 1) / 2 : intensity / 2;
+			Color textColor = Color(colorScale, 1.0f);
+			return { stringData, textColor };
+		});
+
 	new Label(window, "File dialog", "sans-bold");
 	tools = new Widget(window);
 	tools->setLayout(new BoxLayout(Orientation::Horizontal,
@@ -148,7 +226,7 @@ void View::create(NanoguiLayer* const gui)
 	window->setPosition(Vector2i(425, 15));
 	window->setLayout(new GroupLayout());
 
-	TabWidget* tabWidget = window->add<TabWidget>();
+	tabWidget = window->add<TabWidget>();
 
 	Widget* layer = tabWidget->createTab("Color Wheel");
 	layer->setLayout(new GroupLayout());
@@ -176,8 +254,8 @@ void View::create(NanoguiLayer* const gui)
 	tabWidget->createTab("+");
 
 	// A simple counter.
-	int counter = 1;
-	tabWidget->setCallback([tabWidget, gui, counter](int index) mutable {
+	
+	tabWidget->setCallback([=](int index) mutable {
 		if (index == (tabWidget->tabCount() - 1)) {
 			// When the "+" tab has been clicked, simply add a new tab.
 			std::string tabName = "Dynamic " + std::to_string(counter);
@@ -217,7 +295,7 @@ void View::create(NanoguiLayer* const gui)
 	b = panel->add<Button>("", ENTYPO_ICON_FORWARD);
 	b->setFixedSize(Vector2i(22, 22));
 	ib->setFixedHeight(22);
-	b->setCallback([tabWidget, ib] {
+	b->setCallback([&, ib] {
 		int value = ib->value();
 		if (value >= 0 && value < tabWidget->tabCount()) {
 			tabWidget->setActiveTab(value);

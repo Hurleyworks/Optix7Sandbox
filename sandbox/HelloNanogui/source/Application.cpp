@@ -1,6 +1,6 @@
 #include "Jahley.h"
-
 #include "View.h"
+
 const std::string APP_NAME = "HelloNanogui";
 
 class Application : public Jahley::App

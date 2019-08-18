@@ -28,6 +28,7 @@ void View::create(NanoguiLayer* const gui)
 	this->gui = gui;
 
 	auto ctx = gui->nvgContext();
+	nvgCtx = ctx;
 
 	Window* window = new Window(gui, "Button demo");
 	window->setPosition(Vector2i(15, 15));
@@ -60,9 +61,8 @@ void View::create(NanoguiLayer* const gui)
 	b->setFlags(Button::RadioButton);
 
 
-
-	Button* about = new Button(window->buttonPanel(), "", ENTYPO_ICON_INFO);
-	about->setCallback([&, ctx]() {
+	Button * about = new Button(window->buttonPanel(), "", ENTYPO_ICON_INFO);
+	about->setCallback([=]() {
 		std::string msg = getSceneInfo().joinIntoString("\n").toStdString();
 		auto dlg = new MessageDialog(
 			gui, MessageDialog::Type::Information, "Scene Info", msg);

@@ -4,9 +4,11 @@
 
 #pragma once
 
+#include "jahley/window/platform/opengl/OpenglTexture.h"
 class NanoguiLayer;
 struct PropertyService;
 using juce::StringArray;
+using imagesDataType =  std::vector<std::pair<GLTexture, GLTexture::handleType>>;
 
 class View
 {
@@ -29,7 +31,12 @@ class View
 	 PropertyService properties;
 	 std::string resourceFolder = INVALID_PATH;
 	 NanoguiLayer* gui = nullptr; // owned by App, don't delete
+	 NVGcontext* nvgCtx = nullptr;
 	 nanogui::ProgressBar* mProgress = nullptr;
+	 nanogui::TabWidget* tabWidget = nullptr;
+	 int counter = 1;
+	 imagesDataType mImagesData;
+	 int mCurrentImage;
 
 	 // button colors
 	 int r = 25;

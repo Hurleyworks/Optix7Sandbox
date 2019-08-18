@@ -28,7 +28,8 @@ class View
  private:
 	 PropertyService properties;
 	 NanoguiLayer* gui = nullptr; // owned by App, don't delete
-	 nanogui::ComboBox* toolCombo = nullptr; // owned by UI
+	 NVGcontext* nvgCtx = nullptr;
+	
 	 // button colors
 	 int r = 25;
 	 int g = 50;
