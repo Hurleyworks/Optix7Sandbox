@@ -232,18 +232,18 @@ namespace OpenglUtil
 	{
 		switch (button)
 		{
-		case GLFW_MOUSE_BUTTON_LEFT:
-			return "left";
-		case GLFW_MOUSE_BUTTON_RIGHT:
-			return "right";
-		case GLFW_MOUSE_BUTTON_MIDDLE:
-			return "middle";
-		default:
-		{
-			static char name[16];
-			snprintf(name, sizeof(name), "%i", button);
-			return name;
-		}
+			case GLFW_MOUSE_BUTTON_LEFT:
+				return "left";
+			case GLFW_MOUSE_BUTTON_RIGHT:
+				return "right";
+			case GLFW_MOUSE_BUTTON_MIDDLE:
+				return "middle";
+			default:
+			{
+				static char name[16];
+				snprintf(name, sizeof(name), "%i", button);
+				return name;
+			}
 		}
 	}
 

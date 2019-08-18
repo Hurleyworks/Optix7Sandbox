@@ -4,7 +4,7 @@
 
 #include "berserkpch.h"
 #include "OptixLayer.h"
-#include "InputEvent.h"
+
 
 // ctor
 OptixLayer::OptixLayer ()

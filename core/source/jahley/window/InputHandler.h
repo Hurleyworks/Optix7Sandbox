@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "InputEvent.h"
+#include <sabi_core/sabi_core.h>
 
 // map from GLFW
 #define MOUSE_BUTTON_1         0
@@ -29,6 +29,7 @@ using juce::File;
 using juce::StringArray;
 using juce::String;
 using mace::FileServices;
+using sabi::InputEvent;
 
 class InputHandler : public CsSignal::SignalBase
 {

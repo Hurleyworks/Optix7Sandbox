@@ -7,7 +7,7 @@
 
 namespace Jahley
 {
-	// ctor
+	
 	App::App (DesktopWindowSettings settings, bool windowApp)
 		: windowApp(windowApp),
 		  errorCallback(std::bind(&App::onFatalError, this, std::placeholders::_1)),
@@ -21,7 +21,7 @@ namespace Jahley
 			{
 				bgColor = settings.bgColor;
 				window = std::make_unique<OpenglWindow>(input);
-				window->create(Vector2i(settings.width, settings.height), settings.name);
+				window->create(Vector2i(settings.width, settings.height), settings.name, false);
 
 				// broadcast InputHandler events to the render layers
 				connect(input, &InputHandler::onEvent, *this, &App::onInputEvent);
@@ -37,7 +37,7 @@ namespace Jahley
 		}
 	}
 
-	// dtor
+	
 	App::~App ()
 	{	
 	

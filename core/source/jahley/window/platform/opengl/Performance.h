@@ -1,6 +1,8 @@
 
 #pragma once
 
+// from https://github.com/memononen/nanovg zlib 
+
 #include <nanovg.h>
 #include <nanogui/nanogui.h>
 

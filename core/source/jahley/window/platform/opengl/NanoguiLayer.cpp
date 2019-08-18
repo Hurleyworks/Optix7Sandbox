@@ -4,7 +4,6 @@
 
 #include "berserkpch.h"
 #include "NanoguiLayer.h"
-#include "../../InputEvent.h"
 
 using namespace nanogui;
 

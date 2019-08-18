@@ -3,11 +3,12 @@
 // Copyright (c) 2019, HurleyWorks
 
 #pragma once
-#include <mace_core/mace_core.h>
+#include <sabi_core/sabi_core.h>
 
 // https://www.youtube.com/user/TheChernoProject
 
 using RenderLayerRef = std::shared_ptr<class RenderLayer>;
+using sabi::InputEvent;
 
 class InputEvent;
 
