@@ -16,7 +16,7 @@ class RenderLayer
 {
 
  public:
-	RenderLayer ();
+	RenderLayer (const PropertyService & properties);
 	~RenderLayer ();
 
 	virtual void onUpdate() = 0;
@@ -26,4 +26,6 @@ class RenderLayer
 	virtual void postWarningMessage(const std::string& title, const std::string& msg) {}
 	virtual void postQuestiongMessage(const std::string& title, const std::string& msg) {}
 
+ protected:
+	PropertyService properties;
 }; // end class RenderLayer

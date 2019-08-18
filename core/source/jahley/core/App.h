@@ -41,6 +41,7 @@ namespace Jahley
 		bool isRunning = true;
 		InputHandler input;
 		OpenglWindowHandle window;
+		PropertyService properties;
 
 	  private:
 		bool windowApp = false;
@@ -54,6 +55,9 @@ namespace Jahley
 
 		RenderStack layers;
 
+		void resetProperties();
+
+		
 	}; // end class App
 
 	// Implemented by client

@@ -1,7 +1,7 @@
 #include "Jahley.h"
 
 #include "View.h"
-const std::string APP_NAME = "HelloOptix";
+const std::string APP_NAME = "HelloNanogui";
 
 class Application : public Jahley::App
 {
@@ -9,7 +9,7 @@ class Application : public Jahley::App
   public:
 	Application(DesktopWindowSettings settings, bool windowApp = false)
 		: Jahley::App(settings, windowApp),
-		  view(properties)
+		  view(properties, getResourcePath(APP_NAME).toStdString())
 	{
 	}
 

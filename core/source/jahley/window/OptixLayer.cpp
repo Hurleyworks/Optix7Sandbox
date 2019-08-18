@@ -7,7 +7,8 @@
 
 
 // ctor
-OptixLayer::OptixLayer ()
+OptixLayer::OptixLayer (const PropertyService& properties)
+	: RenderLayer(properties)
 {	
 }
 
@@ -27,7 +28,7 @@ void OptixLayer::onInput(const InputEvent& input)
 	if (type == InputEvent::Type::Press || type == InputEvent::Drag)
 	{
 		
-		LOG(DBUG) << "Dragging at: " << input.getX() << ", " << input.getY();
+		//LOG(DBUG) << "Dragging at: " << input.getX() << ", " << input.getY();
 	}
 }
 

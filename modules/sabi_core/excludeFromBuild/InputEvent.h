@@ -22,7 +22,6 @@ class InputEvent
 
 	enum MouseButton
 	{
-	  None,
 	  Left,
 	  Middle,
 	  Right,
@@ -66,7 +65,7 @@ class InputEvent
  private:
 	 Type type_ = Type::Idle;
 	 Type prevType_ = Type::Idle;
-	 MouseButton button_ = MouseButton::None;
+	 MouseButton button_ = MouseButton::Left;
 	 float mouseX_ = 0.0f;
 	 float mouseY_ = 0.0f;
 	 unsigned int keyState_ = 0;

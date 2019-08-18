@@ -6,7 +6,7 @@
 // ctor
 InputEvent::InputEvent ()
 	: type_(Idle),
-      button_ (None),
+      button_ (Left),
       mouseX_ (0.0f),
       mouseY_ (0.0f),
       keyState_ (0),

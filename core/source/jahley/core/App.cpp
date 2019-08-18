@@ -15,13 +15,15 @@ namespace Jahley
 		  log(errorCallback, preCrashCallback),
 		  refreshTime(settings.refreshRate)
 	{	
+		resetProperties();
+
 		if (windowApp)
 		{
 			try
 			{
 				bgColor = settings.bgColor;
 				window = std::make_unique<OpenglWindow>(input);
-				window->create(Vector2i(settings.width, settings.height), settings.name, false);
+				window->create(Vector2i(settings.width, settings.height), settings.name, settings.resizable);
 
 				// broadcast InputHandler events to the render layers
 				connect(input, &InputHandler::onEvent, *this, &App::onInputEvent);
@@ -37,7 +39,17 @@ namespace Jahley
 		}
 	}
 
-	
+	void App::resetProperties()
+	{
+		properties.init();
+
+		// world properties
+		properties.worldProps->addDefault(WorldKey::TotalMeshes, DEFAULT_MESH_COUNT);
+		properties.worldProps->addDefault(WorldKey::TotalInstances, DEFAULT_INSTANCES_COUNT);
+		properties.worldProps->addDefault(WorldKey::TotalRealTriangles, DEFAULT_TRIANGLE_COUNT);
+		properties.worldProps->addDefault(WorldKey::TotalInstancedTriangles, DEFAULT_INSTANCED_TRIANGLE_COUNT);
+	}
+
 	App::~App ()
 	{	
 	

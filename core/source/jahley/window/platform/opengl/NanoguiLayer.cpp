@@ -8,8 +8,9 @@
 using namespace nanogui;
 
 // ctor
-NanoguiLayer::NanoguiLayer (GLFWwindow* window)
-	: window(window)
+NanoguiLayer::NanoguiLayer (GLFWwindow* window, const PropertyService& properties)
+	: RenderLayer(properties),
+	  window(window)
 {	
 
 	initGraph(&fpsGraph, GRAPH_RENDER_FPS, "Frame Time");
@@ -27,8 +28,6 @@ NanoguiLayer::~NanoguiLayer ()
 
 void NanoguiLayer::init()
 {
-	using namespace nanogui;
-
 	Screen::initialize(window, false);
 
 	Screen::drawAll();
@@ -37,14 +36,34 @@ void NanoguiLayer::init()
 
 void NanoguiLayer::onUpdate()
 {
-	//LOG(DBUG) << _FN_;
 	drawContents();
 	drawWidgets();
 }
 
 void NanoguiLayer::onInput(const InputEvent& input)
 {
-	//LOG(DBUG) << _FN_;
+	switch (input.getType())
+	{
+		case InputEvent::Press:
+			Screen::mouseButtonCallbackEvent(input.getButton(), MOUSE_PRESS, 0);
+			//LOG(DBUG) << "PRESS";
+			break;
+
+		case InputEvent::Release:
+			Screen::mouseButtonCallbackEvent(input.getButton(), MOUSE_RELEASE, 0);
+			//LOG(DBUG) << "RELEASE";
+			break;
+
+		case InputEvent::Move:
+			Screen::cursorPosCallbackEvent((float)input.getX(), (float)input.getY());
+			//LOG(DBUG) << "MOVE";
+			break;
+
+		case InputEvent::Drag:
+			Screen:cursorPosCallbackEvent((float)input.getX(), (float)input.getY());
+			//LOG(DBUG) << "DRAG";
+			break;
+	}
 }
 
 // postInfoMessage

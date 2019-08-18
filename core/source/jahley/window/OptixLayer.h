@@ -9,7 +9,7 @@ class OptixLayer : public RenderLayer
 {
 
  public:
-	OptixLayer ();
+	OptixLayer (const PropertyService& properties);
 	~OptixLayer ();
 
 	void onUpdate() override;
