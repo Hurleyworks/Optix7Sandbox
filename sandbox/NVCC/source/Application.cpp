@@ -49,7 +49,7 @@ class Application : public Jahley::App
 		String sdkRoot = "-IC:/ProgramData/NVIDIA Corporation/OptiX SDK 7.0.0/SDK";
 		String util = "-IC:/ProgramData/NVIDIA Corporation/OptiX SDK 7.0.0/SDK/cuda";
 
-		// try so Optix7 samples
+		// try some Optix7 SDK samples
 		String sample = "-IC:/ProgramData/NVIDIA Corporation/OptiX SDK 7.0.0/SDK/optixPathTracer";
 		String sample2 = "-IC:/ProgramData/NVIDIA Corporation/OptiX SDK 7.0.0/SDK/optixRayCasting";
 		String sample3 = "-IC:/ProgramData/NVIDIA Corporation/OptiX SDK 7.0.0/SDK/optixSimpleMotionBlur";
@@ -78,9 +78,6 @@ class Application : public Jahley::App
 
 		LOG(DBUG) << nvcc.readAllProcessOutput();
 	}
-
-  private:
-	
 };
 
 Jahley::App* Jahley::CreateApplication()

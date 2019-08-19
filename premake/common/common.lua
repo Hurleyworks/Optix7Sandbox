@@ -42,6 +42,7 @@ local ROOT = "../../"
 		THIRD_PARTY_DIR .. "stb/include",
 		THIRD_PARTY_DIR .. "libigl/include",
 		THIRD_PARTY_DIR .. "cs_signal/source",
+		THIRD_PARTY_DIR .. "doctest",
 	}
 	
 	links 

@@ -4,3 +4,5 @@
 
 /builds
 /thirdparty/builds
+/benchmark/builds
+/unittest/builds
