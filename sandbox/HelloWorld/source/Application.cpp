@@ -1,6 +1,6 @@
 #include "Jahley.h"
 
-const std::string APP_NAME = "HelloWindow";
+const std::string APP_NAME = "HelloWorld";
 
 class Application : public Jahley::App
 {

@@ -46,9 +46,9 @@ inline void contextLogger(unsigned int level, const char* tag, const char* messa
 		<< message;
 }
 
+// taken from Optix 7 samples
 namespace sutil
 {
-
 	class Exception : public std::runtime_error
 	{
 	public:

@@ -28,4 +28,5 @@ class RenderLayer
 
  protected:
 	PropertyService properties;
+
 }; // end class RenderLayer

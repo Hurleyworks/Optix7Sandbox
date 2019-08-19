@@ -31,13 +31,20 @@ class OptixContext
 		catch (std::exception& e)
 		{
 			LOG(CRITICAL) << "Caught exception: " << e.what();
+
+			if (context)
+				OPTIX_CHECK(optixDeviceContextDestroy(context));
+
+			context = nullptr;
+			options = {};
 		}
 	}
 	~OptixContext()
 	{
 		try
 		{
-			OPTIX_CHECK(optixDeviceContextDestroy(context));
+			if(context)
+				OPTIX_CHECK(optixDeviceContextDestroy(context));
 		}
 		catch (std::exception& e)
 		{
@@ -52,6 +59,9 @@ class OptixContext
 		else
 			throw std::runtime_error("OptixDeviceContext in invalid(nullptr)");
 	}
+
+	const OptixDeviceContextOptions & getOptions() const { return options; }
+	OptixDeviceContextOptions& getOptions()  { return options; }
 
  private:
 	OptixDeviceContext context = nullptr;

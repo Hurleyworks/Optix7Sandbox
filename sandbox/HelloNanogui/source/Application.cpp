@@ -42,7 +42,7 @@ Jahley::App* Jahley::CreateApplication()
 	settings.name = APP_NAME;
 	settings.refreshRate = 15;
 	settings.resizable = false;
-	settings.bgColor = Eigen::Vector4f(0.2f, 0.23f, 0.26f, 1.0f);
+	//settings.bgColor = Eigen::Vector4f(0.2f, 0.23f, 0.26f, 1.0f);
 
 	return new Application(settings, true);
 }
