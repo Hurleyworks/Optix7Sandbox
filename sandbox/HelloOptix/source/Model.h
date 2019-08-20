@@ -6,6 +6,8 @@
 
 #include <sabi_core/sabi_core.h>
 
+using handleType = std::unique_ptr<uint8_t[], void(*)(void*)>;
+
 class Model
 {
 	//https://www.bogotobogo.com/DesignPatterns/mvc_model_view_controller_pattern.php
@@ -18,6 +20,7 @@ class Model
 	Model ();
 	~Model ();
 
+	void loadImage(const std::string& path, ImagePixels & image, ImageInfo & spec);
 	void onDrop(const std::vector<std::string>& fileList);
 	
 }; // end class Model

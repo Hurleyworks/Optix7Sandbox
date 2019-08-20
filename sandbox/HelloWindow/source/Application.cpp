@@ -18,7 +18,7 @@ class Application : public Jahley::App
 		if (!imageIsLoaded)
 		{
 			// the one and only JahleyBlue
-			const String fileName = getResourcePath(APP_NAME) + "/images/jahley.jpg";
+			const String fileName = getResourcePath("Common") + "/image/splash.jpg";
 			loadImage(fileName.toStdString()); 
 
 			imageIsLoaded = true;

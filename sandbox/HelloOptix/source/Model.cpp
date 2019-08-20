@@ -3,6 +3,7 @@
 // Copyright (c) 2019, HurleyWorks
 
 #include "Model.h"
+#include <stb_image.h>
 
 using juce::File;
 using juce::StringArray;
@@ -18,6 +19,25 @@ Model::Model ()
 // dtor
 Model::~Model ()
 {	
+}
+
+
+void Model::loadImage(const std::string& path, ImagePixels& image, ImageInfo& spec)
+{
+	int force_channels = 0;
+	int width, height, channels;
+
+	handleType pixels(stbi_load(path.c_str(), &width, &height, &channels, force_channels), stbi_image_free);
+	if (pixels)
+	{
+		spec.width = width;
+		spec.height = height;
+		spec.channels = channels;
+	
+		int bytes = width * height * channels * sizeof(uint8_t);
+		image.resize(bytes);
+		std::memcpy(image.data(), pixels.get(), bytes);
+	}
 }
 
 void Model::onDrop(const std::vector<std::string>& fileList)

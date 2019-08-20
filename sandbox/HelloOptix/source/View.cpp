@@ -34,7 +34,8 @@ void View::create(NanoguiLayer* const gui)
 	window->setPosition(Vector2i(15, 15));
 	window->setLayout(new GroupLayout());
 
-	new Label(window, "Background color:", "sans-bold");
+	Label * label = new Label(window, "Background color:", "sans-bold");
+	label->setColor(Color(r1, g1, b1, a1));
 	auto cp = new ColorPicker(window, { 51, 56, 61, 255 });
 	cp->setFixedSize({ 100, 20 });
 	cp->setCallback([&](const Color& c) {
@@ -48,6 +49,7 @@ void View::create(NanoguiLayer* const gui)
 		});
 
 	Button * about = new Button(window->buttonPanel(), "", ENTYPO_ICON_INFO);
+	about->setBackgroundColor(Color(r, g, b, a));
 	about->setCallback([=]() {
 		std::string msg = getSceneInfo().joinIntoString("\n").toStdString();
 		auto dlg = new MessageDialog(
