@@ -6,13 +6,15 @@
 
 #include "OptixUtil.h"
 
-using OptixContexHandle = std::shared_ptr<class OptixContext>;
+using ContextHandle = std::shared_ptr<class OptixContext>;
+
+
 
 class OptixContext
 {
 
  public:
-	static OptixContexHandle create() { return std::make_shared< OptixContext>(); }
+	static ContextHandle create() { return std::make_shared<OptixContext>(); }
 
  public:
 	OptixContext()
@@ -41,6 +43,8 @@ class OptixContext
 	}
 	~OptixContext()
 	{
+		LOG(DBUG) << _FN_;
+
 		try
 		{
 			if(context)
@@ -52,12 +56,20 @@ class OptixContext
 		}
 	}
 
+	OptixDeviceContext get()
+	{
+		if (context)
+			return context;
+		else
+			throw std::runtime_error("OptixDeviceContext is invalid(nullptr)");
+	}
+
 	OptixDeviceContext operator -> ()
 	{
 		if (context)
 			return context;
 		else
-			throw std::runtime_error("OptixDeviceContext in invalid(nullptr)");
+			throw std::runtime_error("OptixDeviceContext is invalid(nullptr)");
 	}
 
 	const OptixDeviceContextOptions & getOptions() const { return options; }
@@ -67,3 +79,92 @@ class OptixContext
 	OptixDeviceContext context = nullptr;
 	OptixDeviceContextOptions options = {};
 };
+
+using ModuleHandle = std::shared_ptr<class OptixMod>;
+
+class OptixMod
+{
+	
+ public:
+	static ModuleHandle create() { return std::make_shared<OptixMod>(); }
+
+public:
+	OptixMod()
+	{
+		try
+		{
+			module_compile_options.maxRegisterCount = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
+			module_compile_options.optLevel = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
+			module_compile_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_LINEINFO;
+
+			pipeline_compile_options.usesMotionBlur = false;
+			pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
+			pipeline_compile_options.numPayloadValues = 2;
+			pipeline_compile_options.numAttributeValues = 2;
+			pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;  // TODO: should be OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+			pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
+		}
+		catch (std::exception& e)
+		{
+			LOG(CRITICAL) << e.what();
+			if (module)
+			{ 
+				OPTIX_CHECK(optixModuleDestroy(module));
+				module = nullptr; // FIXME do I really need to?
+			}
+		}
+	}
+	~OptixMod()
+	{
+		LOG(DBUG) << _FN_;
+
+		try
+		{
+			if (module)
+				OPTIX_CHECK(optixModuleDestroy(module));
+		}
+		catch (std::exception& e)
+		{
+			LOG(CRITICAL) << "Caught exception: " << e.what();
+		}
+	}
+
+	void createFromPtx(ContextHandle ctx, const std::string& ptx)
+	{
+		OPTIX_CHECK_LOG(optixModuleCreateFromPTX(
+			ctx->get(),
+			&module_compile_options,
+			&pipeline_compile_options,
+			ptx.c_str(),
+			ptx.size(),
+			log,
+			&sizeof_log,
+			&module
+		));
+	}
+
+	OptixModule get()
+	{
+		if (module)
+			return module;
+		else
+			throw std::runtime_error("OptixModule is invalid(nullptr)");
+	}
+
+	OptixModule operator -> ()
+	{
+		if (module)
+			return module;
+		else
+			throw std::runtime_error("OptixModule is invalid(nullptr)");
+	}
+
+private:
+	OptixModule module = nullptr;
+	OptixPipelineCompileOptions pipeline_compile_options = {};
+	OptixModuleCompileOptions module_compile_options = {};
+	char log[2048];
+	size_t sizeof_log = sizeof(log);
+};
+
+using Modules = std::vector<ModuleHandle>;

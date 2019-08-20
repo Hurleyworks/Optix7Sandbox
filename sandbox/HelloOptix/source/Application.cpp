@@ -15,6 +15,8 @@ class Application : public Jahley::App
 		  view(properties)
 	{
 		LOG(INFO) << APP_NAME << " is running!";
+
+		properties.renderProps->setValue(RenderKey::ResourceFolder, getResourcePath(APP_NAME).toStdString());
 	}
 
 	void onInit() override

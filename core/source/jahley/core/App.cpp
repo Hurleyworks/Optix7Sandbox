@@ -54,6 +54,7 @@ namespace Jahley
 
 		// render properties
 		properties.renderProps->addDefault(RenderKey::BackgroundColor, DEFAULT_DESKTOP_WINDOW_BACKGROUND_COLOR);
+		properties.renderProps->addDefault(RenderKey::ResourceFolder, INVALID_PATH);
 	}
 
 	App::~App ()
@@ -89,11 +90,15 @@ namespace Jahley
 	void App::pushLayer(RenderLayerRef layer, bool attach)
 	{
 		layers.pushLayer(layer);
+		if (attach)
+			layer->onAttach();
 	}
 
 	void App::pushOverlay(RenderLayerRef layer, bool attach)
 	{
 		layers.pushOverlay(layer);
+		if (attach)
+			layer->onAttach();
 	}
 
 	void App::onInputEvent(const InputEvent & e)

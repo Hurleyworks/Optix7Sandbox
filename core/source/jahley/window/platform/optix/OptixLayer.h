@@ -13,10 +13,14 @@ class OptixLayer : public RenderLayer
 	OptixLayer (const PropertyService& properties);
 	~OptixLayer ();
 
+	void onAttach() override;
+	void onDetach() override;
+
 	void onUpdate() override;
 	void onInput(const InputEvent& input) override;
 
 private:
-	OptixContexHandle context = nullptr;
+	ContextHandle context = nullptr;
+	Modules modules;
 
 }; // end class OptixLayer

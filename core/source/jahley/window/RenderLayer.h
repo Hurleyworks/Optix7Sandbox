@@ -22,6 +22,9 @@ class RenderLayer
 	virtual void onUpdate() = 0;
 	virtual void onInput(const InputEvent& input) = 0;
 
+	virtual void onAttach() {}
+	virtual void onDetach() {}
+
 	virtual void postInfoMessage(const std::string& title, const std::string& msg) {}
 	virtual void postWarningMessage(const std::string& title, const std::string& msg) {}
 	virtual void postQuestiongMessage(const std::string& title, const std::string& msg) {}

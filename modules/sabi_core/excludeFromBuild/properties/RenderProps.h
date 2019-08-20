@@ -3,6 +3,7 @@
 static const char* RenderKeyTable[] =
 {
 	"BackgroundColor",
+	"ResourceFolder",
 	"Invalid"
 };
 
@@ -11,6 +12,7 @@ struct RenderKey
 	enum ERenderKey
 	{
 		BackgroundColor,
+		ResourceFolder,
 		Count,
 		Invalid = Count
 	};
