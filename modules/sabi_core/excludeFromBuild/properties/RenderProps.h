@@ -4,6 +4,7 @@ static const char* RenderKeyTable[] =
 {
 	"BackgroundColor",
 	"ResourceFolder",
+	"CommonFolder",
 	"Invalid"
 };
 
@@ -13,6 +14,7 @@ struct RenderKey
 	{
 		BackgroundColor,
 		ResourceFolder,
+		CommonFolder,
 		Count,
 		Invalid = Count
 	};

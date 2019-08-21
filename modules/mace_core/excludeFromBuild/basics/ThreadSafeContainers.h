@@ -14,6 +14,7 @@
 
 #pragma once
 
+#if 0
 /** Multiple producer, multiple consumer thread safe queue
 * Since 'return by reference' is used this queue won't throw */
 template<typename T>
@@ -77,7 +78,7 @@ public:
 		queue_ = emptyQueue_;
 	}
 };
-
+#endif
 
 // From Anthony Williams C++ Concurrency
 

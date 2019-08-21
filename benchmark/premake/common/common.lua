@@ -44,6 +44,7 @@ local ROOT = "../../"
 		THIRD_PARTY_DIR .. "cs_signal/source",
 		THIRD_PARTY_DIR .. "doctest",
 		THIRD_PARTY_DIR .. "benchmark",
+		THIRD_PARTY_DIR .. "concurrent",
 	}
 	
 	links 

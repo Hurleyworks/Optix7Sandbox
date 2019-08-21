@@ -55,6 +55,7 @@ namespace Jahley
 		// render properties
 		properties.renderProps->addDefault(RenderKey::BackgroundColor, DEFAULT_DESKTOP_WINDOW_BACKGROUND_COLOR);
 		properties.renderProps->addDefault(RenderKey::ResourceFolder, INVALID_PATH);
+		properties.renderProps->addDefault(RenderKey::CommonFolder, INVALID_PATH);
 	}
 
 	App::~App ()

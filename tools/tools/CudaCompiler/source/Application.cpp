@@ -4,7 +4,7 @@
 #include "View.h"
 #include "Controller.h"
 
-const std::string APP_NAME = "HelloOptix";
+const std::string APP_NAME = "CudaCompiler";
 
 class Application : public Jahley::App
 {
@@ -18,7 +18,7 @@ class Application : public Jahley::App
 		properties.renderProps->setValue(RenderKey::ResourceFolder, getResourcePath(APP_NAME).toStdString());
 
 		// store the resource folder shared by all projects
-		properties.renderProps->setValue(RenderKey::ResourceFolder, getResourcePath("Common").toStdString());
+		properties.renderProps->setValue(RenderKey::CommonFolder, getResourcePath("Common").toStdString());
 	}
 
 	void onInit() override
@@ -31,9 +31,11 @@ class Application : public Jahley::App
 			nanoguiLayer = RenderLayerRef(gui);
 			pushOverlay(nanoguiLayer, true);
 
-			// create the Optix renderer
-			optixLayer = std::make_shared<OptixLayer>(properties);
-			pushLayer(optixLayer, true);
+			// hook up View and Model via signal/slots
+			connect(view, &View::emitCudaFolder, model, &Model::findCudaFiles);
+			connect(view, &View::emitPtxFolder, model, &Model::setPtxOutputFolder);
+			connect(view, &View::emitCompile, model, &Model::runNVCC);
+
 		}
 		catch (std::exception& e)
 		{
@@ -46,25 +48,7 @@ class Application : public Jahley::App
 
 	void update() override
 	{
-		if (!splashScreenLoaded)
-		{
-			// the one and only JahleyBlue
-			const String imagePath = getResourcePath("Common") + "/image/splash.jpg";
-
-			ImagePixels splash;
-			ImageInfo spec;
-			model.loadImage(imagePath.toStdString(), splash, spec);
-			if (splash.size())
-			{
-				window->renderImage(std::move(splash), spec);
-			}
-			else
-			{
-				LOG(CRITICAL) << "Failed to load splash from " << imagePath;
-			}
-
-			splashScreenLoaded = true; // whether it is or not we're done here
-		}
+	
 	}
 
 	void onCrash() override
@@ -84,19 +68,17 @@ class Application : public Jahley::App
 	}
 
   private:
-	  RenderLayerRef optixLayer = nullptr;
 	  RenderLayerRef nanoguiLayer = nullptr;
 	  Model model;
 	  View view;
 	  Controller controller;
-
-	  // splash screen
-	  bool splashScreenLoaded = false;
 };
 
 Jahley::App* Jahley::CreateApplication()
 {
 	DesktopWindowSettings settings;
+	settings.width = 600;
+	settings.height = 400;
 	settings.name = APP_NAME;
 	settings.refreshRate = 15;
 	settings.resizable = false;
