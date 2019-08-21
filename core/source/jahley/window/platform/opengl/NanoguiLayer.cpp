@@ -8,11 +8,10 @@
 using namespace nanogui;
 
 // ctor
-NanoguiLayer::NanoguiLayer (GLFWwindow* window, const PropertyService& properties, CameraHandle& camera)
+NanoguiLayer::NanoguiLayer (GLFWwindow* window, const PropertyService& properties, CameraHandle camera)
 	: RenderLayer(properties, camera),
 	  window(window)
 {	
-
 	initGraph(&fpsGraph, GRAPH_RENDER_FPS, "Frame Time");
 	initGraph(&cpuGraph, GRAPH_RENDER_MS, "CPU Time");
 	initGraph(&gpuGraph, GRAPH_RENDER_MS, "GPU Time");

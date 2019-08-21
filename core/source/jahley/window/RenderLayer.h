@@ -17,7 +17,7 @@ class RenderLayer
 {
 
  public:
-	RenderLayer (const PropertyService& properties, CameraHandle& camera);
+	RenderLayer (const PropertyService& properties, CameraHandle  camera = nullptr);
 	~RenderLayer ();
 
 	virtual void onUpdate() = 0;
