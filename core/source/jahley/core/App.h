@@ -10,7 +10,7 @@
 #include "window/platform/opengl/OpenglWindow.h"
 #include "window/RenderStack.h"
 #include "window/platform/opengl/NanoguiLayer.h"
-#include  "window/platform/optix/OptixLayer.h"
+
 
 namespace Jahley
 { 

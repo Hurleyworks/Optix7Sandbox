@@ -1,8 +1,10 @@
 #include "Jahley.h"
 
+#include "OptixLayer.h"
 #include "Model.h"
 #include "View.h"
 #include "Controller.h"
+
 
 const std::string APP_NAME = "HelloOptix";
 

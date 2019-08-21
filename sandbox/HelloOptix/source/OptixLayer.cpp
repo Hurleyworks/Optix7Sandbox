@@ -58,7 +58,7 @@ void OptixLayer::onDetach()
 
 void OptixLayer::onUpdate()
 {
-	//LOG(DBUG) << _FN_;
+	
 }
 
 void OptixLayer::onInput(const InputEvent& input)

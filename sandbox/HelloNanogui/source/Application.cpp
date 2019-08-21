@@ -11,6 +11,11 @@ class Application : public Jahley::App
 		: Jahley::App(settings, windowApp),
 		  view(properties, getResourcePath(APP_NAME).toStdString())
 	{
+		// store the resource folder for this project
+		properties.renderProps->setValue(RenderKey::ResourceFolder, getResourcePath(APP_NAME).toStdString());
+
+		// store the resource folder shared by all projects
+		properties.renderProps->setValue(RenderKey::ResourceFolder, getResourcePath("Common").toStdString());
 	}
 
 	void onInit() override

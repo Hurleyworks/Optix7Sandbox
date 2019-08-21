@@ -3,7 +3,7 @@
 // Copyright (c) 2019, HurleyWorks
 
 #pragma once
-#include "../../RenderLayer.h"
+#include "window/RenderLayer.h"
 #include "OptixData.h"
 
 class OptixLayer : public RenderLayer
