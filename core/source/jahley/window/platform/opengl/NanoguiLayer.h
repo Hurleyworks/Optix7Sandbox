@@ -23,6 +23,7 @@ class NanoguiLayer : public RenderLayer, public nanogui::Screen
 	void drawContents() override
 	{
 	//	if (attached)
+		if(properties.renderProps->getVal<bool>(RenderKey::ShowPerformanceGraph))
 			drawPerformanceGraph(mNVGContext);
 	}
 

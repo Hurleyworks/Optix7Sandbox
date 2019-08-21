@@ -44,7 +44,7 @@
 #include <memory>
 #include <stdexcept>
 #include "moveoncopy.hpp"
-//#include "shared_queue.hpp"
+//#include "shared_queue.hpp"  ?/ already defined in g3log
 #include "std2_make_unique.hpp" // until available in C++14
 
 namespace concurrent_helper {

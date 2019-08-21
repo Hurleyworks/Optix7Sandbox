@@ -21,8 +21,15 @@ class Compiler
 		
 	void findCudaFiles(const std::string& path);
 	void setPtxOutputFolder(const std::string& path) { ptxOutputFolder = path; }
-	void addIncludePath(const std::string& includeFolder);
-	void runNVCC(bool createPtxHeaders);
+	void addIncludePath(const std::string& includeFolder, bool subfolders);
+	void runNVCC();
+	void reset()
+	{
+		cudaFilesToCompile.clear();
+		includes.clear();
+		ptxOutputFolder = INVALID_PATH;
+		args.clear();
+	}
 
  private:
 	String ptxOutputFolder = INVALID_PATH;

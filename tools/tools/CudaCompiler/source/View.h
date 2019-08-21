@@ -9,27 +9,26 @@
 class NanoguiLayer;
 struct PropertyService;
 using juce::StringArray;
+using juce::String;
 
 class View : public CsSignal::SignalBase
 {
-	// https://www.bogotobogo.com/DesignPatterns/mvc_model_view_controller_pattern.php
-	// Present the Model to the user in an appropriate interface
-	// Allows user to manipulate data through the Controller
-	// Does not store any data except to cache state
-	// Easily reusable & configurable to display different data
 
  public:
-	SIGNAL_1(void emitCudaFolder(const std::string & path))
+	SIGNAL_1(void emitCudaFolder(const std::string& path))
 	SIGNAL_2(emitCudaFolder, path)
 
-	SIGNAL_1(void emitIncludeFolder(const std::string& path))
-	SIGNAL_2(emitIncludeFolder, path)
+	SIGNAL_1(void emitIncludeFolder(const std::string& path, bool subfolders))
+	SIGNAL_2(emitIncludeFolder, path, subfolders)
 
 	SIGNAL_1(void emitPtxFolder(const std::string& path))
 	SIGNAL_2(emitPtxFolder, path)
 
-	SIGNAL_1(void emitCompile(bool createPtxHeaders))
-	SIGNAL_2(emitCompile, createPtxHeaders)
+	SIGNAL_1(void emitCompile())
+	SIGNAL_2(emitCompile)
+
+	SIGNAL_1(void emitReset())
+	SIGNAL_2(emitReset)
 
  public:
 	View (const PropertyService & properties);
@@ -44,11 +43,11 @@ class View : public CsSignal::SignalBase
 	 PropertyService properties;
 	 NanoguiLayer* gui = nullptr; // owned by App, don't delete
 
-	 // button colors
-	 int r = 25;
-	 int g = 50;
-	 int b = 75;
-	 int a = 30;
+	 // reset button colors
+	 int r = 255;
+	 int g = 128;
+	 int b = 0;
+	 int a = 128;
 
 	 // label colors
 	 int r1 = 255;
@@ -56,9 +55,13 @@ class View : public CsSignal::SignalBase
 	 int b1 = 0;
 	 int a1 = 255;
 
-	 bool createHeaders = true;
-	 std::string defaultFolder = INVALID_PATH;
+	 bool includeSubfolders = true;
+	 String lastSelectedFolder = INVALID_PATH;
+	 String cudaFolder = INVALID_PATH;
+	 String optix7sdkFolder = "C:\\ProgramData\\NVIDIA Corporation\\OptiX SDK 7.0.0\\SDK";
+
+	 // ugly windows stuff
 	 static int CALLBACK browseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
-	 std::string browseFolder(std::string saved_path);
+	 std::string browseFolder(String saved_path);
 
 }; // end class View

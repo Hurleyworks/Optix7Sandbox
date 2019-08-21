@@ -8,21 +8,16 @@
 
 class Model : public CsSignal::SlotBase
 {
-	//https://www.bogotobogo.com/DesignPatterns/mvc_model_view_controller_pattern.php
-	// Manages the app data and state
-	// Not concerned with UI or presentation
-	// Often persists somewhere
-	// Same model should be reusable, unchanged in different interfaces
-
  public:
 	Model() = default;
 	~Model() = default;
 
+	// slots called by View
 	void findCudaFiles(const std::string& path) { activeObject.call(&Compiler::findCudaFiles, path); }
 	void setPtxOutputFolder(const std::string& path) { activeObject.call(&Compiler::setPtxOutputFolder, path); }
-	void addIncludePath(const std::string include) { activeObject.call(&Compiler::addIncludePath, include); }
-
-	void runNVCC(bool createPtxHeaders) { activeObject.call(&Compiler::runNVCC, createPtxHeaders); }
+	void addIncludePath(const std::string& includeFolder, bool subfolders) { activeObject.call(&Compiler::addIncludePath, includeFolder, subfolders); }
+	void runNVCC() { activeObject.call(&Compiler::runNVCC); }
+	void reset() { activeObject.call(&Compiler::reset); }
 
 	void onDrop(const std::vector<std::string>& fileList);
 	

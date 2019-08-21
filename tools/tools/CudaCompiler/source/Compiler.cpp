@@ -10,8 +10,6 @@ using juce::ChildProcess;
 
 void Compiler::findCudaFiles(const std::string& cudaFolder)
 {
-	includes.clear();
-
 	StringArray files;
 	String wildCard("*.cu*");
 	FileServices::getFiles(cudaFolder, files, wildCard);
@@ -26,22 +24,35 @@ void Compiler::findCudaFiles(const std::string& cudaFolder)
 	}
 }
 
-void Compiler::addIncludePath(const std::string& includeFolder)
+void Compiler::addIncludePath(const std::string& includeFolder, bool subfolders)
 {
 	File folder(includeFolder);
 	if (!folder.exists() || !folder.isDirectory()) return;
 
 	includes.push_back("-I" + includeFolder);
+
+	if (subfolders)
+	{
+		// include all the other folders within
+		StringArray folders;
+		FileServices::getFolders(includeFolder, folders);
+		for (auto path : folders)
+		{
+			File f(path);
+			if (!f.isDirectory()) continue;
+			includes.push_back("-I" + path);
+		}
+	}
 }
 
-void Compiler::runNVCC(bool createPtxHeaders)
+void Compiler::runNVCC()
 {
 	for (auto cu : cudaFilesToCompile)
 	{
-		args.clear();
-
 		File f(cu);
-		String ptx = ptxOutputFolder + f.getFileNameWithoutExtension() + ".ptx";
+		String ptx = ptxOutputFolder + "/" + f.getFileNameWithoutExtension() + ".ptx";
+
+		LOG(INFO) << "Compling " << f.getFileName();
 
 		compile(cu, ptx);
 	}
@@ -49,6 +60,10 @@ void Compiler::runNVCC(bool createPtxHeaders)
 
 void Compiler::compile(const String& cudaFile, const String& ptxFile)
 {
+	ScopedStopWatch sw(_FN_);
+
+	args.clear();
+
 	args.add(nvccExe);
 	args.add(ptx);
 	args.add(sdkInclude);
@@ -56,9 +71,9 @@ void Compiler::compile(const String& cudaFile, const String& ptxFile)
 	args.add(sdkRoot);
 
 	// add the user added includes
-	for (auto i : includes)
+	for (auto path : includes)
 	{
-		args.add(i);
+		args.add(path);
 	}
 
 	args.add(cudaFile);

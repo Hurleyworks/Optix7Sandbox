@@ -5,6 +5,7 @@ static const char* RenderKeyTable[] =
 	"BackgroundColor",
 	"ResourceFolder",
 	"CommonFolder",
+	"ShowPerformanceGraph",
 	"Invalid"
 };
 
@@ -15,6 +16,7 @@ struct RenderKey
 		BackgroundColor,
 		ResourceFolder,
 		CommonFolder,
+		ShowPerformanceGraph,
 		Count,
 		Invalid = Count
 	};

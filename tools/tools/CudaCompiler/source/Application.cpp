@@ -2,7 +2,6 @@
 
 #include "Model.h"
 #include "View.h"
-#include "Controller.h"
 
 const std::string APP_NAME = "CudaCompiler";
 
@@ -19,6 +18,9 @@ class Application : public Jahley::App
 
 		// store the resource folder shared by all projects
 		properties.renderProps->setValue(RenderKey::CommonFolder, getResourcePath("Common").toStdString());
+
+		// no need for performance graph
+		properties.renderProps->setValue(RenderKey::ShowPerformanceGraph, false);
 	}
 
 	void onInit() override
@@ -35,7 +37,8 @@ class Application : public Jahley::App
 			connect(view, &View::emitCudaFolder, model, &Model::findCudaFiles);
 			connect(view, &View::emitPtxFolder, model, &Model::setPtxOutputFolder);
 			connect(view, &View::emitCompile, model, &Model::runNVCC);
-
+			connect(view, &View::emitIncludeFolder, model, &Model::addIncludePath);
+			connect(view, &View::emitReset, model, &Model::reset);
 		}
 		catch (std::exception& e)
 		{
@@ -44,11 +47,6 @@ class Application : public Jahley::App
 
 			LOG(CRITICAL) << e.what();
 		}
-	}
-
-	void update() override
-	{
-	
 	}
 
 	void onCrash() override
@@ -62,16 +60,10 @@ class Application : public Jahley::App
 		model.onDrop(fileList);
 	}
 
-	void onInput(const InputEvent & e) override
-	{
-		controller.onInput(e);
-	}
-
   private:
 	  RenderLayerRef nanoguiLayer = nullptr;
 	  Model model;
 	  View view;
-	  Controller controller;
 };
 
 Jahley::App* Jahley::CreateApplication()

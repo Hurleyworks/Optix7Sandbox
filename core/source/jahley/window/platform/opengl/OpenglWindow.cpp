@@ -84,12 +84,12 @@ void OpenglWindow::renderBegin(const Eigen::Vector4f & clearColor)
 
 void OpenglWindow::onWindowFocus(int focused)
 {
-	LOG(DBUG) << "FOCUSED";
+	//LOG(DBUG) << "FOCUSED";
 }
 
 void OpenglWindow::onWindowResize(int width, int height)
 {
-	LOG(DBUG) << width << "," << height;
+	//LOG(DBUG) << width << "," << height;
 }
 
 void OpenglWindow::onWindowClose()

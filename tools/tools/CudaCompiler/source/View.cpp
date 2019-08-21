@@ -2,12 +2,10 @@
 // Created: 18 Aug 2019 6:10:35 am
 // Copyright (c) 2019, HurleyWorks
 
-
 #include <string>
 #include <shlobj.h>
 #include "jahley/window/platform/opengl/NanoguiLayer.h"
 #include <sabi_core/sabi_core.h>
-
 #include "View.h"
 
 using namespace nanogui;
@@ -30,37 +28,49 @@ void View::create(NanoguiLayer* const gui)
 {
 	this->gui = gui;
 
-	defaultFolder = properties.renderProps->getVal<std::string>(RenderKey::CommonFolder);
+	lastSelectedFolder =  properties.renderProps->getVal<std::string>(RenderKey::CommonFolder);
+	
+	// won't work without changing forward slashes to back slashes
+	lastSelectedFolder = lastSelectedFolder.replaceCharacter('/', '\\');
+	cudaFolder = lastSelectedFolder;
 
 	Window* window = new Window(gui, "Cuda to Ptx ");
 	window->setPosition(Vector2i(15, 15));
 	window->setLayout(new GroupLayout());
 
-	Button* b = new Button(window, "Select Cuda input folder");
+	Button * resetButton = new Button(window, "Reset");
+	resetButton->setBackgroundColor(Color(r, g, b, a));
+	resetButton->setCallback([&] {
+		emitReset();
+		});
+	resetButton->setTooltip("Reset the compiler");
+
+    Button * b= new Button(window, "Select Cuda input folder");
 	b->setCallback([&] {
-		emitCudaFolder(browseFolder(defaultFolder));
+		cudaFolder = browseFolder(cudaFolder);
+		emitCudaFolder(cudaFolder.toStdString());
 		});
 	b->setTooltip("Select folder with cuda files to compile");
 
-	b = new Button(window, "Add include path");
+	b = new Button(window, "Add include folder");
 	b->setCallback([&] {
-		emitIncludeFolder(browseFolder(defaultFolder));
+		emitIncludeFolder(browseFolder(optix7sdkFolder), includeSubfolders);
 		});
 	b->setTooltip("Add an include path");
 
+	CheckBox* cb = new CheckBox(window, "Inlcude subfolders",
+		[&](bool state) {includeSubfolders = state; });
+	cb->setChecked(true);
+
 	b = new Button(window, "Select Ptx output folder");
 	b->setCallback([&] {
-		emitPtxFolder(browseFolder(defaultFolder));
+		emitPtxFolder(browseFolder(cudaFolder));
 		});
 	b->setTooltip("Select ptx output folder");
 
-	CheckBox* cb = new CheckBox(window, "Create Ptx header",
-		[&](bool state) {createHeaders = state; });
-	cb->setChecked(true);
-
 	b = new Button(window, "run NVCC");
 	b->setCallback([&] {
-		emitCompile(createHeaders);
+		emitCompile();
 		});
 	b->setTooltip("Compile cuda files");
 
@@ -74,8 +84,6 @@ int CALLBACK  View::browseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPAR
 {
 	if (uMsg == BFFM_INITIALIZED)
 	{
-		std::string tmp = (const char*)lpData;
-		//LOG(DBUG) << "path: " << tmp;
 		SendMessage(hwnd, BFFM_SETSELECTION, TRUE, lpData);
 	}
 
@@ -84,11 +92,9 @@ int CALLBACK  View::browseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPAR
 
 // https://stackoverflow.com/questions/12034943/win32-select-directory-dialog-from-c-c
 // browseFolder
-std::string View::browseFolder(std::string saved_path)
+std::string View::browseFolder(String saved_path)
 {
 	TCHAR path[MAX_PATH];
-
-	const char* path_param = saved_path.c_str();
 
 	const String title = "Browse for folder...";
 
@@ -96,7 +102,7 @@ std::string View::browseFolder(std::string saved_path)
 	bi.lpszTitle = title.toWideCharPointer();
 	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
 	bi.lpfn = &View::browseCallbackProc;
-	bi.lParam = (LPARAM)path_param;
+	bi.lParam = reinterpret_cast<LPARAM>(saved_path.toWideCharPointer());
 
 	LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
 
@@ -113,6 +119,10 @@ std::string View::browseFolder(std::string saved_path)
 			imalloc->Release();
 		}
 		String folder(path);
+
+		// remember the last folder chosen
+		lastSelectedFolder = folder;
+
 		return folder.toStdString();
 	}
 
