@@ -14,8 +14,8 @@ using juce::StringArray;
 using mace::FileServices;
 
 // ctor
-OptixLayer::OptixLayer (const PropertyService& properties)
-	: RenderLayer(properties)
+OptixLayer::OptixLayer (const PropertyService& properties, CameraHandle& camera)
+	: RenderLayer(properties, camera)
 {	
 	
 }
@@ -58,7 +58,7 @@ void OptixLayer::onDetach()
 
 void OptixLayer::onUpdate()
 {
-	
+	renderer.render(camera);
 }
 
 void OptixLayer::onInput(const InputEvent& input)

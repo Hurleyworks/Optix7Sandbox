@@ -5,8 +5,9 @@
 #include "RenderLayer.h"
 
 // ctor
-RenderLayer::RenderLayer (const PropertyService& properties)
-	: properties(properties)
+RenderLayer::RenderLayer (const PropertyService& properties, CameraHandle& camera)
+	: properties(properties),
+	  camera(camera)
 {	
 }
 

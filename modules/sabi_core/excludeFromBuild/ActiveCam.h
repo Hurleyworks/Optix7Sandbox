@@ -55,6 +55,7 @@ class ActiveCam
 	const Matrix4f & getInverseViewMatrix() const { if (!inverseModelViewCached) calcInverseView(); return inverseModelViewMatrix; }
 	const Matrix4f & getProjectionMatrix() const { if (!projectionCached) calcProjection(); return projectionMatrix; }
 
+	// from Cinder https://libcinder.org/
 	Ray3f generateRay(float u, float v, float imagePlaneAspectRatio) const { return calcRay(u, v, imagePlaneAspectRatio); }
 	Ray3f generateRay(const Vector2f & posPixels, const Vector2f & imageSizePixels) const
 	{
@@ -72,6 +73,19 @@ class ActiveCam
 	// trackball
 	void starTracking() { mLastPointOk = false; }
 	void track(const Vector2f & newPoint2D);
+
+	// CCD
+	void setCCD(const CCD && image)
+	{
+		ccd = std::move(image);
+	}
+
+	
+	CCD& getCCD() {
+		return ccd;
+	}
+
+	
 
  protected:
 	ActiveCam()
@@ -119,6 +133,8 @@ class ActiveCam
 	mutable bool inverseModelViewCached;
 
 	mutable float frustumLeft, frustumRight, frustumTop, frustumButtom;
+
+	CCD ccd;
 
 }; // end class ActiveCam
 

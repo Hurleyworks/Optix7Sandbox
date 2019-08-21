@@ -7,7 +7,6 @@
 
 namespace Jahley
 {
-	
 	App::App (DesktopWindowSettings settings, bool windowApp)
 		: windowApp(windowApp),
 		  errorCallback(std::bind(&App::onFatalError, this, std::placeholders::_1)),
@@ -28,7 +27,7 @@ namespace Jahley
 				// broadcast InputHandler events to the render layers
 				connect(input, &InputHandler::onEvent, *this, &App::onInputEvent);
 
-				// send drop to client
+				// send drop to client to handle
 				connect(input, &InputHandler::onDragAndDrop, *this, &App::onDrop);
 			}
 			catch (std::exception& e)

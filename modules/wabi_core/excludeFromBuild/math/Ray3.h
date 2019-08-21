@@ -53,8 +53,8 @@ template <typename T>
 Ray3<T>::Ray3 ()
 	: origin(),
 	  dir(),
-	  tMin(limits<T>::epsilon()),
-	  tMax(limits<T>::max()),
+	  tMin(std::numeric_limits<T>::epsilon()),
+	  tMax(std::numeric_limits<T>::max()),
 	  hitBodyID(INVALID_ID),
 	  hitPolyID(INVALID_ID),
 	  distToHit(limits<T>::max()),
@@ -92,8 +92,8 @@ Ray3<T>::Ray3 (const Eigen::Matrix<T,3,1>  & o,
 template <typename T>
 void Ray3<T>::resetToDefault()
 {
-	tMin = limits<T>::epsilon();
-	tMax = limits<T>::max();
+	tMin = std::numeric_limits<T>::epsilon();
+	tMax = std::numeric_limits<T>::max();
 	hitBodyID = INVALID_ID;
 	hitPolyID = INVALID_ID;
 	distToHit = limits<T>::max();
@@ -115,7 +115,7 @@ T Ray3<T>::makeRayBetweenPoints (const Eigen::Matrix<T,3,1>  & point1,
 	origin = point1;
 	dir = point2 - origin;
 	tMin = limits<T>::epsilon();
-	tMax = dir.norm() - limits<T>::epsilon();
+	tMax = dir.norm() - std::numeric_limits<T>::epsilon();
 	
 	return dir.normalize();
 }

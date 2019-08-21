@@ -5,8 +5,10 @@
 #include "View.h"
 #include "Controller.h"
 
-
 const std::string APP_NAME = "HelloOptix";
+
+using sabi::CCD;
+using sabi::PerspectiveCam;
 
 class Application : public Jahley::App
 {
@@ -21,6 +23,28 @@ class Application : public Jahley::App
 
 		// store the resource folder shared by all projects
 		properties.renderProps->setValue(RenderKey::ResourceFolder, getResourcePath("Common").toStdString());
+
+		// create a camera
+		camera = PerspectiveCam::create();
+		float aspect = (float)settings.width / (float)settings.height;
+		camera->setPerspective(DEFAULT_FOV_DEGREES, aspect, 1, 1000);
+		camera->lookAt(DEFAULT_CAMERA_POSIIION, DEFAULT_CAMERA_TARGET);
+
+		// initialize the camera's CCD with a render
+		ImageInfo spec;
+		spec.width = settings.width;
+		spec.height = settings.height;
+		spec.channels = 3;
+		
+		int bytes = spec.width * spec.height * spec.channels * sizeof(uint8_t);
+		int grey = 128;
+
+		CCD ccd;
+		ccd.pixels.resize(bytes);
+		std::memset(ccd.pixels.data(), grey, bytes);
+		ccd.spec = spec;
+
+		camera->setCCD(std::move(ccd));
 	}
 
 	void onInit() override
@@ -28,13 +52,13 @@ class Application : public Jahley::App
 		try
 		{
 			// create the Gui overlay
-			NanoguiLayer* const gui = new NanoguiLayer(window->glfw(), properties);
+			NanoguiLayer* const gui = new NanoguiLayer(window->glfw(), properties, camera);
 			view.create(gui);
 			nanoguiLayer = RenderLayerRef(gui);
 			pushOverlay(nanoguiLayer, true);
 
 			// create the Optix renderer
-			optixLayer = std::make_shared<OptixLayer>(properties);
+			optixLayer = std::make_shared<OptixLayer>(properties, camera);
 			pushLayer(optixLayer, true);
 		}
 		catch (std::exception& e)
@@ -48,29 +72,17 @@ class Application : public Jahley::App
 
 	void update() override
 	{
-		if (!splashScreenLoaded)
+		// display the render from the Optix layer
+		CCD & ccd = optixLayer->cam()->getCCD(); 
+		if (ccd.pixels.size())
 		{
-			// the one and only JahleyBlue
-			const String imagePath = getResourcePath("Common") + "/image/splash.jpg";
-
-			ImagePixels splash;
-			ImageInfo spec;
-			model.loadImage(imagePath.toStdString(), splash, spec);
-			if (splash.size())
-			{
-				window->renderImage(std::move(splash), spec);
-			}
-			else
-			{
-				LOG(CRITICAL) << "Failed to load splash from " << imagePath;
-			}
-
-			splashScreenLoaded = true; // whether it is or not we're done here
+			window->renderImage(std::move(ccd.pixels), ccd.spec);
 		}
 	}
 
 	void onCrash() override
 	{
+		// if we're alive maybe the user can save their work
 		if(nanoguiLayer)
 			nanoguiLayer->postWarningMessage("Unexpected internal error!", "Please save your work!");
 	}
@@ -88,19 +100,18 @@ class Application : public Jahley::App
   private:
 	  RenderLayerRef optixLayer = nullptr;
 	  RenderLayerRef nanoguiLayer = nullptr;
+	  CameraHandle camera = nullptr;
+
 	  Model model;
 	  View view;
 	  Controller controller;
-
-	  // splash screen
-	  bool splashScreenLoaded = false;
 };
 
 Jahley::App* Jahley::CreateApplication()
 {
 	DesktopWindowSettings settings;
 	settings.name = APP_NAME;
-	settings.refreshRate = 15;
+	settings.refreshRate = 0;
 	settings.resizable = false;
 
 	return new Application(settings, true);

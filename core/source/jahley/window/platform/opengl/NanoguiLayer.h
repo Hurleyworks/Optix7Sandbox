@@ -11,7 +11,7 @@ class NanoguiLayer : public RenderLayer, public nanogui::Screen
 {
 
  public:
-	NanoguiLayer (GLFWwindow* window, const PropertyService& properties);
+	NanoguiLayer (GLFWwindow* window, const PropertyService& properties, CameraHandle & camera);
 	~NanoguiLayer ();
 
 	void draw(NVGcontext* ctx) override

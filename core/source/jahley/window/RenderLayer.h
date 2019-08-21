@@ -8,6 +8,7 @@
 // https://www.youtube.com/user/TheChernoProject
 
 using RenderLayerRef = std::shared_ptr<class RenderLayer>;
+using sabi::CameraHandle;
 using sabi::InputEvent;
 
 class InputEvent;
@@ -16,7 +17,7 @@ class RenderLayer
 {
 
  public:
-	RenderLayer (const PropertyService & properties);
+	RenderLayer (const PropertyService& properties, CameraHandle& camera);
 	~RenderLayer ();
 
 	virtual void onUpdate() = 0;
@@ -29,7 +30,10 @@ class RenderLayer
 	virtual void postWarningMessage(const std::string& title, const std::string& msg) {}
 	virtual void postQuestiongMessage(const std::string& title, const std::string& msg) {}
 
+	CameraHandle cam() { return camera; }
+
  protected:
 	PropertyService properties;
+	CameraHandle camera = nullptr;
 
 }; // end class RenderLayer

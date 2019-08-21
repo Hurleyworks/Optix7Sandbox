@@ -4,6 +4,9 @@
 
 #include "berserkpch.h"
 #include "OptixRenderer.h"
+#include <wabi_core/wabi_core.h>
+
+using sabi::CCD;
 
 // ctor
 OptixRenderer::OptixRenderer ()
@@ -13,5 +16,13 @@ OptixRenderer::OptixRenderer ()
 // dtor
 OptixRenderer::~OptixRenderer ()
 {	
+}
+
+void OptixRenderer::render(CameraHandle& camera)
+{
+	float  c = wabi::Math<float>::unitRandom();
+	CCD & ccd = camera->getCCD();
+
+	std::memset(ccd.pixels.data(), c * 255, ccd.spec.width * ccd.spec.height * ccd.spec.channels * sizeof(uint8_t));
 }
 

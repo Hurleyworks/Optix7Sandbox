@@ -23,6 +23,9 @@ using WeakRenderableMap = std::unordered_map<ItemID, RenderableWeakRef>;
 using RenderableList = std::vector< RenderableNode>;
 using WeakRenderableList = std::vector< RenderableWeakRef>;
 
+// inspired by
+//https://github.com/paulhoux/Cinder-Samples/tree/master/SimpleSceneGraph
+
 class Renderable : public std::enable_shared_from_this<Renderable>,
 				   protected Noncopyable,
 				   public HasId

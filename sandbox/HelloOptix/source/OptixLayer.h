@@ -5,12 +5,13 @@
 #pragma once
 #include "window/RenderLayer.h"
 #include "OptixData.h"
+#include "OptixRenderer.h"
 
 class OptixLayer : public RenderLayer
 {
 
  public:
-	OptixLayer (const PropertyService& properties);
+	OptixLayer (const PropertyService& properties, CameraHandle & camera);
 	~OptixLayer ();
 
 	void onAttach() override;
@@ -22,5 +23,6 @@ class OptixLayer : public RenderLayer
 private:
 	ContextHandle context = nullptr;
 	Modules modules;
+	OptixRenderer renderer;
 
 }; // end class OptixLayer

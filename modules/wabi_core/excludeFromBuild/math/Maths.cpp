@@ -630,3 +630,5 @@ T Math<T>::fastNegExp3 (T value)
 
 template class Math<float>;
 template class Math<double>;
+
+

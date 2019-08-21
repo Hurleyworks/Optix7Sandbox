@@ -3,6 +3,9 @@
 // Copyright (c) 2019, HurleyWorks
 
 #pragma once
+#include <sabi_core/sabi_core.h>
+
+using sabi::CameraHandle;
 
 class OptixRenderer
 {
@@ -11,5 +14,6 @@ class OptixRenderer
 	OptixRenderer ();
 	~OptixRenderer ();
 
+	void render(CameraHandle& camera);
 
 }; // end class OptixRenderer

@@ -8,8 +8,8 @@
 using namespace nanogui;
 
 // ctor
-NanoguiLayer::NanoguiLayer (GLFWwindow* window, const PropertyService& properties)
-	: RenderLayer(properties),
+NanoguiLayer::NanoguiLayer (GLFWwindow* window, const PropertyService& properties, CameraHandle& camera)
+	: RenderLayer(properties, camera),
 	  window(window)
 {	
 
