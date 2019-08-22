@@ -9,7 +9,8 @@
 using sabi::PixelBuffer;
 
 // ctor
-OptixRenderer::OptixRenderer ()
+OptixRenderer::OptixRenderer (const PropertyService& properties)
+	: properties(properties)
 {	
 }
 
@@ -20,9 +21,10 @@ OptixRenderer::~OptixRenderer ()
 
 void OptixRenderer::render(CameraHandle& camera)
 {
-	/*float  c = wabi::Math<float>::unitRandom();
-	CCD & ccd = camera->getCCD();
+	Eigen::Vector4f bg = properties.renderProps->getVal<Eigen::Vector4f>(RenderKey::BackgroundColor);
+	Vector3c c(bg.x() * 255, bg.y() * 255, bg.z() * 255);
 
-	std::memset(ccd.pixels.data(), c * 255, ccd.spec.width * ccd.spec.height * ccd.spec.channels * sizeof(uint8_t));*/
+	PixelBuffer & buffer = camera->getPixelBuffer();
+
 }
 

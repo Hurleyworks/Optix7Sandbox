@@ -3,7 +3,7 @@
 // Copyright (c) 2019, HurleyWorks
 
 #include "jahley/window/platform/opengl/NanoguiLayer.h"
-#include <sabi_core/sabi_core.h>
+
 
 #include "View.h"
 
@@ -27,9 +27,6 @@ void View::create(NanoguiLayer* const gui)
 {
 	this->gui = gui;
 
-	auto ctx = gui->nvgContext();
-	nvgCtx = ctx;
-
 	Window* window = new Window(gui, "Hello Optix");
 	window->setPosition(Vector2i(15, 15));
 	window->setLayout(new GroupLayout());
@@ -48,8 +45,40 @@ void View::create(NanoguiLayer* const gui)
 		properties.renderProps->setValue(RenderKey::BackgroundColor, bg);
 		});
 
+	label = new Label(window, "Scene:", "sans-bold");
+	label->setColor(Color(r1, g1, b1, a1));
+
+	// create primitive meshes
+	PopupButton* primPopBtn = new PopupButton(window, "Add Primitive", ENTYPO_ICON_PLUS);
+	Popup* primPopup = primPopBtn->popup();
+	primPopup->setLayout(new GroupLayout());
+
+	Button * b = new Button(primPopup, "Box");
+	b->setCallback([&] {
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Box));
+		});
+	b = new Button(primPopup, "Ball");
+	b->setCallback([&] {
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Ball));
+		});
+	b = new Button(primPopup, "Cylinder");
+	b->setCallback([&] {
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Cylinder));
+		});
+	b = new Button(primPopup, "Capsule");
+	b->setCallback([&] {
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Capsule));
+		});
+	b = new Button(primPopup, "Torus");
+	b->setCallback([&] {
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Torus));
+		});
+	b = new Button(primPopup, "Bunny");
+	b->setCallback([&] {
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Bunny));
+		});
+
 	Button * about = new Button(window->buttonPanel(), "", ENTYPO_ICON_INFO);
-	about->setBackgroundColor(Color(r, g, b, a));
 	about->setCallback([=]() {
 		std::string msg = getSceneInfo().joinIntoString("\n").toStdString();
 		auto dlg = new MessageDialog(

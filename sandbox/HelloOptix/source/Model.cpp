@@ -21,6 +21,11 @@ Model::~Model ()
 {	
 }
 
+void Model::loadPrimitive(PrimitiveType type)
+{
+	LOG(DBUG) << PrimitiveType(type).toString();
+}
+
 
 void Model::loadImage(const std::string& path, ImagePixels& image, ImageInfo& spec)
 {

@@ -5,6 +5,8 @@ struct PixelBuffer
 {
 	PixelBuffer()
 	{
+		ScopedStopWatch sw(_FN_);
+
 		spec.width = DEFAULT_DESKTOP_WINDOW_WIDTH;
 		spec.height = DEFAULT_DESKTOP_WINDOW_HEIGHT;
 		spec.channels = 3; // FIXME make a default
@@ -12,16 +14,20 @@ struct PixelBuffer
 		int pixelCount = spec.width * spec.height;
 		uint8Pixels.resize(spec.channels, pixelCount);
 
-		for (int i = 0; i < pixelCount; i++)
+		std::memset(uint8Pixels.data(), 0, pixelCount * spec.channels);
+
+		/*for (int i = 0; i < pixelCount; i++)
 		{
 			uint8Pixels.col(i) = Vector3c(128, 0, 0);
-		}
+		}*/
 	}
 
 	~PixelBuffer()
 	{
 		reset();
 	}
+
+	int getPixelCount() const { return spec.width * spec.height; }
 
 	// move only
 	PixelBuffer(const PixelBuffer& other) = delete;

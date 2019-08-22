@@ -15,7 +15,8 @@ using mace::FileServices;
 
 // ctor
 OptixLayer::OptixLayer (const PropertyService& properties, CameraHandle& camera)
-	: RenderLayer(properties, camera)
+	: RenderLayer(properties, camera), 
+	  renderer(properties)
 {	
 	
 }

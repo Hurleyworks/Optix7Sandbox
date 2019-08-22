@@ -4,17 +4,24 @@
 
 #pragma once
 
+#include <sabi_core/sabi_core.h>
+
 class NanoguiLayer;
 struct PropertyService;
 using juce::StringArray;
+using sabi::PrimitiveType;
 
-class View
-{
+class View : public CsSignal::SignalBase
+{ 
 	// https://www.bogotobogo.com/DesignPatterns/mvc_model_view_controller_pattern.php
 	// Present the Model to the user in an appropriate interface
 	// Allows user to manipulate data through the Controller
 	// Does not store any data except to cache state
 	// Easily reusable & configurable to display different data
+
+public:
+	SIGNAL_1(void emitPrimitiveType(PrimitiveType type))
+	SIGNAL_2(emitPrimitiveType, type)
 
  public:
 	View (const PropertyService & properties);
@@ -28,14 +35,7 @@ class View
  private:
 	 PropertyService properties;
 	 NanoguiLayer* gui = nullptr; // owned by App, don't delete
-	 NVGcontext* nvgCtx = nullptr;  // owned by App, don't delete
 	
-	 // button colors
-	 int r = 25;
-	 int g = 50;
-	 int b = 75;
-	 int a = 30;
-
 	 // label colors
 	 int r1 = 255;
 	 int g1 = 100;

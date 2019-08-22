@@ -11,9 +11,12 @@ class OptixRenderer
 {
 
  public:
-	OptixRenderer ();
+	OptixRenderer (const PropertyService& properties);
 	~OptixRenderer ();
 
 	void render(CameraHandle& camera);
+
+ private:
+	 PropertyService properties;
 
 }; // end class OptixRenderer

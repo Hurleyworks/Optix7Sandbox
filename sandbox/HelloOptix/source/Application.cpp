@@ -29,23 +29,6 @@ class Application : public Jahley::App
 		float aspect = (float)settings.width / (float)settings.height;
 		camera->setPerspective(DEFAULT_FOV_DEGREES, aspect, 1, 1000);
 		camera->lookAt(DEFAULT_CAMERA_POSIIION, DEFAULT_CAMERA_TARGET);
-
-		//// initialize the camera's CCD with a render
-		//ImageInfo spec;
-		//spec.width = settings.width;
-		//spec.height = settings.height;
-		//spec.channels = 3;
-		//
-		//int bytes = spec.width * spec.height * spec.channels * sizeof(uint8_t);
-		//int grey = 128;
-
-		/*CCD ccd;
-		ccd.pixels.resize(bytes);
-		std::memset(ccd.pixels.data(), grey, bytes);
-		ccd.spec = spec;
-
-		camera->setCCD(std::move(ccd));
-		*/
 	}
 
 	void onInit() override
@@ -61,6 +44,8 @@ class Application : public Jahley::App
 			// create the Optix renderer
 			optixLayer = std::make_shared<OptixLayer>(properties, camera);
 			pushLayer(optixLayer, true);
+
+			connect(view, &View::emitPrimitiveType, model, &Model::loadPrimitive);
 		}
 		catch (std::exception& e)
 		{
@@ -78,12 +63,7 @@ class Application : public Jahley::App
 		if (pixelBuffer.uint8Pixels.size())
 		{
 			window->renderImage(std::move(pixelBuffer));
-			//window->renderImage(pixelBuffer.uint8Pixels, pixelBuffer.spec);
 		}
-		/*if (ccd.pixels.size())
-		{
-			window->renderImage(std::move(ccd.pixels), ccd.spec);
-		}*/
 	}
 
 	void onCrash() override
