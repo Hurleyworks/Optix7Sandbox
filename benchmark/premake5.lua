@@ -28,6 +28,6 @@ end
 
 -- add sandbox projects here
 include "benchmarks/HelloBenchmark"
-
+include "benchmarks/EigenBenchmark"
 
 	

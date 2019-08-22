@@ -4,6 +4,48 @@
 
 #pragma once
 
+static const char* PrimitiveTypeTable[] =
+{
+	"Box",
+	"Ball",
+	"Cylinder",
+	"Capsule",
+	"Torus",
+	"Bunny",
+	"Robot"
+	"Nozzle",
+	"Invalid"
+};
+
+struct PrimitiveType
+{
+	enum EPrimitiveType
+	{
+		Box,
+		Ball,
+		Cylinder,
+		Capsule,
+		Torus,
+		Bunny,
+		Robot,
+		Nozzle,
+		Count,
+		Invalid = Count
+	};
+
+	union
+	{
+		EPrimitiveType name;
+		unsigned int value;
+	};
+
+	PrimitiveType(EPrimitiveType name) : name(name) {}
+	PrimitiveType(unsigned int value) : value(value) {}
+	PrimitiveType() : value(Invalid) {}
+	operator EPrimitiveType() const { return name; }
+	const char* toString() const { return PrimitiveTypeTable[value]; }
+};
+
 
 // FIXME put this in it's own header or something
 struct RenderableData

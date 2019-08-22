@@ -60,11 +60,13 @@ struct ImageInfo
 
 typedef Eigen::Matrix<uint32_t, Eigen::Dynamic, Eigen::Dynamic> MatrixXu;
 typedef Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic>      MatrixXi;
+typedef Eigen::Matrix<uint8_t, Eigen::Dynamic, Eigen::Dynamic>  MatrixXc;
 typedef Eigen::Matrix<uint32_t, Eigen::Dynamic, 1>              VectorXu;
 typedef Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>    MatrixXf;
 typedef Eigen::Matrix<bool, Eigen::Dynamic, 1>                  VectorXb;
 typedef Eigen::Matrix<Float, 3, 3>                              Matrix3f;
 typedef Eigen::Matrix<uint32_t, 1, 3>                           Vector3u;
+typedef Eigen::Matrix<uint8_t, 1, 3>                            Vector3c;
 typedef Eigen::Matrix<uint32_t, 1, 4>                           Vector4u;
 typedef Eigen::Matrix<Float, Eigen::Dynamic, 1>                 VectorXf;
 

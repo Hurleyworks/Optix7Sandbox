@@ -8,18 +8,9 @@ struct MeshBuffers
 {
 	Surfaces S;   // collection of triangles with different materials
 	MatrixXf V;   // vertices
-	MatrixXf D;   // displaced vertices
 	MatrixXf N;   // vertex normals
-	MatrixXf RV;  // reduced by InstantMeshes vertices
-	MatrixXu RF;  // reduced by InstantMesh faces;
 
-	// for some reason I can't use the variable name RN here
-	// because it fails to compile in Retopology.cpp for no good 
-	// reason that I can see so NR is fine but RN doesn't work
-	MatrixXf NR;  // reduced by InstantMesh normals 
-
-	size_t faceCount = 0;
-	
+	size_t faceCount = 0; // must be computed
 	size_t pointCount() { return V.cols(); }
 	size_t triangleCount() { return faceCount; }
 	
@@ -27,10 +18,6 @@ struct MeshBuffers
 	{
 		V.resize(3, 0);
 		N.resize(3, 0);
-		D.resize(3, 0);
-		RV.resize(3, 0);
-		RF.resize(3, 0);
-		NR.resize(3, 0);
 		S.clear();
 	}
 

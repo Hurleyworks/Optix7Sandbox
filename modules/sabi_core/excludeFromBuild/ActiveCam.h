@@ -71,21 +71,12 @@ class ActiveCam
 	void setDirty(bool state) { dirty = state; }
 
 	// trackball
-	void starTracking() { mLastPointOk = false; }
+	void starTracking() { lastPointOK = false; }
 	void track(const Vector2f & newPoint2D);
 
 	// CCD
-	void setCCD(const CCD && image)
-	{
-		ccd = std::move(image);
-	}
-
-	
-	CCD& getCCD() {
-		return ccd;
-	}
-
-	
+	void setCCD(const CCD && image){ccd = std::move(image);}
+	CCD& getCCD() {return ccd;}
 
  protected:
 	ActiveCam()
@@ -102,9 +93,9 @@ class ActiveCam
 	virtual wabi::Ray3f	calcRay(float uPos, float vPos, float imagePlaneAspectRatio) const;
 
 	// trackball
-	bool mapToSphere(const Vector2f & p2, Eigen::Vector3f & v3);
-	Vector3f mLastPoint3D = Vector3f::Zero();
-	bool mLastPointOk = false;
+	bool mapToSphere(const Vector2f & p2, Vector3f & v3);
+	Vector3f lastPoint3D = Vector3f::Zero();
+	bool lastPointOK = false;
 
 	bool dirty = true;
 

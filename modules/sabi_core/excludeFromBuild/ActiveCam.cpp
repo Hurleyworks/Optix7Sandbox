@@ -156,10 +156,10 @@ void ActiveCam::track(const Vector2f & newPoint2D)
 	Vector3f newPoint3D;
 	bool newPointOk = mapToSphere(newPoint2D, newPoint3D);
 
-	if (mLastPointOk && newPointOk)
+	if (lastPointOK && newPointOk)
 	{
-		Vector3f axis = mLastPoint3D.cross(newPoint3D).normalized();
-		float cos_angle = mLastPoint3D.dot(newPoint3D);
+		Vector3f axis = lastPoint3D.cross(newPoint3D).normalized();
+		float cos_angle = lastPoint3D.dot(newPoint3D);
 		if (std::abs(cos_angle) < 1.0)
 		{
 			float angle = 2. * acos(cos_angle);
@@ -168,8 +168,8 @@ void ActiveCam::track(const Vector2f & newPoint2D)
 		}
 	}
 
-	mLastPoint3D = newPoint3D;
-	mLastPointOk = newPointOk;
+	lastPoint3D = newPoint3D;
+	lastPointOK = newPointOk;
 }
 
 void ActiveCam::calcViewMatrix() const
@@ -249,8 +249,6 @@ PerspectiveCam::PerspectiveCam()
 	lookAt(DEFAULT_CAMERA_POSIIION, DEFAULT_CAMERA_TARGET, Vector3f(0, 1, 0));
 	setPerspective(DEFAULT_FOV_DEGREES, DEFAULT_ASPECT, 0.1f, 1000);
 }
-
-
 
 PerspectiveCam::PerspectiveCam(int pixelWidth, int pixelHeight, float fovDegrees)
 	: ActiveCam()

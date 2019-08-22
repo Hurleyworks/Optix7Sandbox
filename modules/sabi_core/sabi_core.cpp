@@ -11,4 +11,5 @@ namespace sabi
 	#include "excludeFromBuild/ActiveCam.cpp"
 	#include "excludeFromBuild/Surface.cpp"
 	#include "excludeFromBuild/CCD.cpp"
+	#include "excludeFromBuild/MeshOps.cpp"
 }

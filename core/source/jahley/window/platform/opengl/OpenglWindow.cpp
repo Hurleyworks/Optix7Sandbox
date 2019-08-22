@@ -40,6 +40,11 @@ void OpenglWindow::renderImage(ImagePixels && pixels, const ImageInfo& spec)
 
 		if (spec.channels == 3)
 		{
+			MatrixXc test;
+			test.resize(3, spec.width * spec.height * spec.channels);
+			uint8_t * p = test.data();
+			p = pixels.data();
+
 			glTextureStorage2D(textureID, 1, GL_RGB8, spec.width, spec.height);
 			glTextureSubImage2D(textureID, 0, 0, 0, spec.width, spec.height, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
 		}
@@ -56,7 +61,17 @@ void OpenglWindow::renderImage(ImagePixels && pixels, const ImageInfo& spec)
 	{
 		if (spec.channels == 3)
 		{
-			glTextureSubImage2D(textureID, 0, 0, 0, spec.width, spec.height, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+			MatrixXc test;
+			test.resize( 3, spec.width * spec.height);
+			for (int i = 0; i < spec.width * spec.height; i++)
+			{
+				test.col(i) = Vector3c(100, 50, 0);
+			}
+
+			//std::memcpy(test.data(), pixels.data(), spec.width * spec.height * spec.channels);
+			
+
+			glTextureSubImage2D(textureID, 0, 0, 0, spec.width, spec.height, GL_RGB, GL_UNSIGNED_BYTE, test.data());
 		}
 		else if( spec.channels == 4)
 		{

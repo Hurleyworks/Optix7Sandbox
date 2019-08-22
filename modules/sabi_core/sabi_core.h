@@ -50,6 +50,8 @@ namespace sabi
 	#include "excludeFromBuild/primitives/TorusMesh.h"
 	#include "excludeFromBuild/primitives/BunnyMesh.h"
 	#include "excludeFromBuild/primitives/SquirtGun.h"
+
+	#include "excludeFromBuild/MeshOps.h"
 }
 
 #include "excludeFromBuild/properties/ImageProps.h"
