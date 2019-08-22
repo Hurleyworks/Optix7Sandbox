@@ -131,7 +131,7 @@ void passByReference(const PixelBufferLight& pixels)
 
 void passByMove(PixelBufferLight&& pixels)
 {
-	PixelBufferLight && other = std::move(pixels);
+	PixelBufferLight  && other = std::move(pixels);
 }
 
 

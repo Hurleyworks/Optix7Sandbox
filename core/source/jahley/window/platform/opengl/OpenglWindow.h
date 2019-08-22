@@ -8,6 +8,7 @@
 
 using Eigen::Vector2i;
 using Eigen::Vector4f;
+using sabi::PixelBuffer;
 using OpenglWindowHandle = std::unique_ptr<class OpenglWindow>;
 
 class InputHandler;
@@ -21,6 +22,7 @@ class OpenglWindow
 
 	void renderBegin(const Vector4f & clearColor);
 	void renderImage(ImagePixels&& pixels, const ImageInfo& spec);
+	void renderImage(PixelBuffer && pixelBuffer);
 	void renderEnd(bool wait);
 
 	void create(const Vector2i & size, const std::string & caption,

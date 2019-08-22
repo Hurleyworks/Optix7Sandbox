@@ -7,7 +7,7 @@
 
 const std::string APP_NAME = "HelloOptix";
 
-using sabi::CCD;
+using sabi::PixelBuffer;
 using sabi::PerspectiveCam;
 
 class Application : public Jahley::App
@@ -30,21 +30,22 @@ class Application : public Jahley::App
 		camera->setPerspective(DEFAULT_FOV_DEGREES, aspect, 1, 1000);
 		camera->lookAt(DEFAULT_CAMERA_POSIIION, DEFAULT_CAMERA_TARGET);
 
-		// initialize the camera's CCD with a render
-		ImageInfo spec;
-		spec.width = settings.width;
-		spec.height = settings.height;
-		spec.channels = 3;
-		
-		int bytes = spec.width * spec.height * spec.channels * sizeof(uint8_t);
-		int grey = 128;
+		//// initialize the camera's CCD with a render
+		//ImageInfo spec;
+		//spec.width = settings.width;
+		//spec.height = settings.height;
+		//spec.channels = 3;
+		//
+		//int bytes = spec.width * spec.height * spec.channels * sizeof(uint8_t);
+		//int grey = 128;
 
-		CCD ccd;
+		/*CCD ccd;
 		ccd.pixels.resize(bytes);
 		std::memset(ccd.pixels.data(), grey, bytes);
 		ccd.spec = spec;
 
 		camera->setCCD(std::move(ccd));
+		*/
 	}
 
 	void onInit() override
@@ -73,11 +74,16 @@ class Application : public Jahley::App
 	void update() override
 	{
 		// display the render from the Optix layer
-		CCD & ccd = optixLayer->cam()->getCCD(); 
-		if (ccd.pixels.size())
+		PixelBuffer& pixelBuffer = camera->getPixelBuffer();
+		if (pixelBuffer.uint8Pixels.size())
+		{
+			window->renderImage(std::move(pixelBuffer));
+			//window->renderImage(pixelBuffer.uint8Pixels, pixelBuffer.spec);
+		}
+		/*if (ccd.pixels.size())
 		{
 			window->renderImage(std::move(ccd.pixels), ccd.spec);
-		}
+		}*/
 	}
 
 	void onCrash() override

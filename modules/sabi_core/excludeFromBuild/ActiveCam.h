@@ -75,8 +75,8 @@ class ActiveCam
 	void track(const Vector2f & newPoint2D);
 
 	// PixelBuffer
-	void setPixelBuffer(const PixelBuffer&& image){ pixels = std::move(image);}
-	PixelBuffer & getPixels() {return pixels;}
+	//void setPixelBuffer(const PixelBuffer& image){ pixels = std::move(image);}
+	PixelBuffer & getPixelBuffer() {return pixelBuffer;}
 
  protected:
 	ActiveCam()
@@ -125,7 +125,7 @@ class ActiveCam
 
 	mutable float frustumLeft, frustumRight, frustumTop, frustumButtom;
 
-	PixelBuffer pixels;
+	PixelBuffer pixelBuffer; // store the render through the camera
 
 }; // end class ActiveCam
 

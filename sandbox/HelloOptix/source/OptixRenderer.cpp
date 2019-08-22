@@ -6,7 +6,7 @@
 #include "OptixRenderer.h"
 #include <wabi_core/wabi_core.h>
 
-using sabi::CCD;
+using sabi::PixelBuffer;
 
 // ctor
 OptixRenderer::OptixRenderer ()
@@ -20,9 +20,9 @@ OptixRenderer::~OptixRenderer ()
 
 void OptixRenderer::render(CameraHandle& camera)
 {
-	float  c = wabi::Math<float>::unitRandom();
+	/*float  c = wabi::Math<float>::unitRandom();
 	CCD & ccd = camera->getCCD();
 
-	std::memset(ccd.pixels.data(), c * 255, ccd.spec.width * ccd.spec.height * ccd.spec.channels * sizeof(uint8_t));
+	std::memset(ccd.pixels.data(), c * 255, ccd.spec.width * ccd.spec.height * ccd.spec.channels * sizeof(uint8_t));*/
 }
 

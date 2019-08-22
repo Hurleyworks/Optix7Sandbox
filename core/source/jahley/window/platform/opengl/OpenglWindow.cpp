@@ -81,6 +81,46 @@ void OpenglWindow::renderImage(ImagePixels && pixels, const ImageInfo& spec)
 	OpenglUtil::gl_check_error(__FILE__, __LINE__);
 }
 
+void OpenglWindow::renderImage(PixelBuffer&& pixelBuffer)
+{
+	if (!textureID)
+	{
+		glCreateTextures(GL_TEXTURE_2D, 1, &textureID);
+
+		if (pixelBuffer.spec.channels == 3)
+		{
+			MatrixXc test;
+			test.resize(3, pixelBuffer.spec.width * pixelBuffer.spec.height * pixelBuffer.spec.channels);
+			uint8_t* p = test.data();
+			p = pixelBuffer.uint8Pixels.data();
+
+			glTextureStorage2D(textureID, 1, GL_RGB8, pixelBuffer.spec.width, pixelBuffer.spec.height);
+			glTextureSubImage2D(textureID, 0, 0, 0, pixelBuffer.spec.width, pixelBuffer.spec.height, GL_RGB, GL_UNSIGNED_BYTE, pixelBuffer.uint8Pixels.data());
+		}
+		else if (pixelBuffer.spec.channels == 4)
+		{
+			glTextureStorage2D(textureID, 1, GL_RGBA8, pixelBuffer.spec.width, pixelBuffer.spec.height);
+			glTextureSubImage2D(textureID, 0, 0, 0, pixelBuffer.spec.width, pixelBuffer.spec.height, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuffer.uint8Pixels.data());
+		}
+
+		glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glBindTextureUnit(0, textureID);
+	}
+	else
+	{
+		if (pixelBuffer.spec.channels == 3)
+		{
+
+			glTextureSubImage2D(textureID, 0, 0, 0, pixelBuffer.spec.width, pixelBuffer.spec.height, GL_RGB, GL_UNSIGNED_BYTE, pixelBuffer.uint8Pixels.data());
+		}
+		else if (pixelBuffer.spec.channels == 4)
+		{
+			glTextureSubImage2D(textureID, 0, 0, 0, pixelBuffer.spec.width, pixelBuffer.spec.height, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuffer.uint8Pixels.data());
+		}
+	}
+	OpenglUtil::gl_check_error(__FILE__, __LINE__);
+}
+
 void OpenglWindow::renderBegin(const Eigen::Vector4f & clearColor)
 {
 	int width, height;
