@@ -27,7 +27,7 @@ const float DEFAULT_ASPECT = (float)DEFAULT_DESKTOP_WINDOW_WIDTH / (float)DEFAUL
 
 namespace sabi
 {
-	#include "excludeFromBuild/CCD.h"
+	#include "excludeFromBuild/PixelBuffer.h"
 	#include "excludeFromBuild/ActiveCam.h"
 	#include "excludeFromBuild/InputEvent.h"
 

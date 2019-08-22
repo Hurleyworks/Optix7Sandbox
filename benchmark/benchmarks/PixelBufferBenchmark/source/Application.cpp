@@ -19,6 +19,45 @@ struct PixelBufferLight
 	{
 	}
 
+	~PixelBufferLight()
+	{
+		reset();
+	}
+
+	PixelBufferLight(const PixelBufferLight& other)
+		: spec(other.spec),
+		  pixels(other.pixels)
+	{
+	}
+
+	PixelBufferLight(PixelBufferLight&& other) noexcept
+	{
+		spec = std::move(other.spec);
+		pixels = std::move(other.pixels);
+		other.reset();
+	}
+
+	void PixelBufferLight::swap(PixelBufferLight& other)
+	{
+		std::swap(spec, other.spec);
+		std::swap(pixels, other.pixels);
+	}
+
+	// move assignment only!
+	PixelBufferLight& operator = (PixelBufferLight& other) = delete;
+
+	PixelBufferLight& operator = (const PixelBufferLight && other)
+	{
+		spec = std::move(other.spec);
+		pixels = std::move(other.pixels);
+
+		return *this;
+	}
+	void reset()
+	{
+		pixels.resize(0, 0);
+	}
+
 	ImageInfo spec;
 	MatrixXc pixels;
 };
@@ -29,106 +68,87 @@ struct PixelBufferHeavy
 	{
 	}
 
-	ImageInfo spec;
-	MatrixXc pixels;
+	~PixelBufferHeavy()
+	{
+		reset();
+	}
 
-	// looks like no performance hit 
-	// having these unitialized matrices here
-	MatrixXf pixels1;
-	MatrixXf pixels2;
-	MatrixXf pixels3;
-	MatrixXf pixels4;
-	MatrixXf pixels5;
-	MatrixXf pixels6;
-	MatrixXf pixels7;
-	MatrixXf pixels8;
-	MatrixXf pixels9;
-	MatrixXf pixels10;
-};
+	PixelBufferHeavy(const PixelBufferHeavy& other)
+		: spec(other.spec),
+		  pixels(other.pixels),
+		  floatPixels(other.floatPixels)
+	{
+	}
 
-struct PixelBufferHeavyInit
-{
-	PixelBufferHeavyInit()
+	PixelBufferHeavy(PixelBufferHeavy&& other) noexcept
+	{
+		spec = std::move(other.spec);
+		pixels = std::move(other.pixels);
+		floatPixels = std::move(other.floatPixels);
+
+		other.reset();
+	}
+
+	void PixelBufferHeavy::swap(PixelBufferHeavy& other)
+	{
+		std::swap(spec, other.spec);
+		std::swap(pixels, other.pixels);
+		std::swap(floatPixels, other.floatPixels);
+	}
+
+	PixelBufferHeavy& operator = (PixelBufferHeavy other) = delete;
+
+	PixelBufferHeavy& operator = (const PixelBufferHeavy&& other)
+	{
+		spec = std::move(other.spec);
+		pixels = std::move(other.pixels);
+		floatPixels = std::move(other.floatPixels);
+
+		return *this;
+	}
+
+	void reset()
 	{
 		pixels.resize(0, 0);
-		pixels1.resize(0, 0);
-		pixels2.resize(0, 0);
-		pixels3.resize(0, 0);
-		pixels4.resize(0, 0);
-		pixels5.resize(0, 0);
-		pixels6.resize(0, 0);
-		pixels7.resize(0, 0);
-		pixels8.resize(0, 0);
-		pixels9.resize(0, 0);
-		pixels10.resize(0, 0);
+		floatPixels.resize(0, 0);
 	}
 
 	ImageInfo spec;
 	MatrixXc pixels;
-
-	// there is a 2x performance hit 
-	// even resized to 0;
-	MatrixXf pixels1;
-	MatrixXf pixels2;
-	MatrixXf pixels3;
-	MatrixXf pixels4;
-	MatrixXf pixels5;
-	MatrixXf pixels6;
-	MatrixXf pixels7;
-	MatrixXf pixels8;
-	MatrixXf pixels9;
-	MatrixXf pixels10;
+	MatrixXf floatPixels;
 };
 
-
 // ------------------PixelBufferLight
-void passByValue(const PixelBufferLight pixels)
+void passByValue(PixelBufferLight pixels)
 {
-
+	PixelBufferLight other = pixels;
 }
 
 void passByReference(const PixelBufferLight& pixels)
 {
-
+	const PixelBufferLight * const other = &pixels;
 }
 
-void passByMove(const PixelBufferLight&& pixels)
+void passByMove(PixelBufferLight&& pixels)
 {
-
+	PixelBufferLight && other = std::move(pixels);
 }
 
 
 // ----------------------PixelBufferHeavy
-void passByValue(const PixelBufferHeavy pixels)
+void passByValue( PixelBufferHeavy pixels)
 {
-
+	PixelBufferHeavy other = pixels;
 }
 
 void passByReference(const PixelBufferHeavy& pixels)
 {
-
+	const PixelBufferHeavy * const other = &pixels;
 }
 
-void passByMove(const PixelBufferHeavy&& pixels)
+void passByMove(PixelBufferHeavy&& pixels)
 {
-
-}
-
-
-// ----------------------PixelBufferHeavyInit
-void passByValue(const PixelBufferHeavyInit pixels)
-{
-
-}
-
-void passByReference(const PixelBufferHeavyInit& pixels)
-{
-
-}
-
-void passByMove(const PixelBufferHeavyInit&& pixels)
-{
-
+	PixelBufferHeavy && other = std::move(pixels);
 }
 
 static void BM_passByValue(benchmark::State& state)
@@ -157,6 +177,7 @@ static void BM_passByReference(benchmark::State& state)
 }
 BENCHMARK(BM_passByReference);
 
+
 static void BM_passByMove(benchmark::State& state)
 {
 	PixelBufferLight image;
@@ -169,6 +190,7 @@ static void BM_passByMove(benchmark::State& state)
 	}
 }
 BENCHMARK(BM_passByMove);
+
 
 static void BM_passByValueHeavy(benchmark::State& state)
 {
@@ -201,6 +223,9 @@ static void BM_passByMoveHeavy(benchmark::State& state)
 	PixelBufferHeavy image;
 	image.pixels = MatrixXc::Random(ROWS, TEN_MILLION);
 
+	// there seems to be virtually no penalty for moving them both?????
+	image.floatPixels = MatrixXf::Random(ROWS, TEN_MILLION); 
+
 	// this is the part that gets timed
 	for (auto _ : state)
 	{
@@ -209,44 +234,7 @@ static void BM_passByMoveHeavy(benchmark::State& state)
 }
 BENCHMARK(BM_passByMoveHeavy);
 
-static void BM_passByValueHeavyInit(benchmark::State& state)
-{
-	PixelBufferHeavyInit image;
-	image.pixels = MatrixXc::Random(ROWS, TEN_MILLION);
 
-	// this is the part that gets timed
-	for (auto _ : state)
-	{
-		passByValue(image);
-	}
-}
-BENCHMARK(BM_passByValueHeavyInit);
-
-static void BM_passByReferenceHeavyInit(benchmark::State& state)
-{
-	PixelBufferHeavyInit image;
-	image.pixels = MatrixXc::Random(ROWS, TEN_MILLION);
-
-	// this is the part that gets timed
-	for (auto _ : state)
-	{
-		passByReference(image);
-	}
-}
-BENCHMARK(BM_passByReferenceHeavyInit);
-
-static void BM_passByMoveHeavyInit(benchmark::State& state)
-{
-	PixelBufferHeavyInit image;
-	image.pixels = MatrixXc::Random(ROWS, TEN_MILLION);
-
-	// this is the part that gets timed
-	for (auto _ : state)
-	{
-		passByMove(std::move(image));
-	}
-}
-BENCHMARK(BM_passByMoveHeavyInit);
 
 class Application : public Jahley::App
 {

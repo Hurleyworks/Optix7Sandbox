@@ -74,9 +74,9 @@ class ActiveCam
 	void starTracking() { lastPointOK = false; }
 	void track(const Vector2f & newPoint2D);
 
-	// CCD
-	void setCCD(const CCD && image){ccd = std::move(image);}
-	CCD& getCCD() {return ccd;}
+	// PixelBuffer
+	void setPixelBuffer(const PixelBuffer&& image){ pixels = std::move(image);}
+	PixelBuffer & getPixels() {return pixels;}
 
  protected:
 	ActiveCam()
@@ -125,7 +125,7 @@ class ActiveCam
 
 	mutable float frustumLeft, frustumRight, frustumTop, frustumButtom;
 
-	CCD ccd;
+	PixelBuffer pixels;
 
 }; // end class ActiveCam
 
