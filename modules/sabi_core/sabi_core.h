@@ -25,6 +25,10 @@ const float DEFAULT_ASPECT = (float)DEFAULT_DESKTOP_WINDOW_WIDTH / (float)DEFAUL
 #define MOUSE_PRESS                  1
 #define MOUSE_REPEAT                 2
 
+using Pose = Eigen::Affine3f;
+using Scale = Eigen::Vector3f;
+const float MIN_SCALE_F = std::numeric_limits<float>::min();
+
 namespace sabi
 {
 	#include "excludeFromBuild/PixelBuffer.h"

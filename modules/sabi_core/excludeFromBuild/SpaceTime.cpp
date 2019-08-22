@@ -8,11 +8,6 @@ SpaceTime::SpaceTime()
 	reset();
 }
 
-// dtor
-SpaceTime::~SpaceTime()
-{	
-}
-
 // reset
 void SpaceTime::reset()
 {

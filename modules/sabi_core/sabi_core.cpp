@@ -10,6 +10,5 @@ namespace sabi
 	#include "excludeFromBuild/InputEvent.cpp"
 	#include "excludeFromBuild/ActiveCam.cpp"
 	#include "excludeFromBuild/Surface.cpp"
-	#include "excludeFromBuild/PixelBuffer.cpp"
 	#include "excludeFromBuild/MeshOps.cpp"
 }

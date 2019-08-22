@@ -49,7 +49,7 @@ void View::create(NanoguiLayer* const gui)
 	label->setColor(Color(r1, g1, b1, a1));
 
 	// create primitive meshes
-	PopupButton* primPopBtn = new PopupButton(window, "Add Primitive", ENTYPO_ICON_PLUS);
+	PopupButton* primPopBtn = new PopupButton(window, "Add mesh", ENTYPO_ICON_PLUS);
 	Popup* primPopup = primPopBtn->popup();
 	primPopup->setLayout(new GroupLayout());
 

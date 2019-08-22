@@ -10,6 +10,10 @@ using juce::StringArray;
 using juce::String;
 using mace::FileServices;
 using sabi::InputEvent;
+using sabi::MeshBuffersHandle;
+using sabi::Surface;
+using sabi::SpaceTime;
+using sabi::MeshBuffers;
 
 // ctor
 Model::Model ()
@@ -23,9 +27,57 @@ Model::~Model ()
 
 void Model::loadPrimitive(PrimitiveType type)
 {
-	LOG(DBUG) << PrimitiveType(type).toString();
+	MeshBuffersHandle mesh = sabi::MeshOps::createPrimitiveMesh(PrimitiveType(type));
+	if (!mesh)
+	{
+		return;
+	}
+
+	// must compute the face count!
+	MatrixXu triangles;
+	mesh->getAllSurfaceIndices(triangles);
+
+	LOG(DBUG) << PrimitiveType(type).toString() << " has " << triangles.size() << " triangles and " << mesh->V.cols() << " vertices";
 }
 
+void Model::createGroundPlane(const Eigen::Vector2f& size)
+{
+	std::string name = "Default 2D ground plane";
+
+	MatrixXu F; // faces
+	MatrixXf V; // vertices
+	MatrixXf N; // vertex normals
+
+	V.resize(3, 4);
+	V.col(0) = Eigen::Vector3f(-size.x(), 0.0f, size.y());
+	V.col(1) = Eigen::Vector3f(size.x(), 0.0f, size.y());
+	V.col(2) = Eigen::Vector3f(size.x(), 0.0f, -size.y());
+	V.col(3) = Eigen::Vector3f(-size.x(), 0.0f, -size.y());
+
+	F.resize(3, 2);
+	F.col(0) = Vector3u(0, 1, 2);
+	F.col(1) = Vector3u(2, 3, 0);
+
+	N.resize(3, 4);
+	N.col(0) = N.col(1) = N.col(2) = N.col(3) = Eigen::Vector3f::UnitY();
+
+	SpaceTime spacetime;
+	spacetime.modelBound.min() = V.rowwise().minCoeff();
+	spacetime.modelBound.max() = V.rowwise().maxCoeff();
+	spacetime.worldTransform = Pose::Identity();
+	spacetime.startTransform = Pose::Identity();
+	spacetime.scale = Scale::Constant(1.0f);
+	spacetime.updateWorldBounds();
+
+	MeshBuffersHandle m = std::make_shared<MeshBuffers>();
+	m->V = V;
+	m->N = N;
+
+	Surface s;
+	s.indices() = F;
+	m->S.push_back(s);
+
+}
 
 void Model::loadImage(const std::string& path, ImagePixels& image, ImageInfo& spec)
 {
@@ -69,5 +121,18 @@ void Model::onDrop(const std::vector<std::string>& fileList)
 			LOG(DBUG) << filename;
 		}
 	}
+}
+
+void Model::addMesh(MeshBuffersHandle mesh, 
+					const std::string& name,
+					BodyID clientID, 
+					const Pose& pose,
+					const Scale& scale,
+					const RenderableDesc& desc,
+					MeshOptions options)
+{
+
+
+
 }
 

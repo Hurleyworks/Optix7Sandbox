@@ -8,6 +8,9 @@
 
 using handleType = std::unique_ptr<uint8_t[], void(*)(void*)>;
 using sabi::PrimitiveType;
+using sabi::RenderableDesc;
+using sabi::MeshOptions;
+
 
 class Model : public CsSignal::SlotBase
 {
@@ -22,7 +25,19 @@ class Model : public CsSignal::SlotBase
 	~Model ();
 
 	void loadPrimitive(PrimitiveType type);
-	void loadImage(const std::string& path, ImagePixels & image, ImageInfo & spec);
+	void createGroundPlane(const Eigen::Vector2f& size);
+
+	void loadImage(const std::string& path, ImagePixels& image, ImageInfo& spec);
 	void onDrop(const std::vector<std::string>& fileList);
 	
+	
+ private:
+	void addMesh(sabi::MeshBuffersHandle mesh,
+				 const std::string& name,
+				 BodyID clientID,
+				 const Pose& pose,
+				 const Scale& scale,
+				 const RenderableDesc& desc,
+				 MeshOptions options);
+
 }; // end class Model

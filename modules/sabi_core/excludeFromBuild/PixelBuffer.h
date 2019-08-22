@@ -14,6 +14,7 @@ struct PixelBuffer
 		int pixelCount = spec.width * spec.height;
 		uint8Pixels.resize(spec.channels, pixelCount);
 
+		// just make it black
 		std::memset(uint8Pixels.data(), 0, pixelCount * spec.channels);
 
 		/*for (int i = 0; i < pixelCount; i++)

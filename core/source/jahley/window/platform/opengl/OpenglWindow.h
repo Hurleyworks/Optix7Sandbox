@@ -21,7 +21,6 @@ class OpenglWindow
 	~OpenglWindow ();
 
 	void renderBegin(const Vector4f & clearColor);
-	void renderImage(ImagePixels&& pixels, const ImageInfo& spec);
 	void renderImage(PixelBuffer && pixelBuffer);
 	void renderEnd(bool wait);
 

@@ -13,7 +13,7 @@ class SpaceTime
 
  public:
 	SpaceTime ();
-	~SpaceTime ();
+	~SpaceTime() = default;
 
 	void reset();
 		

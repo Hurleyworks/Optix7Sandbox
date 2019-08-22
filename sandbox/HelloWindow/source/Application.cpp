@@ -30,17 +30,17 @@ class Application : public Jahley::App
 		handleType image(stbi_load(path.c_str(), &width, &height, &channels, force_channels), stbi_image_free);
 		if (image)
 		{
-			ImageInfo spec;
-			spec.width = width;
-			spec.height = height;
-			spec.channels = channels;
+			PixelBuffer buffer;
+			buffer.spec.width = width;
+			buffer.spec.height = height;
+			buffer.spec.channels = channels;
 
-			ImagePixels pixels;
+		////	ImagePixels pixels;
 			int bytes = width * height * channels * sizeof(uint8_t);
-			pixels.resize(bytes);
-			std::memcpy(pixels.data(), image.get(), bytes);
+			buffer.uint8Pixels.resize(buffer.spec.channels, width * height);
+			std::memcpy(buffer.uint8Pixels.data(), image.get(), bytes);
 
-			window->renderImage(std::move(pixels), spec);
+			window->renderImage(std::move(buffer));
 		}
 		else
 		{
