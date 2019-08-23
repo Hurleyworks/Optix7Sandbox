@@ -8,11 +8,10 @@ struct PixelBuffer
 		spec.height = DEFAULT_DESKTOP_WINDOW_HEIGHT;
 		spec.channels = 3; // FIXME make a default
 
-		int pixelCount = spec.width * spec.height;
-		uint8Pixels.resize(spec.channels, pixelCount);
+		uint8Pixels.resize(spec.channels, getPixelCount());
 
 		// just make it black
-		std::memset(uint8Pixels.data(), 0, pixelCount * spec.channels);
+		std::memset(uint8Pixels.data(), 0, byteCountUint8());
 	}
 
 	~PixelBuffer()
@@ -21,8 +20,9 @@ struct PixelBuffer
 	}
 
 	int getPixelCount() const { return spec.width * spec.height; }
+	int byteCountUint8() const { return spec.width * spec.height * spec.channels * sizeof(uint8_t); } 
 
-	// move only
+	// move only!
 	PixelBuffer(const PixelBuffer& other) = delete;
 	PixelBuffer& operator = (PixelBuffer other) = delete;
 
@@ -57,7 +57,7 @@ struct PixelBuffer
 		floatPixels.resize(0, 0);
 	}
 
-    ImageInfo spec;
+	ImageInfo spec;
 	MatrixXc uint8Pixels;
 	MatrixXf floatPixels;
 };

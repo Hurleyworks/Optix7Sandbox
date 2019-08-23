@@ -4,6 +4,8 @@
 
 #pragma once
 
+using Eigen::AlignedBox3f;
+
 struct MeshOps
 {
 	static MeshBuffersHandle buildTriMeshFromArrays(const float vertices[],
@@ -13,5 +15,7 @@ struct MeshOps
 
 	static MeshBuffersHandle createPrimitiveMesh(PrimitiveType primitive);
 
-		
+	static void centerVertices(MeshBuffersHandle mesh, const AlignedBox3f& modelBound, float scale);
+	static void normalizeSize(MeshBuffersHandle mesh, const AlignedBox3f& modelBound, float& scale);
+
 }; // end class MeshOps

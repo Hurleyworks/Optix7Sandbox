@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 using sabi::CameraHandle;
 
 class OptixRenderer

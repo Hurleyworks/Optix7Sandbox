@@ -6,10 +6,19 @@
 
 class OptixEngine
 {
-
+ 
  public:
-	OptixEngine ();
+	OptixEngine (const PropertyService& properties);
 	~OptixEngine ();
 
+	void init();
+	void render(CameraHandle& camera) { renderer.render(camera); }
+
+ private:
+	PropertyService properties;
+	OptixRenderer renderer;
+	ContextHandle context = nullptr;
+	Modules modules;
+	
 
 }; // end class OptixEngine

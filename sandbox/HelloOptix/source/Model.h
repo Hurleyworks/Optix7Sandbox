@@ -12,6 +12,7 @@ using sabi::RenderableDesc;
 using sabi::MeshOptions;
 using sabi::MeshBuffersHandle;
 using sabi::PixelBuffer;
+using sabi::LoadStrategyHandle;
 
 class Model : public CsSignal::SlotBase
 {
@@ -25,13 +26,15 @@ class Model : public CsSignal::SlotBase
 	Model ();
 	~Model ();
 
-	void loadPrimitive(PrimitiveType type);
+	void loadPrimitive(PrimitiveType type, MeshOptions options = MeshOptions());
 	void createGroundPlane(const Eigen::Vector2f& size);
 
 	void loadImage(const std::string& path, PixelBuffer & buffer);
 	void onDrop(const std::vector<std::string>& fileList);
 	
  private:
+	LoadStrategyHandle loadStrategy = nullptr;
+
 	void addMesh(MeshBuffersHandle mesh,
 				 const std::string& name,
 				 BodyID clientID,
@@ -39,5 +42,7 @@ class Model : public CsSignal::SlotBase
 				 const Scale& scale,
 				 const RenderableDesc& desc,
 				 MeshOptions options);
+
+	
 
 }; // end class Model

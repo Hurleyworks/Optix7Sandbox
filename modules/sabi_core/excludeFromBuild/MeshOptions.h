@@ -10,6 +10,7 @@ static const char* MeshOptionsTable[] =
 	"NormalizeSize",
 	"ReduceMesh",
 	"RestOnGround",
+	"LoadStrategy",
 	"Invalid"
 };
 
@@ -21,7 +22,8 @@ struct MeshOptions
 		NormalizeSize = 1 << 1,
 		ReduceMesh = 1 << 2,
 		RestOnGround = 1 << 3,
-		Invalid = 1 << 4
+		LoadStrategy = 1 << 4,
+		Invalid = 1 << 5
 	};
 
 	union
@@ -42,19 +44,22 @@ struct MeshOptions
 	std::string toString()
 	{
 		std::ostringstream ostr;
-		ostr << "  MeshOptions::";
+		ostr << "  MeshOptions";
 
 		if (value & CenterVertices)
-			ostr << "CenterVertices:";
+			ostr << "::CenterVertices";
 
 		if (value & NormalizeSize)
-			ostr << "NormalizeSize:";
+			ostr << "::NormalizeSize:";
 
 		if (value & ReduceMesh)
-			ostr << "ReduceMesh:";
+			ostr << "::ReduceMesh:";
+
+		if (value & LoadStrategy)
+			ostr << "::LoadStrategy:";
 
 		if (value & Invalid)
-			ostr << "Invalid:";
+			ostr << "::Invalid:";
 
 		return ostr.str();
 	}

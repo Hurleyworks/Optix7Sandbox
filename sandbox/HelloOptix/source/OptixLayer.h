@@ -19,9 +19,9 @@ class OptixLayer : public RenderLayer
 	void onUpdate() override;
 	void onInput(const InputEvent& input) override;
 
-private:
-	ContextHandle context = nullptr;
-	Modules modules;
-	OptixRenderer renderer;
+ private:
+	OptixEngine engine;
+
+	bool attached = false;
 
 }; // end class OptixLayer

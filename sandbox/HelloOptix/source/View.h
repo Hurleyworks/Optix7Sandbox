@@ -10,6 +10,7 @@ class NanoguiLayer;
 struct PropertyService;
 using juce::StringArray;
 using sabi::PrimitiveType;
+using sabi::MeshOptions;
 
 class View : public CsSignal::SignalBase
 { 
@@ -20,8 +21,8 @@ class View : public CsSignal::SignalBase
 	// Easily reusable & configurable to display different data
 
 public:
-	SIGNAL_1(void emitPrimitiveType(PrimitiveType type))
-	SIGNAL_2(emitPrimitiveType, type)
+	SIGNAL_1(void emitPrimitiveType(PrimitiveType type, MeshOptions options))
+	SIGNAL_2(emitPrimitiveType, type, options)
 
  public:
 	View (const PropertyService & properties);

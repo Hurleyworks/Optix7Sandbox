@@ -24,11 +24,11 @@ void OptixRenderer::render(CameraHandle& camera)
 
 	// Release mode only. Eigen is DOG SLOW here in Debug mode for this operation for some reaon
 	#ifdef NDEBUG
-		int pixelCount = buffer.getPixelCount();
-		for (int i = 0; i < pixelCount; i++)
-		{
-			buffer.uint8Pixels.col(i) = c;
-		}
+	int pixelCount = buffer.getPixelCount();
+	for (int i = 0; i < pixelCount; i++)
+	{
+		buffer.uint8Pixels.col(i) = c;
+	}
 	#endif 
 }
 

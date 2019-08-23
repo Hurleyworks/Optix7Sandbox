@@ -13,10 +13,15 @@ using sabi::InputEvent;
 using sabi::Surface;
 using sabi::SpaceTime;
 using sabi::MeshBuffers;
+using sabi::NormalizedClump;
+using sabi::MeshOps;
+using Eigen::AlignedBox3f;
+
 
 // ctor
 Model::Model ()
 {	
+	loadStrategy = std::make_shared<NormalizedClump>();
 }
 
 // dtor
@@ -24,19 +29,58 @@ Model::~Model ()
 {	
 }
 
-void Model::loadPrimitive(PrimitiveType type)
+void Model::loadPrimitive(PrimitiveType type, MeshOptions options)
 {
 	MeshBuffersHandle mesh = sabi::MeshOps::createPrimitiveMesh(PrimitiveType(type));
 	if (!mesh)
 	{
+		// FIXME get some error handling going 
 		return;
 	}
 
-	// must compute the face count!
+	// must compute the face count! // FIXME make this automatic so the user doesn't forget
 	MatrixXu triangles;
 	mesh->getAllSurfaceIndices(triangles);
 
 	LOG(DBUG) << PrimitiveType(type).toString() << " has " << triangles.size() << " triangles and " << mesh->V.cols() << " vertices";
+
+	AlignedBox3f modelBound;
+	modelBound.min() = mesh->V.rowwise().minCoeff();
+	modelBound.max() = mesh->V.rowwise().maxCoeff();
+	float s = 1.0f;
+
+	// this might change scale!
+	if ((options & MeshOptions::NormalizeSize) == MeshOptions::NormalizeSize)
+	{
+		MeshOps::normalizeSize(mesh, modelBound, s);
+	}
+
+	if ((options & MeshOptions::CenterVertices) == MeshOptions::CenterVertices)
+	{
+		MeshOps::centerVertices(mesh, modelBound, s);
+	}
+
+	SpaceTime spacetime;
+	spacetime.modelBound.min() = mesh->V.rowwise().minCoeff();
+	spacetime.modelBound.max() = mesh->V.rowwise().maxCoeff();
+	spacetime.worldTransform = Pose::Identity();
+	spacetime.scale = Scale::Constant(1.0f);
+
+	if ((options & MeshOptions::LoadStrategy) == MeshOptions::LoadStrategy)
+	{
+		loadStrategy->addNextItem(spacetime);
+	}
+
+	if ((options & MeshOptions::RestOnGround) == MeshOptions::RestOnGround)
+	{
+		spacetime.worldTransform.translation().y() = -spacetime.modelBound.min().y();
+	}
+
+	spacetime.startTransform = spacetime.worldTransform;
+
+	spacetime.updateWorldBounds(true);
+
+	spacetime.debug();
 }
 
 void Model::createGroundPlane(const Eigen::Vector2f& size)
@@ -75,7 +119,6 @@ void Model::createGroundPlane(const Eigen::Vector2f& size)
 	Surface s;
 	s.indices() = F;
 	m->S.push_back(s);
-
 }
 
 void Model::loadImage(const std::string& path, PixelBuffer & buffer)

@@ -55,27 +55,27 @@ void View::create(NanoguiLayer* const gui)
 
 	Button * b = new Button(primPopup, "Box");
 	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Box));
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Box), MeshOptions());
 		});
 	b = new Button(primPopup, "Ball");
 	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Ball));
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Ball), MeshOptions());
 		});
 	b = new Button(primPopup, "Cylinder");
 	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Cylinder));
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Cylinder), MeshOptions());
 		});
 	b = new Button(primPopup, "Capsule");
 	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Capsule));
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Capsule), MeshOptions());
 		});
 	b = new Button(primPopup, "Torus");
 	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Torus));
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Torus), MeshOptions());
 		});
 	b = new Button(primPopup, "Bunny");
 	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Bunny));
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Bunny), MeshOptions());
 		});
 
 	Button * about = new Button(window->buttonPanel(), "", ENTYPO_ICON_INFO);

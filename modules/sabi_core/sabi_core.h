@@ -55,6 +55,9 @@ namespace sabi
 	#include "excludeFromBuild/primitives/BunnyMesh.h"
 	#include "excludeFromBuild/primitives/SquirtGun.h"
 
+	#include "excludeFromBuild/LoadStrategy.h"
+	#include "excludeFromBuild/NormalizedClump.h"
+
 	#include "excludeFromBuild/MeshOps.h"
 }
 
