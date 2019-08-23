@@ -16,6 +16,7 @@ class Application : public Jahley::App
   public:
 	Application(DesktopWindowSettings settings, bool windowApp = false)
 		: Jahley::App(settings, windowApp),
+		  model(properties),
 		  view(properties)
 	{
 		// store the resource folder for this project

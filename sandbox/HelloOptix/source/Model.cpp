@@ -16,10 +16,16 @@ using sabi::MeshBuffers;
 using sabi::NormalizedClump;
 using sabi::MeshOps;
 using Eigen::AlignedBox3f;
-
+using Eigen::Vector2f;
+using Eigen::Vector3f;
+using sabi::WorldComposite;
+using sabi::PRenderableState;
+using sabi::WorldItem;
 
 // ctor
-Model::Model ()
+Model::Model (const PropertyService& properties)
+	: properties(properties),
+	   world(WorldComposite::create())
 {	
 	loadStrategy = std::make_shared<NormalizedClump>();
 }
@@ -80,10 +86,18 @@ void Model::loadPrimitive(PrimitiveType type, MeshOptions options)
 
 	spacetime.updateWorldBounds(true);
 
-	spacetime.debug();
+	RenderableData data;
+	data.clientID = INVALID_ID;
+	data.desc = RenderableDesc();
+	data.mesh = mesh;
+	data.name = PrimitiveType(type).toString();
+	data.spacetime = spacetime;
+	data.state.state |= PRenderableState::Pickable;
+
+	createNewRenderable(data);
 }
 
-void Model::createGroundPlane(const Eigen::Vector2f& size)
+void Model::createGroundPlane(const Vector2f& size)
 {
 	std::string name = "Default 2D ground plane";
 
@@ -92,17 +106,17 @@ void Model::createGroundPlane(const Eigen::Vector2f& size)
 	MatrixXf N; // vertex normals
 
 	V.resize(3, 4);
-	V.col(0) = Eigen::Vector3f(-size.x(), 0.0f, size.y());
-	V.col(1) = Eigen::Vector3f(size.x(), 0.0f, size.y());
-	V.col(2) = Eigen::Vector3f(size.x(), 0.0f, -size.y());
-	V.col(3) = Eigen::Vector3f(-size.x(), 0.0f, -size.y());
+	V.col(0) = Vector3f(-size.x(), 0.0f, size.y());
+	V.col(1) = Vector3f(size.x(), 0.0f, size.y());
+	V.col(2) = Vector3f(size.x(), 0.0f, -size.y());
+	V.col(3) = Vector3f(-size.x(), 0.0f, -size.y());
 
 	F.resize(3, 2);
 	F.col(0) = Vector3u(0, 1, 2);
 	F.col(1) = Vector3u(2, 3, 0);
 
 	N.resize(3, 4);
-	N.col(0) = N.col(1) = N.col(2) = N.col(3) = Eigen::Vector3f::UnitY();
+	N.col(0) = N.col(1) = N.col(2) = N.col(3) = Vector3f::UnitY();
 
 	SpaceTime spacetime;
 	spacetime.modelBound.min() = V.rowwise().minCoeff();
@@ -119,6 +133,17 @@ void Model::createGroundPlane(const Eigen::Vector2f& size)
 	Surface s;
 	s.indices() = F;
 	m->S.push_back(s);
+
+	RenderableDesc desc;
+
+	RenderableData data;
+	data.clientID = -1;
+	data.desc = desc;
+	data.mesh = m;
+	data.name = name;
+	data.spacetime = spacetime;
+
+	createNewRenderable(data);
 }
 
 void Model::loadImage(const std::string& path, PixelBuffer & buffer)
@@ -160,6 +185,67 @@ void Model::onDrop(const std::vector<std::string>& fileList)
 			LOG(DBUG) << filename;
 		}
 	}
+}
+
+void Model::createNewRenderable(const RenderableData& d)
+{
+	RenderableNode node = WorldItem::create();
+	node->setClientID(d.clientID);
+	node->setDescription(d.desc);
+	node->setMesh(d.mesh);
+	node->setSpacetime(d.spacetime);
+	node->setState(d.state);
+	node->setName(d.name);
+	node->getState().state |= sabi::PRenderableState::Pickable;
+
+	// IMPORTNANT make sure triangle count has been computed
+	if (!node->getMesh()->triangleCount())
+	{
+		MatrixXu allIndices;
+		node->getMesh()->getAllSurfaceIndices(allIndices);
+	}
+
+	world->addChild(node);
+
+	// update scene stats
+	uint64_t totalMeshes = properties.worldProps->getVal<uint64_t>(WorldKey::TotalMeshes);
+	properties.worldProps->setValue(WorldKey::TotalMeshes, ++totalMeshes);
+
+	uint64_t totalTriangles = properties.worldProps->getVal<uint64_t>(WorldKey::TotalRealTriangles);
+	totalTriangles += d.mesh->triangleCount();
+	properties.worldProps->setValue(WorldKey::TotalRealTriangles, totalTriangles);
+
+	node->debug(_FN_);
+}
+
+void Model::createNewInstance(const RenderableData& data)
+{
+}
+
+void Model::addNode(RenderableNode& node)
+{
+}
+
+void Model::removeNode(RenderableNode& node)
+{
+}
+
+void Model::removeNode(ItemID itemID)
+{
+	RenderableNode node = world->findChild(itemID);
+	if (node)
+	{
+		removeNode(node);
+	}
+	else
+	{
+		LOG(CRITICAL) << "ItemiD: " << itemID << " is not in the scene graph";
+	}
+}
+
+void Model::clearScene()
+{
+	world->removeChildren();
 }
 
 void Model::addMesh(MeshBuffersHandle mesh, 

@@ -13,6 +13,8 @@ using sabi::MeshOptions;
 using sabi::MeshBuffersHandle;
 using sabi::PixelBuffer;
 using sabi::LoadStrategyHandle;
+using sabi::RenderableNode;
+using sabi::RenderableData;
 
 class Model : public CsSignal::SlotBase
 {
@@ -23,7 +25,7 @@ class Model : public CsSignal::SlotBase
 	// Same model should be reusable, unchanged in different interfaces
 
  public:
-	Model ();
+	Model (const PropertyService& properties);
 	~Model ();
 
 	void loadPrimitive(PrimitiveType type, MeshOptions options = MeshOptions());
@@ -31,8 +33,19 @@ class Model : public CsSignal::SlotBase
 
 	void loadImage(const std::string& path, PixelBuffer & buffer);
 	void onDrop(const std::vector<std::string>& fileList);
+
+	void createNewRenderable(const RenderableData& d);
+	void createNewInstance(const RenderableData& d);
+
+	void addNode(RenderableNode& node);
+	void removeNode(RenderableNode& node);
+	void removeNode(ItemID itemID);
+
+	void clearScene();
 	
  private:
+	PropertyService properties;
+	RenderableNode world = nullptr;
 	LoadStrategyHandle loadStrategy = nullptr;
 
 	void addMesh(MeshBuffersHandle mesh,

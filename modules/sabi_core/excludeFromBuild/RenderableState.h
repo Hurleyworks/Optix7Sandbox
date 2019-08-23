@@ -17,7 +17,8 @@ struct PRenderableState
 	{
 		Pickable = 1 << 0,
 		Selected = 1 << 1,
-		Invalid = 1 << 9
+		Deletable = 1 << 2,
+		Invalid = 1 << 3
 	};
 
 	union
@@ -46,6 +47,9 @@ struct PRenderableState
 		if (value & Selected)
 			ostr << "Selected:";
 
+		if (value & Deletable)
+			ostr << "Deletable:";
+
 		if (value & Invalid)
 			ostr << "Invalid:";
 
@@ -57,6 +61,7 @@ struct RenderableState
 {
 	bool isSelected() const { return (state & PRenderableState::Selected) == PRenderableState::Selected; }
 	bool isPickable() const { return (state & PRenderableState::Pickable) == PRenderableState::Pickable; }
+	bool isDeletable() const { return (state & PRenderableState::Deletable) == PRenderableState::Deletable; }
 
 	std::string toString() { return state.toString(); }
 

@@ -41,10 +41,14 @@ namespace sabi
 	#include "excludeFromBuild/Material.h"
 	#include "excludeFromBuild/Surface.h"
 	#include "excludeFromBuild/MeshBUffers.h"
+	
+	// scene graph
 	#include "excludeFromBuild/RenderableDesc.h"
 	#include "excludeFromBuild/RenderableState.h"
 	#include "excludeFromBuild/RenderableData.h"
 	#include "excludeFromBuild/Renderable.h"
+	#include "excludeFromBuild/WorldItem.h"
+	#include "excludeFromBuild/WorldComposite.h"
 
 	// raw primitive geometry
 	#include "excludeFromBuild/primitives/cylinderY.h"
@@ -55,10 +59,11 @@ namespace sabi
 	#include "excludeFromBuild/primitives/BunnyMesh.h"
 	#include "excludeFromBuild/primitives/SquirtGun.h"
 
+	// mesh ops
 	#include "excludeFromBuild/LoadStrategy.h"
 	#include "excludeFromBuild/NormalizedClump.h"
-
 	#include "excludeFromBuild/MeshOps.h"
+
 }
 
 // keep this out of any namespace for now

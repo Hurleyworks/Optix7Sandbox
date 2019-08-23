@@ -12,5 +12,6 @@ namespace sabi
 	#include "excludeFromBuild/Surface.cpp"
 	#include "excludeFromBuild/MeshOps.cpp"
 	#include "excludeFromBuild/NormalizedClump.cpp"
-
+	#include "excludeFromBuild/WorldItem.cpp"
+	#include "excludeFromBuild/WorldComposite.cpp"
 }

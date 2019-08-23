@@ -108,8 +108,6 @@ public:
 	void * getUserdata() { return userdata; }
 	void setUserData(void * data) { userdata = data; }
 
-	//friend class WorldOps;
-
  protected:
 	Renderable() {  }
 
