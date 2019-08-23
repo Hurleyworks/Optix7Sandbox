@@ -21,7 +21,6 @@ class OptixLayer : public RenderLayer
 
  private:
 	OptixEngine engine;
-
 	bool attached = false;
 
 }; // end class OptixLayer

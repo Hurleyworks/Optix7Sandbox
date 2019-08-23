@@ -28,6 +28,9 @@ Model::Model (const PropertyService& properties)
 	   world(WorldComposite::create())
 {	
 	loadStrategy = std::make_shared<NormalizedClump>();
+
+	// always make a ground plane
+	createGroundPlane(Vector2f(100.0f, 100.0f));
 }
 
 // dtor
@@ -134,11 +137,9 @@ void Model::createGroundPlane(const Vector2f& size)
 	s.indices() = F;
 	m->S.push_back(s);
 
-	RenderableDesc desc;
-
 	RenderableData data;
 	data.clientID = -1;
-	data.desc = desc;
+	data.desc = RenderableDesc();
 	data.mesh = m;
 	data.name = name;
 	data.spacetime = spacetime;

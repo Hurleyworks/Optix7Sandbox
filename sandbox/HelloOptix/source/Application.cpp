@@ -42,7 +42,7 @@ class Application : public Jahley::App
 			nanoguiLayer = RenderLayerRef(gui);
 			pushOverlay(nanoguiLayer, true);
 
-			// create the Optix renderer
+			// create the Optix layer
 			optixLayer = std::make_shared<OptixLayer>(properties, camera);
 			pushLayer(optixLayer, true);
 
@@ -59,7 +59,7 @@ class Application : public Jahley::App
 
 	void update() override
 	{
-		// display the render from the Optix layer
+		// display the render from the Optix 
 		PixelBuffer& pixelBuffer = camera->getPixelBuffer();
 		if (pixelBuffer.uint8Pixels.size())
 		{

@@ -3,6 +3,7 @@
 // Copyright (c) 2019, HurleyWorks
 
 using sabi::PixelBuffer;
+using Eigen::Vector4f;
 
 // ctor
 OptixRenderer::OptixRenderer (const PropertyService& properties)
@@ -17,12 +18,12 @@ OptixRenderer::~OptixRenderer ()
 
 void OptixRenderer::render(CameraHandle& camera)
 {
-	Eigen::Vector4f bg = properties.renderProps->getVal<Eigen::Vector4f>(RenderKey::BackgroundColor);
+	Vector4f bg = properties.renderProps->getVal<Vector4f>(RenderKey::BackgroundColor);
 	Vector3c c(bg.x() * 255, bg.y() * 255, bg.z() * 255);
 
 	PixelBuffer & buffer = camera->getPixelBuffer();
 
-	// Release mode only. Eigen is DOG SLOW here in Debug mode for this operation for some reaon
+	// Release mode only!!!. Eigen is DOG SLOW here in Debug mode for this operation for some reaon
 	#ifdef NDEBUG
 	int pixelCount = buffer.getPixelCount();
 	for (int i = 0; i < pixelCount; i++)
