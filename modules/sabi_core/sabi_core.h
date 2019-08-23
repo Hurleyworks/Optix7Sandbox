@@ -58,6 +58,7 @@ namespace sabi
 	#include "excludeFromBuild/MeshOps.h"
 }
 
+// keep this out of any namespace for now
 #include "excludeFromBuild/properties/ImageProps.h"
 #include "excludeFromBuild/properties/WorldProps.h"
 #include "excludeFromBuild/properties/RenderProps.h"

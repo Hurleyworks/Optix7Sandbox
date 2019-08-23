@@ -2,10 +2,6 @@
 // Created: 18 Aug 2019 4:00:14 pm
 // Copyright (c) 2019, HurleyWorks
 
-#include "berserkpch.h"
-#include "OptixRenderer.h"
-#include <wabi_core/wabi_core.h>
-
 using sabi::PixelBuffer;
 
 // ctor

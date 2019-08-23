@@ -10,7 +10,6 @@ using juce::StringArray;
 using juce::String;
 using mace::FileServices;
 using sabi::InputEvent;
-using sabi::MeshBuffersHandle;
 using sabi::Surface;
 using sabi::SpaceTime;
 using sabi::MeshBuffers;
@@ -79,21 +78,18 @@ void Model::createGroundPlane(const Eigen::Vector2f& size)
 
 }
 
-void Model::loadImage(const std::string& path, ImagePixels& image, ImageInfo& spec)
+void Model::loadImage(const std::string& path, PixelBuffer & buffer)
 {
 	int force_channels = 0;
-	int width, height, channels;
 
-	handleType pixels(stbi_load(path.c_str(), &width, &height, &channels, force_channels), stbi_image_free);
+	handleType pixels(stbi_load(path.c_str(), &buffer.spec.width, &buffer.spec.height, &buffer.spec.channels, force_channels), stbi_image_free);
 	if (pixels)
 	{
-		spec.width = width;
-		spec.height = height;
-		spec.channels = channels;
-	
-		int bytes = width * height * channels * sizeof(uint8_t);
-		image.resize(bytes);
-		std::memcpy(image.data(), pixels.get(), bytes);
+		int pixelCount = buffer.getPixelCount();
+		int bytes = pixelCount * buffer.spec.channels * sizeof(uint8_t);
+
+		buffer.uint8Pixels.resize(buffer.spec.channels, pixelCount);
+		std::memcpy(buffer.uint8Pixels.data(), pixels.get(), bytes);
 	}
 }
 

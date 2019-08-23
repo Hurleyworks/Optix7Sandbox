@@ -4,11 +4,7 @@
 
 #pragma once
 
-#include "OptixUtil.h"
-
 using ContextHandle = std::shared_ptr<class OptixContext>;
-
-
 
 class OptixContext
 {

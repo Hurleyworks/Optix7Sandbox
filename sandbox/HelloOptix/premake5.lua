@@ -13,7 +13,9 @@ project  "HelloOptix"
     end
 	
 	kind "ConsoleApp"
-
+	
+	local FRAMEWORK_ROOT = "../../framework/"
+	local ACTIVE_OPTIX7 = FRAMEWORK_ROOT .. "optix7_core/";
 	local SOURCE_DIR = "source/*"
     files
     { 
@@ -21,11 +23,14 @@ project  "HelloOptix"
       SOURCE_DIR .. "**.hpp", 
       SOURCE_DIR .. "**.c",
       SOURCE_DIR .. "**.cpp",
+	  
+	  ACTIVE_OPTIX7 ..  "**.h", 
+	  ACTIVE_OPTIX7 .. "**.cpp",
     }
 	
 	includedirs
 	{
-	
+		FRAMEWORK_ROOT,
 	}
 	
 	filter "system:windows"
@@ -47,6 +52,11 @@ project  "HelloOptix"
 		  },
 		}
 		
+	filter {} -- clear filter!
+	filter { "files:../../framework/**/excludeFromBuild/**.cpp"}
+	flags {"ExcludeFromBuild"}
+	filter {} -- clear filter!
+	
 -- add settings common to all project
 dofile("../../premake/common/common.lua")
 

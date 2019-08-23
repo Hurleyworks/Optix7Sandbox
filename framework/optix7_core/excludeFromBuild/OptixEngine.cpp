@@ -3,15 +3,15 @@
 // Copyright (c) 2019, HurleyWorks
 
 #include "berserkpch.h"
-#include "GeometryHandler.h"
+#include "OptixEngine.h"
 
 // ctor
-GeometryHandler::GeometryHandler ()
+OptixEngine::OptixEngine ()
 {	
 }
 
 // dtor
-GeometryHandler::~GeometryHandler ()
+OptixEngine::~OptixEngine ()
 {	
 }
 

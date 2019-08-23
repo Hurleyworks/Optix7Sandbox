@@ -32,13 +32,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-
 #pragma once
-
-#include <mace_core/mace_core.h>
-#include <cuda_runtime.h>
-#include <optix.h>
-#include <optix_stubs.h>
 
 inline void contextLogger(unsigned int level, const char* tag, const char* message, void* /*cbdata */)
 {
@@ -70,13 +64,7 @@ namespace sutil
 	};
 }
 
-
-//------------------------------------------------------------------------------
-//
-// OptiX error-checking
-//
-//------------------------------------------------------------------------------
-
+// optix checks
 #define OPTIX_CHECK( call )                                                    \
     do                                                                         \
     {                                                                          \
@@ -107,12 +95,7 @@ namespace sutil
     } while( 0 )
 
 
-//------------------------------------------------------------------------------
-//
-// CUDA error-checking
-//
-//------------------------------------------------------------------------------
-
+// cuda checks
 #define CUDA_CHECK( call )                                                     \
     do                                                                         \
     {                                                                          \

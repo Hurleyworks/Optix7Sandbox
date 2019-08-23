@@ -1,12 +1,9 @@
 #pragma once
 
-
 struct PixelBuffer
 {
 	PixelBuffer()
 	{
-		ScopedStopWatch sw(_FN_);
-
 		spec.width = DEFAULT_DESKTOP_WINDOW_WIDTH;
 		spec.height = DEFAULT_DESKTOP_WINDOW_HEIGHT;
 		spec.channels = 3; // FIXME make a default
@@ -16,11 +13,6 @@ struct PixelBuffer
 
 		// just make it black
 		std::memset(uint8Pixels.data(), 0, pixelCount * spec.channels);
-
-		/*for (int i = 0; i < pixelCount; i++)
-		{
-			uint8Pixels.col(i) = Vector3c(128, 0, 0);
-		}*/
 	}
 
 	~PixelBuffer()
