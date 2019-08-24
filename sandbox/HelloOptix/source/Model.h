@@ -24,9 +24,23 @@ class Model : public CsSignal::SlotBase
 	// Often persists somewhere
 	// Same model should be reusable, unchanged in different interfaces
 
+public:
+	using ErrorQueue = std::queue<ErrMsg>;
+
  public:
 	Model (const PropertyService& properties);
 	~Model ();
+
+	ErrMsg getNextErrorMessage()
+	{
+		if (!errorQueue.empty())
+		{
+			ErrMsg error = errorQueue.front();
+			errorQueue.pop();
+			return error;
+		}
+		return ErrMsg();
+	}
 
 	void loadPrimitive(PrimitiveType type, MeshOptions options = MeshOptions());
 	void createGroundPlane(const Eigen::Vector2f& size);
@@ -47,6 +61,7 @@ class Model : public CsSignal::SlotBase
 	PropertyService properties;
 	RenderableNode world = nullptr;
 	LoadStrategyHandle loadStrategy = nullptr;
+	ErrorQueue errorQueue;
 
 	void addMesh(MeshBuffersHandle mesh,
 				 const std::string& name,

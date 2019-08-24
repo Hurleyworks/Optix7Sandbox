@@ -8,6 +8,7 @@ static const char* PRenderableStateTable[] =
 {
 	"Pickable",
 	"Selected",
+	"Deletable",
 	"Invalid"
 };
 

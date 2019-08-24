@@ -6,7 +6,7 @@ struct PixelBuffer
 	{
 		spec.width = DEFAULT_DESKTOP_WINDOW_WIDTH;
 		spec.height = DEFAULT_DESKTOP_WINDOW_HEIGHT;
-		spec.channels = 3; // FIXME make a default
+		spec.channels = DEFAULT_DESKTOP_WINDOW_CHANNELS; 
 
 		uint8Pixels.resize(spec.channels, getPixelCount());
 
@@ -21,10 +21,11 @@ struct PixelBuffer
 
 	int getPixelCount() const { return spec.width * spec.height; }
 	int byteCountUint8() const { return spec.width * spec.height * spec.channels * sizeof(uint8_t); } 
+	int bytecountFloat() const { return spec.width * spec.height * spec.channels * sizeof(float); }
 
 	// move only!
 	PixelBuffer(const PixelBuffer& other) = delete;
-	PixelBuffer& operator = (PixelBuffer other) = delete;
+	PixelBuffer& operator = (const PixelBuffer& other) = delete;
 
 	PixelBuffer(PixelBuffer&& other) noexcept
 	{

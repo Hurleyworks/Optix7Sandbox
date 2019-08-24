@@ -43,7 +43,10 @@ void Model::loadPrimitive(PrimitiveType type, MeshOptions options)
 	MeshBuffersHandle mesh = sabi::MeshOps::createPrimitiveMesh(PrimitiveType(type));
 	if (!mesh)
 	{
-		// FIXME get some error handling going 
+		ErrMsg err;
+		err.severity = ErrorSeverity::Warning;
+		err.errMessage = "Primitive creation failed!";
+		errorQueue.push(err);
 		return;
 	}
 

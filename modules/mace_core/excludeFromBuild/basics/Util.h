@@ -27,6 +27,7 @@ const LEVELS CRITICAL{ WARNING.value + 1, "CRTICAL" };
 const float PHI = 1.618f;
 const float DEFAULT_DESKTOP_WINDOW_HEIGHT = 720.0f;
 const float DEFAULT_DESKTOP_WINDOW_WIDTH = DEFAULT_DESKTOP_WINDOW_HEIGHT * PHI;
+const int DEFAULT_DESKTOP_WINDOW_CHANNELS = 3;
 const std::string DEFAULT_DESKTOP_WINDOW_NAME = "DesktopWindow";
 const int DEFAULT_DESKTOP_WINDOW_REFRESH_RATE = 16;
 const bool DEFAULT_DESKTOP_WINDOW_RESIZABLE = true;
@@ -367,7 +368,7 @@ enum ErrorSeverity {
 
 struct ErrMsg
 {
-	std::string errMessage;
+	std::string errMessage = "";
 	ErrorSeverity severity = ErrorSeverity::Information;
 };
 

@@ -59,6 +59,20 @@ class Application : public Jahley::App
 
 	void update() override
 	{
+		ErrMsg err = model.getNextErrorMessage();
+		if (err.errMessage.size())
+		{
+			switch (err.severity)
+			{
+				case ErrorSeverity::Information:
+					nanoguiLayer->postInfoMessage("Info", err.errMessage);
+					break;
+				case ErrorSeverity::Warning:
+					nanoguiLayer->postInfoMessage("Warning", err.errMessage);
+					break;
+			}
+		}
+
 		// display the render from the Optix 
 		PixelBuffer& pixelBuffer = camera->getPixelBuffer();
 		if (pixelBuffer.uint8Pixels.size())
