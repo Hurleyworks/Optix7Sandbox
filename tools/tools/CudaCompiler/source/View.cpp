@@ -54,7 +54,7 @@ void View::create(NanoguiLayer* const gui)
 
 	b = new Button(window, "Add include folder");
 	b->setCallback([&] {
-		emitIncludeFolder(browseFolder(optix7sdkFolder), includeSubfolders);
+		emitIncludeFolder(browseFolder(optixFrameworkFolder), includeSubfolders);
 		});
 	b->setTooltip("Add an include path");
 

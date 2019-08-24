@@ -17,5 +17,6 @@ class OptixRenderer
 
  private:
 	 PropertyService properties;
+	 
 
 }; // end class OptixRenderer

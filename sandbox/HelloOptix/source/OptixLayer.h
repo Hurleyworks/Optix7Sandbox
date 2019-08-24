@@ -10,7 +10,7 @@ class OptixLayer : public RenderLayer
 {
 
  public:
-	OptixLayer (const PropertyService& properties, CameraHandle & camera);
+	OptixLayer (const PropertyService& properties, CameraHandle& camera, const OptixConfig& config);
 	~OptixLayer ();
 
 	void onAttach() override;
@@ -20,6 +20,7 @@ class OptixLayer : public RenderLayer
 	void onInput(const InputEvent& input) override;
 
  private:
+	const OptixConfig& config;
 	OptixEngine engine;
 	bool attached = false;
 

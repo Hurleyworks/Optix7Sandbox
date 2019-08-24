@@ -4,16 +4,57 @@
 
 #pragma once
 
+
+struct Params
+{
+	uchar4* image;
+	uint32_t               image_width;
+	uint32_t               image_height;
+	int32_t                origin_x;
+	int32_t                origin_y;
+	OptixTraversableHandle handle;
+};
+
+
+struct RayGenData
+{
+	float3 cam_eye;
+	float3 camera_u, camera_v, camera_w;
+};
+
+
+struct MissData
+{
+	float r, g, b;
+};
+
+
+struct HitGroupData
+{
+	float radius;
+};
+
+template <typename T>
+struct SbtRecord
+{
+	__align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
+	T data;
+};
+
+typedef SbtRecord<RayGenData>     RayGenSbtRecord;
+typedef SbtRecord<MissData>       MissSbtRecord;
+typedef SbtRecord<HitGroupData>   HitGroupSbtRecord;
+
 using ContextHandle = std::shared_ptr<class OptixContext>;
 
 class OptixContext
 {
 
  public:
-	static ContextHandle create() { return std::make_shared<OptixContext>(); }
+	static ContextHandle create(const OptixDeviceContextOptions & options) { return std::make_shared<OptixContext>(options); }
 
  public:
-	OptixContext()
+	OptixContext(const OptixDeviceContextOptions& options)
 	{
 		try
 		{
@@ -22,8 +63,6 @@ class OptixContext
 
 			CUcontext cuCtx = 0;  // zero means take the current context
 			OPTIX_CHECK(optixInit());
-			options.logCallbackFunction = &contextLogger;
-			options.logCallbackLevel = 4;
 			OPTIX_CHECK(optixDeviceContextCreate(cuCtx, &options, &context));
 		}
 		catch (std::exception& e)
@@ -34,7 +73,7 @@ class OptixContext
 				OPTIX_CHECK(optixDeviceContextDestroy(context));
 
 			context = nullptr;
-			options = {};
+	
 		}
 	}
 	~OptixContext()
@@ -68,12 +107,9 @@ class OptixContext
 			throw std::runtime_error("OptixDeviceContext is invalid(nullptr)");
 	}
 
-	const OptixDeviceContextOptions & getOptions() const { return options; }
-	OptixDeviceContextOptions& getOptions()  { return options; }
 
  private:
 	OptixDeviceContext context = nullptr;
-	OptixDeviceContextOptions options = {};
 };
 
 using ModuleHandle = std::shared_ptr<class OptixMod>;
@@ -124,6 +160,13 @@ public:
 			LOG(CRITICAL) << "Caught exception: " << e.what();
 		}
 	}
+
+	void setPipelineOptions(OptixPipelineCompileOptions options)
+	{
+		pipeline_compile_options = options;
+	}
+
+
 
 	void createFromPtx(ContextHandle ctx, const std::string& ptx)
 	{

@@ -75,7 +75,6 @@ class ActiveCam
 	void track(const Vector2f & newPoint2D);
 
 	// PixelBuffer
-	//void setPixelBuffer(const PixelBuffer& image){ pixels = std::move(image);}
 	PixelBuffer & getPixelBuffer() {return pixelBuffer;}
 
  protected:

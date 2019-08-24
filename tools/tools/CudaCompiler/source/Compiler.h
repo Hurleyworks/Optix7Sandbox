@@ -41,6 +41,7 @@ class Compiler
 	String help = "--help";
 	String fastMath = "-use-fast-math"; // doesn't work.
 	String ptx = "-ptx";
+	String lineInfo = "-lineinfo";
 	String machine = "-m 64";
 	String lang = "-std=c++11"; // doesn't work
 	String sdkInclude = "-IC:/ProgramData/NVIDIA Corporation/OptiX SDK 7.0.0/include";

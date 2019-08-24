@@ -6,18 +6,22 @@
 
 class OptixEngine
 {
- 
  public:
 	OptixEngine (const PropertyService& properties);
 	~OptixEngine ();
 
-	void init();
-	void render(CameraHandle& camera) { renderer.render(camera); }
+	void init(const OptixConfig& config, CameraHandle& camera);
+	void render(CameraHandle& camera); //  { renderer.render(camera); }
 
  private:
 	PropertyService properties;
 	OptixRenderer renderer;
 	ContextHandle context = nullptr;
-	Modules modules;
+	OptixModule module = nullptr;
+	OptixPipeline pipeline = nullptr;
+	OptixShaderBindingTable sbt = {};
+	OptixTraversableHandle gas_handle;
+	CUDAOutputBuffer<uchar4> output_buffer;
 
+	
 }; // end class OptixEngine

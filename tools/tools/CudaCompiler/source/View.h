@@ -59,6 +59,7 @@ class View : public CsSignal::SignalBase
 	 String lastSelectedFolder = INVALID_PATH;
 	 String cudaFolder = INVALID_PATH;
 	 String optix7sdkFolder = "C:\\ProgramData\\NVIDIA Corporation\\OptiX SDK 7.0.0\\SDK";
+	 String optixFrameworkFolder = "D:\\ActiveWorks\\Code\\Opensource\\hurleyworks\\Optix7Sandbox\\framework\\optix7_core\\excludeFromBuild";
 
 	 // ugly windows stuff
 	 static int CALLBACK browseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);

@@ -9,6 +9,7 @@ const std::string APP_NAME = "HelloOptix";
 
 using sabi::PixelBuffer;
 using sabi::PerspectiveCam;
+using Eigen::Vector3f;
 
 class Application : public Jahley::App
 {
@@ -23,13 +24,23 @@ class Application : public Jahley::App
 		properties.renderProps->setValue(RenderKey::ResourceFolder, getResourcePath(APP_NAME).toStdString());
 
 		// store the resource folder shared by all projects
-		properties.renderProps->setValue(RenderKey::ResourceFolder, getResourcePath("Common").toStdString());
+		properties.renderProps->setValue(RenderKey::CommonFolder, getResourcePath("Common").toStdString());
 
 		// create a camera
 		camera = PerspectiveCam::create();
 		float aspect = (float)settings.width / (float)settings.height;
 		camera->setPerspective(DEFAULT_FOV_DEGREES, aspect, 1, 1000);
-		camera->lookAt(DEFAULT_CAMERA_POSIIION, DEFAULT_CAMERA_TARGET);
+		camera->lookAt(Vector3f(0.0f, 0.0f, 2.0f), Eigen::Vector3f::Zero());
+
+		ImageInfo spec;
+		spec.width = DEFAULT_DESKTOP_WINDOW_WIDTH;
+		spec.height = DEFAULT_DESKTOP_WINDOW_HEIGHT;
+		spec.channels = 4;
+
+		PixelBuffer& buffer = camera->getPixelBuffer();
+		buffer.init(spec);
+
+		setOptixConfig();
 	}
 
 	void onInit() override
@@ -43,7 +54,7 @@ class Application : public Jahley::App
 			pushOverlay(nanoguiLayer, true);
 
 			// create the Optix layer
-			optixLayer = std::make_shared<OptixLayer>(properties, camera);
+			optixLayer = std::make_shared<OptixLayer>(properties, camera, config);
 			pushLayer(optixLayer, true);
 
 			connect(view, &View::emitPrimitiveType, model, &Model::loadPrimitive);
@@ -108,10 +119,34 @@ class Application : public Jahley::App
 		}
 	}
 
+	void setOptixConfig()
+	{
+		config.options.context_options.logCallbackFunction = &contextLogger;
+		config.options.context_options.logCallbackLevel = 4;
+
+		config.options.accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+		config.options.accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+
+		config.options.module_compile_options.maxRegisterCount = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
+		config.options.module_compile_options.optLevel = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
+		config.options.module_compile_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_LINEINFO;
+
+		config.options.pipeline_compile_options.usesMotionBlur = false;
+		config.options.pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
+		config.options.pipeline_compile_options.numPayloadValues = 3;
+		config.options.pipeline_compile_options.numAttributeValues = 3;
+		config.options.pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;  // TODO: should be OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+		config.options.pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
+
+		config.programs.ptx = "optixTriangle.ptx";
+
+	}
+
   private:
 	  RenderLayerRef optixLayer = nullptr;
 	  RenderLayerRef nanoguiLayer = nullptr;
 	  CameraHandle camera = nullptr;
+	  OptixConfig config;
 
 	  Model model;
 	  View view;

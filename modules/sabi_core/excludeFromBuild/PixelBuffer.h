@@ -19,6 +19,18 @@ struct PixelBuffer
 		reset();
 	}
 
+	void init(const ImageInfo& info)
+	{
+		spec.width = info.width;
+		spec.height = info.height;
+		spec.channels = info.channels;
+
+		uint8Pixels.resize(spec.channels, getPixelCount());
+
+		// just make it black
+		std::memset(uint8Pixels.data(), 0, byteCountUint8());
+	}
+
 	int getPixelCount() const { return spec.width * spec.height; }
 	int byteCountUint8() const { return spec.width * spec.height * spec.channels * sizeof(uint8_t); } 
 	int bytecountFloat() const { return spec.width * spec.height * spec.channels * sizeof(float); }

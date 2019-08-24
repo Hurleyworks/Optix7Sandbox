@@ -2,7 +2,7 @@
 #include "berserkpch.h"
 #include "optix7_core.h"
 
-// only once!
+// include this only once!
 #include <optix_function_table_definition.h>
 
 #include "excludeFromBuild/MaterialHandler.cpp"
