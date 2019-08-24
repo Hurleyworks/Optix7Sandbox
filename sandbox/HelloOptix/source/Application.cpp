@@ -59,19 +59,7 @@ class Application : public Jahley::App
 
 	void update() override
 	{
-		ErrMsg err = model.getNextErrorMessage();
-		if (err.errMessage.size())
-		{
-			switch (err.severity)
-			{
-				case ErrorSeverity::Information:
-					nanoguiLayer->postInfoMessage("Info", err.errMessage);
-					break;
-				case ErrorSeverity::Warning:
-					nanoguiLayer->postInfoMessage("Warning", err.errMessage);
-					break;
-			}
-		}
+		checkForErrors();
 
 		// display the render from the Optix 
 		PixelBuffer& pixelBuffer = camera->getPixelBuffer();
@@ -96,6 +84,28 @@ class Application : public Jahley::App
 	void onInput(const InputEvent & e) override
 	{
 		controller.onInput(e);
+	}
+
+	void checkForErrors()
+	{
+		ErrMsg err = model.getNextErrorMessage();
+		if (err.message.size())
+		{
+			switch (err.severity)
+			{
+				case ErrorSeverity::Information:
+					nanoguiLayer->postInfoMessage("Info", err.message);
+					break;
+
+				case ErrorSeverity::Warning:
+					nanoguiLayer->postWarningMessage("Warning", err.message);
+					break;
+
+				case ErrorSeverity::Critical:
+					nanoguiLayer->postWarningMessage("Critical", err.message);
+					break;
+			}
+		}
 	}
 
   private:

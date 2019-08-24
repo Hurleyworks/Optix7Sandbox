@@ -54,8 +54,7 @@ namespace Jahley
 		LogHandler log;
 		int refreshRate = DEFAULT_DESKTOP_WINDOW_REFRESH_RATE; // 60 fps
 		std::chrono::milliseconds refreshTime;
-		Vector4f bgColor = DEFAULT_DESKTOP_WINDOW_BACKGROUND_COLOR;
-
+		
 		RenderStack layers;
 
 		void resetProperties();

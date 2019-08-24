@@ -18,7 +18,7 @@ NormalizedClump::~NormalizedClump ()
 void NormalizedClump::addNextItem(SpaceTime & spacetime)
 {
 	// place the next obj without intersecting any others
-	// as lone as their size has been normalized
+	// as long as their size has been normalized
 	Eigen::Vector3f v;
 	float d = 1.6f;
 	computeNextSpot(objIndex++, d, v);
@@ -30,6 +30,7 @@ void NormalizedClump::addNextItem(SpaceTime & spacetime)
 // computeNextSpot
 void NormalizedClump::computeNextSpot(int index, float density, Eigen::Vector3f & spot)
 {
+	// from the Worley man
 	double r = std::sqrt(index) / density;
 
 	// The magic phi angle of about 137.5 degrees, in radians

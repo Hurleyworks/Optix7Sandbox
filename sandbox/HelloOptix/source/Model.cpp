@@ -44,8 +44,8 @@ void Model::loadPrimitive(PrimitiveType type, MeshOptions options)
 	if (!mesh)
 	{
 		ErrMsg err;
-		err.severity = ErrorSeverity::Warning;
-		err.errMessage = "Primitive creation failed!";
+		err.severity = ErrorSeverity::Critical;
+		err.message = PrimitiveType(type).toString() + std::string(" primitive creation failed!");
 		errorQueue.push(err);
 		return;
 	}

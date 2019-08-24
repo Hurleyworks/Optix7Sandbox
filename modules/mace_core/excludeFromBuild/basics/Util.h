@@ -363,12 +363,13 @@ inline void message(const char * s)
 enum ErrorSeverity {
 
 	Information,
-	Warning
+	Warning,
+	Critical,
 };
 
 struct ErrMsg
 {
-	std::string errMessage = "";
+	std::string message = "";
 	ErrorSeverity severity = ErrorSeverity::Information;
 };
 

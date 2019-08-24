@@ -20,7 +20,6 @@ namespace Jahley
 		{
 			try
 			{
-				bgColor = properties.renderProps->getVal<Eigen::Vector4f>(RenderKey::BackgroundColor);
 				window = std::make_unique<OpenglWindow>(input);
 				window->create(Vector2i(settings.width, settings.height), settings.name, settings.resizable);
 
@@ -117,11 +116,13 @@ namespace Jahley
 		// let the client throw up a warning if it can
 		onCrash();
 
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
-		__debugbreak();
-#endif
+	#ifndef NDEBUG
+		#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+				__debugbreak();
+		#endif
+	#endif
 	}
-
+	
 	// onFatalError
 	void App::onFatalError(g3::FatalMessagePtr fatal_message)
 	{

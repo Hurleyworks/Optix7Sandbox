@@ -14,8 +14,4 @@
 #include <algorithm>
 #include <iostream>
 
-#include <jahley/core/Log.h>
-//#include <jahley/core/Log.h>
-//#ifdef POLYMER_PLATFORM_WINDOWS
-//#include <windows.h>
-//#endif
+#include <jahley/core/Log.h> // brings in mace which brings in juce

@@ -19,6 +19,5 @@ class OptixEngine
 	OptixRenderer renderer;
 	ContextHandle context = nullptr;
 	Modules modules;
-	
 
 }; // end class OptixEngine
