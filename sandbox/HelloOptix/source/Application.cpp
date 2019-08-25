@@ -43,7 +43,7 @@ class Application : public Jahley::App
 		PixelBuffer& buffer = camera->getPixelBuffer();
 		buffer.init(spec);
 
-		// create a OptixEngine for this project
+		// create an OptixEngine for this project
 		createEngine();
 	}
 
@@ -77,7 +77,7 @@ class Application : public Jahley::App
 	{
 		checkForErrors();
 
-		// display the render from the Optix 
+		// display the render from Optix 
 		PixelBuffer& pixelBuffer = camera->getPixelBuffer();
 		if (pixelBuffer.uint8Pixels.size())
 		{

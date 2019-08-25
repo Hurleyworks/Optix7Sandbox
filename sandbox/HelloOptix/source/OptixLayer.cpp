@@ -21,7 +21,6 @@ OptixLayer::~OptixLayer ()
 void OptixLayer::onAttach()
 {
 	attached = true;
-	//engine->init(camera);
 }
 
 void OptixLayer::onDetach()

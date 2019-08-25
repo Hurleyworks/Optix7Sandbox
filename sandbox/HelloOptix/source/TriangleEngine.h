@@ -26,6 +26,7 @@ class TriangleEngine : public OptixEngine
 	OptixProgramGroup raygen_prog_group = nullptr;
 	OptixProgramGroup miss_prog_group = nullptr;
 	OptixProgramGroup hitgroup_prog_group = nullptr;
+	CUdeviceptr d_gas_output_buffer;
 
 	void createAccelerationStructure(const OptixConfig& config);
 	void createModule(const OptixConfig& config, const String& ptxStr);

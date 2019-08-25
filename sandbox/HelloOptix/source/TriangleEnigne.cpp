@@ -24,6 +24,29 @@ TriangleEngine::TriangleEngine (const PropertyService& properties, const OptixCo
 // dtor
 TriangleEngine::~TriangleEngine ()
 {	
+	try
+	{
+		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.raygenRecord)));
+		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.missRecordBase)));
+		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.hitgroupRecordBase)));
+		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(d_gas_output_buffer)));
+
+		OPTIX_CHECK(optixPipelineDestroy(pipeline));
+		OPTIX_CHECK(optixProgramGroupDestroy(hitgroup_prog_group));
+		OPTIX_CHECK(optixProgramGroupDestroy(miss_prog_group));
+		OPTIX_CHECK(optixProgramGroupDestroy(raygen_prog_group));
+		OPTIX_CHECK(optixModuleDestroy(module));
+
+		// context is destroyed automatically in OptixEngine destructor
+	}
+	catch (std::exception& e)
+	{
+		LOG(CRITICAL) << e.what();
+	}
+	catch (...)
+	{
+		LOG(CRITICAL) << "Caught unknown exception";
+	}
 }
 
 void TriangleEngine::init(CameraHandle& camera)
@@ -66,7 +89,7 @@ void TriangleEngine::init(CameraHandle& camera)
 
 void TriangleEngine::createAccelerationStructure(const OptixConfig& config)
 {
-	CUdeviceptr d_gas_output_buffer;
+	
 
 	// Triangle build input
 	const std::array<float3, 3> vertices =
