@@ -26,9 +26,6 @@ OptixEngine::~OptixEngine ()
 
 void OptixEngine::init(const OptixConfig& config, CameraHandle& camera)
 {
-	
-	char log[2048]; // For error reporting from OptiX creation functions
-
 
 	std::string resourceFolder = properties.renderProps->getVal<std::string>(RenderKey::ResourceFolder);
 	File f(resourceFolder);
@@ -55,324 +52,272 @@ void OptixEngine::init(const OptixConfig& config, CameraHandle& camera)
 	}
 
 	if (ptxStr == String::empty)
-	{
 		throw std::runtime_error("Could not load ptx file: " + config.programs.ptx);
-	}
 
 	context = OptixContext::create(config.options.context_options);
 
-	// accel handling
-	  //
+	createAccelerationStructure(config);
+	createModule(config, ptxStr);
+	createProgramGroups(config);
+	linkPipeline(config);
+	setupShaderBindingTable(config, camera);
 
-	CUdeviceptr            d_gas_output_buffer;
-	{
-		
-
-		// Triangle build input
-		const std::array<float3, 3> vertices =
-		{ {
-			  { -0.5f, -0.5f, 0.0f },
-			  {  0.5f, -0.5f, 0.0f },
-			  {  0.0f,  0.5f, 0.0f }
-		} };
-
-		const size_t vertices_size = sizeof(float3) * vertices.size();
-		CUdeviceptr d_vertices = 0;
-		CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_vertices), vertices_size));
-		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>(d_vertices),
-			vertices.data(),
-			vertices_size,
-			cudaMemcpyHostToDevice
-		));
-
-		const uint32_t triangle_input_flags[1] = { OPTIX_GEOMETRY_FLAG_NONE };
-		OptixBuildInput triangle_input = {};
-		triangle_input.type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
-		triangle_input.triangleArray.vertexFormat = OPTIX_VERTEX_FORMAT_FLOAT3;
-		triangle_input.triangleArray.numVertices = static_cast<uint32_t>(vertices.size());
-		triangle_input.triangleArray.vertexBuffers = &d_vertices;
-		triangle_input.triangleArray.flags = triangle_input_flags;
-		triangle_input.triangleArray.numSbtRecords = 1;
-
-		OptixAccelBufferSizes gas_buffer_sizes;
-		OPTIX_CHECK(optixAccelComputeMemoryUsage(context->get(), &config.options.accel_options, &triangle_input,
-			1,  // Number of build input
-			&gas_buffer_sizes));
-		CUdeviceptr d_temp_buffer_gas;
-		CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_temp_buffer_gas), gas_buffer_sizes.tempSizeInBytes));
-
-		// non-compacted output
-		CUdeviceptr d_buffer_temp_output_gas_and_compacted_size;
-		size_t compactedSizeOffset = roundUp<size_t>(gas_buffer_sizes.outputSizeInBytes, 8ull);
-		CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(
-			&d_buffer_temp_output_gas_and_compacted_size),
-			compactedSizeOffset + 8
-		));
-
-		OptixAccelEmitDesc emitProperty = {};
-		emitProperty.type = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE;
-		emitProperty.result = (CUdeviceptr)((char*)d_buffer_temp_output_gas_and_compacted_size + compactedSizeOffset);
-
-		OPTIX_CHECK(optixAccelBuild(
-			context->get(),
-			0,              // CUDA stream
-			&config.options.accel_options,
-			&triangle_input,
-			1,              // num build inputs
-			d_temp_buffer_gas,
-			gas_buffer_sizes.tempSizeInBytes,
-			d_buffer_temp_output_gas_and_compacted_size,
-			gas_buffer_sizes.outputSizeInBytes,
-			&gas_handle,
-			&emitProperty,  // emitted property list
-			1               // num emitted properties
-		));
-
-		CUDA_CHECK(cudaFree((void*)d_temp_buffer_gas));
-		CUDA_CHECK(cudaFree((void*)d_vertices));
-
-		size_t compacted_gas_size;
-		CUDA_CHECK(cudaMemcpy(&compacted_gas_size, (void*)emitProperty.result, sizeof(size_t), cudaMemcpyDeviceToHost));
-
-		if (compacted_gas_size < gas_buffer_sizes.outputSizeInBytes)
-		{
-			CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_gas_output_buffer), compacted_gas_size));
-
-			// use handle as input and output
-			OPTIX_CHECK(optixAccelCompact(context->get(), 0, gas_handle, d_gas_output_buffer, compacted_gas_size, &gas_handle));
-
-			CUDA_CHECK(cudaFree((void*)d_buffer_temp_output_gas_and_compacted_size));
-		}
-		else
-		{
-			d_gas_output_buffer = d_buffer_temp_output_gas_and_compacted_size;
-		}
-
-	}
-
-	//
-	   // Create module
-	   //
-	
-	OptixPipelineCompileOptions pipeline_compile_options = {};
-	{
-		const std::string ptx = ptxStr.toStdString();
-		size_t sizeof_log = sizeof(log);
-
-		OPTIX_CHECK_LOG(optixModuleCreateFromPTX(
-			context->get(),
-			&config.options.module_compile_options,
-			&config.options.pipeline_compile_options,
-			ptx.c_str(),
-			ptx.size(),
-			log,
-			&sizeof_log,
-			&module
-		));
-	}
-
-	//
-	   // Create program groups
-	   //
-	OptixProgramGroup raygen_prog_group = nullptr;
-	OptixProgramGroup miss_prog_group = nullptr;
-	OptixProgramGroup hitgroup_prog_group = nullptr;
-	{
-		OptixProgramGroupOptions program_group_options = {}; // Initialize to zeros
-
-		OptixProgramGroupDesc raygen_prog_group_desc = {}; //
-		raygen_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
-		raygen_prog_group_desc.raygen.module = module;
-		raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
-		size_t sizeof_log = sizeof(log);
-		OPTIX_CHECK_LOG(optixProgramGroupCreate(
-			context->get(),
-			&raygen_prog_group_desc,
-			1,   // num program groups
-			&program_group_options,
-			log,
-			&sizeof_log,
-			&raygen_prog_group
-		));
-
-		OptixProgramGroupDesc miss_prog_group_desc = {};
-		miss_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_MISS;
-		miss_prog_group_desc.miss.module = module;
-		miss_prog_group_desc.miss.entryFunctionName = "__miss__ms";
-		sizeof_log = sizeof(log);
-		OPTIX_CHECK_LOG(optixProgramGroupCreate(
-			context->get(),
-			&miss_prog_group_desc,
-			1,   // num program groups
-			&program_group_options,
-			log,
-			&sizeof_log,
-			&miss_prog_group
-		));
-
-		OptixProgramGroupDesc hitgroup_prog_group_desc = {};
-		hitgroup_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
-		hitgroup_prog_group_desc.hitgroup.moduleCH = module;
-		hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
-		sizeof_log = sizeof(log);
-		OPTIX_CHECK_LOG(optixProgramGroupCreate(
-			context->get(),
-			&hitgroup_prog_group_desc,
-			1,   // num program groups
-			&program_group_options,
-			log,
-			&sizeof_log,
-			&hitgroup_prog_group
-		));
-	}
-
-	//
-		// Link pipeline
-		//
-	
-	{
-		OptixProgramGroup program_groups[] = { raygen_prog_group, miss_prog_group, hitgroup_prog_group };
-
-
-		size_t sizeof_log = sizeof(log);
-		OPTIX_CHECK_LOG(optixPipelineCreate(
-			context->get(),
-			&config.options.pipeline_compile_options,
-			&config.options.pipeline_link_options,
-			program_groups,
-			sizeof(program_groups) / sizeof(program_groups[0]),
-			log,
-			&sizeof_log,
-			&pipeline
-		));
-	}
-
-	//
-	   // Set up shader binding table
-	   //
-	
-	{
-		CUdeviceptr  raygen_record;
-		const size_t raygen_record_size = sizeof(RayGenSbtRecord);
-		CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&raygen_record), raygen_record_size));
-		
-		RayGenSbtRecord rg_sbt;
-		rg_sbt.data = {};
-
-		camera->getViewMatrix();
-
-		const Vector3f& eye = camera->getEyePoint();
-		const Vector3f& forward = camera->getFoward();
-		const Vector3f& right = camera->getRight();
-		const Vector3f& up = camera->getUp();
-
-		float ulen, vlen, wlen;
-		wlen = forward.norm();
-		vlen = wlen * tanf(0.5f * camera->getFOV() * M_PIf / 180.0f);
-		ulen = vlen * camera->getAspect();;
-
-		float3 camRight, camUp, camForward, camEye;
-		camUp = make_float3(up.x(), up.y(), up.z());
-		camUp *= vlen;
-
-		camRight = make_float3(right.x(), right.y(), right.z());
-		camRight *= ulen;
-
-		camForward = make_float3(forward.x(), forward.y(), forward.z());
-		camEye = make_float3(eye.x(), eye.y(), eye.z());
-
-		rg_sbt.data.cam_eye = camEye;
-		rg_sbt.data.camera_u = camRight;
-		rg_sbt.data.camera_v = camUp;
-		rg_sbt.data.camera_w = camForward;
-
-		//cam.UVWFrame(rg_sbt.data.camera_u, rg_sbt.data.camera_v, rg_sbt.data.camera_w);
-		OPTIX_CHECK(optixSbtRecordPackHeader(raygen_prog_group, &rg_sbt));
-		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>(raygen_record),
-			&rg_sbt,
-			raygen_record_size,
-			cudaMemcpyHostToDevice
-		));
-
-		CUdeviceptr miss_record;
-		size_t      miss_record_size = sizeof(MissSbtRecord);
-		CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&miss_record), miss_record_size));
-		
-		Vector4f bg = properties.renderProps->getVal<Vector4f>(RenderKey::BackgroundColor);
-		MissSbtRecord ms_sbt;
-		ms_sbt.data.r = bg.x();
-		ms_sbt.data.g = bg.y();
-		ms_sbt.data.b = bg.z();
-
-		OPTIX_CHECK(optixSbtRecordPackHeader(miss_prog_group, &ms_sbt));
-		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>(miss_record),
-			&ms_sbt,
-			miss_record_size,
-			cudaMemcpyHostToDevice
-		));
-
-		CUdeviceptr hitgroup_record;
-		size_t      hitgroup_record_size = sizeof(HitGroupSbtRecord);
-		CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&hitgroup_record), hitgroup_record_size));
-		HitGroupSbtRecord hg_sbt;
-		hg_sbt.data = { 1.5f };
-		OPTIX_CHECK(optixSbtRecordPackHeader(hitgroup_prog_group, &hg_sbt));
-		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>(hitgroup_record),
-			&hg_sbt,
-			hitgroup_record_size,
-			cudaMemcpyHostToDevice
-		));
-
-		sbt.raygenRecord = raygen_record;
-		sbt.missRecordBase = miss_record;
-		sbt.missRecordStrideInBytes = sizeof(MissSbtRecord);
-		sbt.missRecordCount = 1;
-		sbt.hitgroupRecordBase = hitgroup_record;
-		sbt.hitgroupRecordStrideInBytes = sizeof(HitGroupSbtRecord);
-		sbt.hitgroupRecordCount = 1;
-	}
-
-	output_buffer.init( CUDAOutputBufferType::CUDA_DEVICE, camera->getScreenWidth(), camera->getScreenHeight());
+	renderer.init(camera->getScreenWidth(), camera->getScreenHeight());
 }
 
-void OptixEngine::render(CameraHandle& camera)
+void OptixEngine::createAccelerationStructure(const OptixConfig& config)
 {
-	Vector4f bg = properties.renderProps->getVal<Vector4f>(RenderKey::BackgroundColor);
+	CUdeviceptr d_gas_output_buffer;
 
-	int width = camera->getScreenWidth();
-	int height = camera->getScreenHeight();
+	// Triangle build input
+	const std::array<float3, 3> vertices =
+	{ {
+			{ -0.5f, -0.5f, 0.0f },
+			{  0.5f, -0.5f, 0.0f },
+			{  0.0f,  0.5f, 0.0f }
+	} };
 
-	CUstream stream;
-	CUDA_CHECK(cudaStreamCreate(&stream));
-
-	Params params;
-	params.image = output_buffer.map();
-	params.image_width = width;
-	params.image_height = height;
-	params.origin_x = width / 2;
-	params.origin_y = height / 2;
-	params.handle = gas_handle;
-
-	CUdeviceptr d_param;
-	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_param), sizeof(Params)));
+	const size_t vertices_size = sizeof(float3) * vertices.size();
+	CUdeviceptr d_vertices = 0;
+	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_vertices), vertices_size));
 	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(d_param),
-		&params, sizeof(params),
+		reinterpret_cast<void*>(d_vertices),
+		vertices.data(),
+		vertices_size,
 		cudaMemcpyHostToDevice
 	));
 
-	OPTIX_CHECK(optixLaunch(pipeline, stream, d_param, sizeof(Params), &sbt, width, height, /*depth=*/1));
-	CUDA_SYNC_CHECK();
+	const uint32_t triangle_input_flags[1] = { OPTIX_GEOMETRY_FLAG_NONE };
+	OptixBuildInput triangle_input = {};
+	triangle_input.type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
+	triangle_input.triangleArray.vertexFormat = OPTIX_VERTEX_FORMAT_FLOAT3;
+	triangle_input.triangleArray.numVertices = static_cast<uint32_t>(vertices.size());
+	triangle_input.triangleArray.vertexBuffers = &d_vertices;
+	triangle_input.triangleArray.flags = triangle_input_flags;
+	triangle_input.triangleArray.numSbtRecords = 1;
 
-	output_buffer.unmap();
+	OptixAccelBufferSizes gas_buffer_sizes;
+	OPTIX_CHECK(optixAccelComputeMemoryUsage(context->get(), &config.options.accel_options, &triangle_input,
+		1,  // Number of build input
+		&gas_buffer_sizes));
+	CUdeviceptr d_temp_buffer_gas;
+	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_temp_buffer_gas), gas_buffer_sizes.tempSizeInBytes));
 
-	sabi::PixelBuffer& buffer = camera->getPixelBuffer();
+	// non-compacted output
+	CUdeviceptr d_buffer_temp_output_gas_and_compacted_size;
+	size_t compactedSizeOffset = roundUp<size_t>(gas_buffer_sizes.outputSizeInBytes, 8ull);
+	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(
+		&d_buffer_temp_output_gas_and_compacted_size),
+		compactedSizeOffset + 8
+	));
 
-	std::memcpy(buffer.uint8Pixels.data(), output_buffer.getHostPointer(), buffer.byteCountUint8());
-	
+	OptixAccelEmitDesc emitProperty = {};
+	emitProperty.type = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE;
+	emitProperty.result = (CUdeviceptr)((char*)d_buffer_temp_output_gas_and_compacted_size + compactedSizeOffset);
+
+	OPTIX_CHECK(optixAccelBuild(
+		context->get(),
+		0,              // CUDA stream
+		&config.options.accel_options,
+		&triangle_input,
+		1,              // num build inputs
+		d_temp_buffer_gas,
+		gas_buffer_sizes.tempSizeInBytes,
+		d_buffer_temp_output_gas_and_compacted_size,
+		gas_buffer_sizes.outputSizeInBytes,
+		&gas_handle,
+		&emitProperty,  // emitted property list
+		1               // num emitted properties
+	));
+
+	CUDA_CHECK(cudaFree((void*)d_temp_buffer_gas));
+	CUDA_CHECK(cudaFree((void*)d_vertices));
+
+	size_t compacted_gas_size;
+	CUDA_CHECK(cudaMemcpy(&compacted_gas_size, (void*)emitProperty.result, sizeof(size_t), cudaMemcpyDeviceToHost));
+
+	if (compacted_gas_size < gas_buffer_sizes.outputSizeInBytes)
+	{
+		CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_gas_output_buffer), compacted_gas_size));
+
+		// use handle as input and output
+		OPTIX_CHECK(optixAccelCompact(context->get(), 0, gas_handle, d_gas_output_buffer, compacted_gas_size, &gas_handle));
+
+		CUDA_CHECK(cudaFree((void*)d_buffer_temp_output_gas_and_compacted_size));
+	}
+	else
+	{
+		d_gas_output_buffer = d_buffer_temp_output_gas_and_compacted_size;
+	}
+}
+
+void OptixEngine::createModule(const OptixConfig& config, const String& ptxStr)
+{
+	const std::string ptx = ptxStr.toStdString();
+
+	OPTIX_CHECK_LOG(optixModuleCreateFromPTX(
+		context->get(),
+		&config.options.module_compile_options,
+		&config.options.pipeline_compile_options,
+		ptx.c_str(),
+		ptx.size(),
+		log,
+		&sizeof_log,
+		&module
+	));
+}
+
+void OptixEngine::createProgramGroups(const OptixConfig& config)
+{
+	OptixProgramGroupDesc raygen_prog_group_desc = {}; //
+	raygen_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+	raygen_prog_group_desc.raygen.module = module;
+	raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
+
+	OPTIX_CHECK_LOG(optixProgramGroupCreate(
+		context->get(),
+		&raygen_prog_group_desc,
+		1,   // num program groups
+		&config.options.program_group_options,
+		log,
+		&sizeof_log,
+		&raygen_prog_group
+	));
+
+	OptixProgramGroupDesc miss_prog_group_desc = {};
+	miss_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_MISS;
+	miss_prog_group_desc.miss.module = module;
+	miss_prog_group_desc.miss.entryFunctionName = "__miss__ms";
+	sizeof_log = sizeof(log);
+	OPTIX_CHECK_LOG(optixProgramGroupCreate(
+		context->get(),
+		&miss_prog_group_desc,
+		1,   // num program groups
+		&config.options.program_group_options,
+		log,
+		&sizeof_log,
+		&miss_prog_group
+	));
+
+	OptixProgramGroupDesc hitgroup_prog_group_desc = {};
+	hitgroup_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
+	hitgroup_prog_group_desc.hitgroup.moduleCH = module;
+	hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
+	sizeof_log = sizeof(log);
+	OPTIX_CHECK_LOG(optixProgramGroupCreate(
+		context->get(),
+		&hitgroup_prog_group_desc,
+		1,   // num program groups
+		&config.options.program_group_options,
+		log,
+		&sizeof_log,
+		&hitgroup_prog_group
+	));
+}
+
+void OptixEngine::linkPipeline(const OptixConfig& config)
+{
+	OptixProgramGroup program_groups[] = { raygen_prog_group, miss_prog_group, hitgroup_prog_group };
+
+	OPTIX_CHECK_LOG(optixPipelineCreate(
+		context->get(),
+		&config.options.pipeline_compile_options,
+		&config.options.pipeline_link_options,
+		program_groups,
+		sizeof(program_groups) / sizeof(program_groups[0]),
+		log,
+		&sizeof_log,
+		&pipeline
+	));
+}
+
+void OptixEngine::setupShaderBindingTable(const OptixConfig& config, CameraHandle& camera)
+{
+	CUdeviceptr  raygen_record;
+	const size_t raygen_record_size = sizeof(RayGenSbtRecord);
+	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&raygen_record), raygen_record_size));
+
+	RayGenSbtRecord rg_sbt;
+	rg_sbt.data = {};
+
+	updateCamera(config, camera, rg_sbt);
+
+	OPTIX_CHECK(optixSbtRecordPackHeader(raygen_prog_group, &rg_sbt));
+	CUDA_CHECK(cudaMemcpy(
+		reinterpret_cast<void*>(raygen_record),
+		&rg_sbt,
+		raygen_record_size,
+		cudaMemcpyHostToDevice
+	));
+
+	CUdeviceptr miss_record;
+	size_t miss_record_size = sizeof(MissSbtRecord);
+	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&miss_record), miss_record_size));
+
+	// user background color
+	Vector4f bg = properties.renderProps->getVal<Vector4f>(RenderKey::BackgroundColor);
+	MissSbtRecord ms_sbt;
+	ms_sbt.data.r = bg.x();
+	ms_sbt.data.g = bg.y();
+	ms_sbt.data.b = bg.z();
+
+	OPTIX_CHECK(optixSbtRecordPackHeader(miss_prog_group, &ms_sbt));
+	CUDA_CHECK(cudaMemcpy(
+		reinterpret_cast<void*>(miss_record),
+		&ms_sbt,
+		miss_record_size,
+		cudaMemcpyHostToDevice
+	));
+
+	CUdeviceptr hitgroup_record;
+	size_t      hitgroup_record_size = sizeof(HitGroupSbtRecord);
+	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&hitgroup_record), hitgroup_record_size));
+	HitGroupSbtRecord hg_sbt;
+	hg_sbt.data = { 1.5f };
+	OPTIX_CHECK(optixSbtRecordPackHeader(hitgroup_prog_group, &hg_sbt));
+	CUDA_CHECK(cudaMemcpy(
+		reinterpret_cast<void*>(hitgroup_record),
+		&hg_sbt,
+		hitgroup_record_size,
+		cudaMemcpyHostToDevice
+	));
+
+	sbt.raygenRecord = raygen_record;
+	sbt.missRecordBase = miss_record;
+	sbt.missRecordStrideInBytes = sizeof(MissSbtRecord);
+	sbt.missRecordCount = 1;
+	sbt.hitgroupRecordBase = hitgroup_record;
+	sbt.hitgroupRecordStrideInBytes = sizeof(HitGroupSbtRecord);
+	sbt.hitgroupRecordCount = 1;
+}
+
+void OptixEngine::updateCamera(const OptixConfig& config, CameraHandle& camera, RayGenSbtRecord & rg_sbt)
+{
+	camera->getViewMatrix();
+
+	const Vector3f& eye = camera->getEyePoint();
+	const Vector3f& forward = camera->getFoward();
+	const Vector3f& right = camera->getRight();
+	const Vector3f& up = camera->getUp();
+
+	float ulen, vlen, wlen;
+	wlen = forward.norm();
+	vlen = wlen * tanf(0.5f * camera->getFOV() * M_PIf / 180.0f);
+	ulen = vlen * camera->getAspect();;
+
+	float3 camRight, camUp, camForward, camEye;
+	camUp = make_float3(up.x(), up.y(), up.z());
+	camUp *= vlen;
+
+	camRight = make_float3(right.x(), right.y(), right.z());
+	camRight *= ulen;
+
+	camForward = make_float3(forward.x(), forward.y(), forward.z());
+	camEye = make_float3(eye.x(), eye.y(), eye.z());
+
+	rg_sbt.data.cam_eye = camEye;
+	rg_sbt.data.camera_u = camRight;
+	rg_sbt.data.camera_v = camUp;
+	rg_sbt.data.camera_w = camForward;
 }
 

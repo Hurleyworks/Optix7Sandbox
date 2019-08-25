@@ -4,6 +4,8 @@
 
 #pragma once
 
+using juce::String;
+
 class OptixEngine
 {
  public:
@@ -11,7 +13,10 @@ class OptixEngine
 	~OptixEngine ();
 
 	void init(const OptixConfig& config, CameraHandle& camera);
-	void render(CameraHandle& camera); //  { renderer.render(camera); }
+	void render(CameraHandle& camera)
+	{
+		renderer.render(camera, gas_handle, pipeline, sbt);
+	}
 
  private:
 	PropertyService properties;
@@ -21,7 +26,19 @@ class OptixEngine
 	OptixPipeline pipeline = nullptr;
 	OptixShaderBindingTable sbt = {};
 	OptixTraversableHandle gas_handle;
-	CUDAOutputBuffer<uchar4> output_buffer;
-
 	
+	char log[2048]; // For error reporting from OptiX creation functions
+	size_t sizeof_log = sizeof(log);
+
+	OptixProgramGroup raygen_prog_group = nullptr;
+	OptixProgramGroup miss_prog_group = nullptr;
+	OptixProgramGroup hitgroup_prog_group = nullptr;
+
+	void createAccelerationStructure(const OptixConfig& config);
+	void createModule(const OptixConfig& config, const String& ptxStr);
+	void createProgramGroups(const OptixConfig& config);
+	void linkPipeline(const OptixConfig& config);
+	void setupShaderBindingTable(const OptixConfig& config, CameraHandle& camera);
+	void updateCamera(const OptixConfig& config, CameraHandle& camera, RayGenSbtRecord & rg_sbt);
+
 }; // end class OptixEngine
