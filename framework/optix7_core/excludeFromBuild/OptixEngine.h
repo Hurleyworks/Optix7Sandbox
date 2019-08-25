@@ -25,7 +25,7 @@ class OptixEngine
 	OptixModule module = nullptr;
 	OptixPipeline pipeline = nullptr;
 	OptixShaderBindingTable sbt = {};
-	OptixTraversableHandle gas_handle;
+	OptixTraversableHandle gas_handle = 0;
 	
 	char log[2048]; // For error reporting from OptiX creation functions
 	size_t sizeof_log = sizeof(log);

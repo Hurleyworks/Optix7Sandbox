@@ -8,7 +8,6 @@ struct OptixOptions
 	OptixPipelineLinkOptions pipeline_link_options = {};
 	OptixProgramGroupOptions program_group_options = {}; 
 	OptixModuleCompileOptions module_compile_options = {};
-	
 };
 
 struct OptixDesc

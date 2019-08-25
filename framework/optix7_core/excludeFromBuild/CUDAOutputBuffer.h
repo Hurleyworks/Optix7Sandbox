@@ -63,8 +63,6 @@ public:
     int32_t        width()  { return m_width;  }
     int32_t        height() { return m_height; }
 
-    // Get output buffer
-  //  GLuint         getPBO();
     PIXEL_FORMAT*  getHostPointer();
 
 private:
@@ -76,7 +74,6 @@ private:
     int32_t                    m_height            = 0u;
 
     cudaGraphicsResource*      m_cuda_gfx_resource = nullptr;
-   // GLuint                     m_pbo               = 0u;
     PIXEL_FORMAT*              m_device_pixels     = nullptr;
     PIXEL_FORMAT*              m_host_zcopy_pixels = nullptr;
     std::vector<PIXEL_FORMAT>  m_host_pixels;
@@ -111,12 +108,6 @@ CUDAOutputBuffer<PIXEL_FORMAT>::~CUDAOutputBuffer()
         {
             // nothing needed
         }
-
-       /* if( m_pbo != 0u )
-        {
-            GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, 0 ) );
-            GL_CHECK( glDeleteBuffers( 1, &m_pbo ) );
-        }*/
     }
     catch(std::exception& e )
     {
@@ -146,22 +137,6 @@ void CUDAOutputBuffer<PIXEL_FORMAT>::resize( int32_t width, int32_t height )
 
     }
 
-#if 0
-    if( m_type == CUDAOutputBufferType::GL_INTEROP || m_type == CUDAOutputBufferType::CUDA_P2P )
-    {
-        // GL buffer gets resized below
-        GL_CHECK( glGenBuffers( 1, &m_pbo ) );
-        GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, m_pbo ) );
-        GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof(PIXEL_FORMAT)*width*height, nullptr, GL_STREAM_DRAW ) );
-        GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, 0u ) );
-
-        CUDA_CHECK( cudaGraphicsGLRegisterBuffer(
-                    &m_cuda_gfx_resource,
-                    m_pbo,
-                    cudaGraphicsMapFlagsWriteDiscard
-                    ) );
-    }
-#endif
     if( m_type == CUDAOutputBufferType::ZERO_COPY )
     {
         CUDA_CHECK( cudaFreeHost( reinterpret_cast<void*>( m_host_zcopy_pixels ) ) );
@@ -177,15 +152,6 @@ void CUDAOutputBuffer<PIXEL_FORMAT>::resize( int32_t width, int32_t height )
                     ) );
     }
 
-#if 0
-    if( m_type != CUDAOutputBufferType::GL_INTEROP && m_type != CUDAOutputBufferType::CUDA_P2P && m_pbo != 0u )
-    {
-        GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, m_pbo ) );
-        GL_CHECK( glBufferData( GL_ARRAY_BUFFER, sizeof(PIXEL_FORMAT)*width*height, nullptr, GL_STREAM_DRAW ) );
-        GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, 0u ) );
-    }
-#endif
-
     if( !m_host_pixels.empty() )
         m_host_pixels.resize( m_width*m_height );
 }
@@ -198,19 +164,7 @@ PIXEL_FORMAT* CUDAOutputBuffer<PIXEL_FORMAT>::map()
     {
         // nothing needed
     }
-    else if( m_type == CUDAOutputBufferType::GL_INTEROP  )
-    {
-        makeCurrent();
-
-        size_t buffer_size = 0u;
-        CUDA_CHECK( cudaGraphicsMapResources ( 1, &m_cuda_gfx_resource, m_stream ) );
-        CUDA_CHECK( cudaGraphicsResourceGetMappedPointer(
-                    reinterpret_cast<void**>( &m_device_pixels ),
-                    &buffer_size,
-                    m_cuda_gfx_resource
-                    ) );
-    }
-    else // m_type == CUDAOutputBufferType::ZERO_COPY
+    else if (m_type == CUDAOutputBufferType::ZERO_COPY)
     {
         // nothing needed
     }
@@ -238,69 +192,6 @@ void CUDAOutputBuffer<PIXEL_FORMAT>::unmap()
     }
 }
 
-
-#if 0
-template <typename PIXEL_FORMAT>
-GLuint CUDAOutputBuffer<PIXEL_FORMAT>::getPBO()
-{
-    if( m_pbo == 0u )
-        GL_CHECK( glGenBuffers( 1, &m_pbo ) );
-
-    const size_t buffer_size = m_width*m_height*sizeof(PIXEL_FORMAT);
-
-    if( m_type == CUDAOutputBufferType::CUDA_DEVICE )
-    {
-        // We need a host buffer to act as a way-station
-        if( m_host_pixels.empty() )
-            m_host_pixels.resize( m_width*m_height );
-
-        makeCurrent();
-        CUDA_CHECK( cudaMemcpy(
-                    static_cast<void*>( m_host_pixels.data() ),
-                    m_device_pixels,
-                    buffer_size,
-                    cudaMemcpyDeviceToHost
-                    ) );
-
-        GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, m_pbo ) );
-        GL_CHECK( glBufferData(
-                    GL_ARRAY_BUFFER,
-                    buffer_size,
-                    static_cast<void*>( m_host_pixels.data() ),
-                    GL_STREAM_DRAW
-                    ) );
-        GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, 0 ) );
-    }
-    else if( m_type == CUDAOutputBufferType::GL_INTEROP  )
-    {
-        // Nothing needed
-    }
-    else if ( m_type == CUDAOutputBufferType::CUDA_P2P )
-    {
-        makeCurrent();
-        void* pbo_buff = nullptr;
-        size_t dummy_size = 0;
-        
-        CUDA_CHECK( cudaGraphicsMapResources( 1, &m_cuda_gfx_resource, m_stream ) );
-        CUDA_CHECK( cudaGraphicsResourceGetMappedPointer( &pbo_buff, &dummy_size, m_cuda_gfx_resource ) );
-        CUDA_CHECK( cudaMemcpy( pbo_buff, m_device_pixels, buffer_size, cudaMemcpyDeviceToDevice ) );
-        CUDA_CHECK( cudaGraphicsUnmapResources( 1, &m_cuda_gfx_resource, m_stream ) );
-    }
-    else // m_type == CUDAOutputBufferType::ZERO_COPY
-    {
-        GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, m_pbo ) );
-        GL_CHECK( glBufferData(
-                    GL_ARRAY_BUFFER,
-                    buffer_size,
-                    static_cast<void*>( m_host_zcopy_pixels ),
-                    GL_STREAM_DRAW
-                    ) );
-        GL_CHECK( glBindBuffer( GL_ARRAY_BUFFER, 0 ) );
-    }
-
-    return m_pbo;
-}
-#endif
 
 template <typename PIXEL_FORMAT>
 PIXEL_FORMAT* CUDAOutputBuffer<PIXEL_FORMAT>::getHostPointer()
