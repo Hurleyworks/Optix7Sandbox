@@ -1,6 +1,8 @@
 #include "Jahley.h"
 
+#include "TriangleEngine.h"
 #include "OptixLayer.h"
+
 #include "Model.h"
 #include "View.h"
 #include "Controller.h"
@@ -32,6 +34,7 @@ class Application : public Jahley::App
 		camera->setPerspective(DEFAULT_FOV_DEGREES, aspect, 1, 1000);
 		camera->lookAt(Vector3f(0.0f, 0.0f, 2.0f), Eigen::Vector3f::Zero());
 
+		// setup the camera's PixelBuffer
 		ImageInfo spec;
 		spec.width = DEFAULT_DESKTOP_WINDOW_WIDTH;
 		spec.height = DEFAULT_DESKTOP_WINDOW_HEIGHT;
@@ -40,7 +43,8 @@ class Application : public Jahley::App
 		PixelBuffer& buffer = camera->getPixelBuffer();
 		buffer.init(spec);
 
-		setOptixConfig();
+		// create a OptixEngine for this project
+		createEngine();
 	}
 
 	void onInit() override
@@ -54,9 +58,10 @@ class Application : public Jahley::App
 			pushOverlay(nanoguiLayer, true);
 
 			// create the Optix layer
-			optixLayer = std::make_shared<OptixLayer>(properties, camera, config);
+			optixLayer = std::make_shared<OptixLayer>(properties, camera, engine);
 			pushLayer(optixLayer, true);
 
+			// connect the View with Model using signal/slots
 			connect(view, &View::emitPrimitiveType, model, &Model::loadPrimitive);
 		}
 		catch (std::exception& e)
@@ -119,7 +124,7 @@ class Application : public Jahley::App
 		}
 	}
 
-	void setOptixConfig()
+	void createEngine()
 	{
 		config.options.context_options.logCallbackFunction = &contextLogger;
 		config.options.context_options.logCallbackLevel = 4;
@@ -140,6 +145,10 @@ class Application : public Jahley::App
 
 		config.programs.ptx = "optixTriangle.ptx";
 
+		// this engine just renders a triangle and allows
+		// interactive setting of background(miss) color
+		engine = std::make_shared<TriangleEngine>(properties, config);
+		engine->init(camera);
 	}
 
   private:
@@ -147,6 +156,7 @@ class Application : public Jahley::App
 	  RenderLayerRef nanoguiLayer = nullptr;
 	  CameraHandle camera = nullptr;
 	  OptixConfig config;
+	  OptixEngineRef engine = nullptr;
 
 	  Model model;
 	  View view;

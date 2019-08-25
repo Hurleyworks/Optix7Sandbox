@@ -14,8 +14,6 @@
 #include "excludeFromBuild/OptixUtil.h"
 #include "excludeFromBuild/OptixConfig.h"
 #include "excludeFromBuild/OptixData.h"
-#include "excludeFromBuild/GeometryHandler.h"
-#include "excludeFromBuild/MaterialHandler.h"
 #include "excludeFromBuild/CUDAOutputBuffer.h"
 #include "excludeFromBuild/OptixRenderer.h"
 #include "excludeFromBuild/OptixEngine.h"

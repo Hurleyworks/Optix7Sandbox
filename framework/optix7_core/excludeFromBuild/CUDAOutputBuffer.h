@@ -28,7 +28,6 @@
 
 #pragma once
 
-
 enum class CUDAOutputBufferType
 {
     CUDA_DEVICE = 0, // not preferred, typically slower than ZERO_COPY

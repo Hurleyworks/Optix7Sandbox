@@ -6,8 +6,7 @@ using sabi::PixelBuffer;
 using Eigen::Vector4f;
 
 // ctor
-OptixRenderer::OptixRenderer (const PropertyService& properties)
-	: properties(properties)
+OptixRenderer::OptixRenderer ()
 {	
 }
 
@@ -18,7 +17,7 @@ OptixRenderer::~OptixRenderer ()
 
 void OptixRenderer::init(int screenWidth, int screenHeight)
 {
-	output_buffer.init(CUDAOutputBufferType::CUDA_DEVICE, screenWidth, screenHeight);
+	output_buffer.init(CUDAOutputBufferType::ZERO_COPY, screenWidth, screenHeight);
 }
 
 void OptixRenderer::render(CameraHandle& camera, OptixTraversableHandle& gas_handle, OptixPipeline pipeline, const OptixShaderBindingTable& sbt)
@@ -50,7 +49,7 @@ void OptixRenderer::render(CameraHandle& camera, OptixTraversableHandle& gas_han
 
 	output_buffer.unmap();
 
-	sabi::PixelBuffer& buffer = camera->getPixelBuffer();
+	PixelBuffer& buffer = camera->getPixelBuffer();
 	std::memcpy(buffer.uint8Pixels.data(), output_buffer.getHostPointer(), buffer.byteCountUint8());
 }
 

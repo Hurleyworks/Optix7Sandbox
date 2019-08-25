@@ -6,10 +6,9 @@
 #include "OptixLayer.h"
 
 // ctor
-OptixLayer::OptixLayer (const PropertyService& properties, CameraHandle& camera, const OptixConfig& config)
+OptixLayer::OptixLayer (const PropertyService& properties, CameraHandle& camera, OptixEngineRef engine)
 	: RenderLayer(properties, camera),
-	  config(config),
-	  engine(properties)
+	  engine(engine)
 {	
 	
 }
@@ -22,7 +21,7 @@ OptixLayer::~OptixLayer ()
 void OptixLayer::onAttach()
 {
 	attached = true;
-	engine.init(config, camera);
+	//engine->init(camera);
 }
 
 void OptixLayer::onDetach()
@@ -33,7 +32,7 @@ void OptixLayer::onDetach()
 void OptixLayer::onUpdate()
 {
 	if (attached)
-		engine.render(camera);
+		engine->render(camera);
 }
 
 void OptixLayer::onInput(const InputEvent& input)

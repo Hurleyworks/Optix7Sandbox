@@ -4,7 +4,7 @@
 
 #pragma once
 
-
+// FIXME surely this is not going to be common for all projects
 struct Params
 {
 	uchar4* image;
@@ -15,35 +15,6 @@ struct Params
 	OptixTraversableHandle handle;
 };
 
-
-struct RayGenData
-{
-	float3 cam_eye;
-	float3 camera_u, camera_v, camera_w;
-};
-
-
-struct MissData
-{
-	float r, g, b;
-};
-
-
-struct HitGroupData
-{
-	float radius;
-};
-
-template <typename T>
-struct SbtRecord
-{
-	__align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-	T data;
-};
-
-typedef SbtRecord<RayGenData>     RayGenSbtRecord;
-typedef SbtRecord<MissData>       MissSbtRecord;
-typedef SbtRecord<HitGroupData>   HitGroupSbtRecord;
 
 using ContextHandle = std::shared_ptr<class OptixContext>;
 

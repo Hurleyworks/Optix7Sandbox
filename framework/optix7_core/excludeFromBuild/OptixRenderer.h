@@ -10,14 +10,13 @@ class OptixRenderer
 {
 
  public:
-	OptixRenderer (const PropertyService& properties);
+	OptixRenderer ();
 	~OptixRenderer ();
 
 	void init(int screenWidth, int screenHeight);
 	void render(CameraHandle& camera, OptixTraversableHandle & gas_handle, OptixPipeline pipeline, const OptixShaderBindingTable& sbt);
 
  private:
-	 PropertyService properties;
 	 CUDAOutputBuffer<uchar4> output_buffer;
 
 }; // end class OptixRenderer

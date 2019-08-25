@@ -4,41 +4,32 @@
 
 #pragma once
 
-using juce::String;
+using OptixEngineRef = std::shared_ptr<class OptixEngine>;
 
 class OptixEngine
 {
- public:
-	OptixEngine (const PropertyService& properties);
-	~OptixEngine ();
 
-	void init(const OptixConfig& config, CameraHandle& camera);
-	void render(CameraHandle& camera)
+ public:
+	virtual ~OptixEngine ();
+
+	virtual void init(CameraHandle& camera) = 0;
+	virtual void render(CameraHandle& camera)
 	{
 		renderer.render(camera, gas_handle, pipeline, sbt);
 	}
 
- private:
+ protected:
+	OptixEngine(const PropertyService& properties, const OptixConfig& config);
+
 	PropertyService properties;
+	OptixConfig config;
 	OptixRenderer renderer;
 	ContextHandle context = nullptr;
-	OptixModule module = nullptr;
 	OptixPipeline pipeline = nullptr;
 	OptixShaderBindingTable sbt = {};
 	OptixTraversableHandle gas_handle = 0;
 	
 	char log[2048]; // For error reporting from OptiX creation functions
 	size_t sizeof_log = sizeof(log);
-
-	OptixProgramGroup raygen_prog_group = nullptr;
-	OptixProgramGroup miss_prog_group = nullptr;
-	OptixProgramGroup hitgroup_prog_group = nullptr;
-
-	void createAccelerationStructure(const OptixConfig& config);
-	void createModule(const OptixConfig& config, const String& ptxStr);
-	void createProgramGroups(const OptixConfig& config);
-	void linkPipeline(const OptixConfig& config);
-	void setupShaderBindingTable(const OptixConfig& config, CameraHandle& camera);
-	void updateCamera(const OptixConfig& config, CameraHandle& camera, RayGenSbtRecord & rg_sbt);
 
 }; // end class OptixEngine

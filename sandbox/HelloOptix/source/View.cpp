@@ -3,8 +3,6 @@
 // Copyright (c) 2019, HurleyWorks
 
 #include "jahley/window/platform/opengl/NanoguiLayer.h"
-
-
 #include "View.h"
 
 using namespace nanogui;

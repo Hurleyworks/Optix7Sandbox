@@ -75,6 +75,7 @@ local ROOT = "../../"
 		defines 
 		{ 
 			"POCO_OS_FAMILY_WINDOWS",
+			"NOMINMAX",
 			"WIN32"
 		}
 		
