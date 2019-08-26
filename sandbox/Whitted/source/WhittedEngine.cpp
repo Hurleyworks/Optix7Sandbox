@@ -369,19 +369,29 @@ void WhittedEngine::initLaunchParams()
 void WhittedEngine::updateBackgroundColor()
 {
 	Vector4f bg = properties.renderProps->getVal<Vector4f>(RenderKey::BackgroundColor);
+	if (lastBackGround.isApprox(bg))
+	{
+		return;
+	}
+	else
+	{
+		lastBackGround = bg;
+		restartAccum = true;
 
-	/*MissRecord ms_sbt;
-	optixSbtRecordPackHeader(miss_prog_group, &ms_sbt);
-	ms_sbt.data.r = bg.x();
-	ms_sbt.data.g = bg.y();
-	ms_sbt.data.b = bg.z();
+	}
+	MissRecord ms_sbt;
+
+	optixSbtRecordPackHeader(state.radiance_miss_prog_group, &ms_sbt);
+	ms_sbt.data.bg_color.x = bg.x();
+	ms_sbt.data.bg_color.y = bg.y();
+	ms_sbt.data.bg_color.z = bg.z();
 
 	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(sbt.missRecordBase),
+		reinterpret_cast<void*>(state.sbt.missRecordBase),
 		&ms_sbt,
-		sizeof(MissSbtRecord),
+		sizeof(MissRecord),
 		cudaMemcpyHostToDevice
-	));*/
+	));
 }
 
 void WhittedEngine::createModules()
@@ -729,10 +739,10 @@ void WhittedEngine::buildGas(const OptixAccelBuildOptions& accel_options, const 
 
 void WhittedEngine::handleCameraUpdate( CameraHandle& camera)
 {
-	if (!camera_changed)
+	if (!restartAccum)
 		return;
 
-	camera_changed = false;
+	restartAccum = false;
 
 	// recalc the view matrix
 	camera->getViewMatrix();
@@ -808,12 +818,14 @@ void WhittedEngine::launchSubframe(CameraHandle& camera)
 
 	sabi::PixelBuffer& buffer = camera->getPixelBuffer();
 	std::memcpy(buffer.uint8Pixels.data(), output_buffer.getHostPointer(), buffer.byteCountUint8());
+
+	++state.params.subframe_index;
 }
 
 void WhittedEngine::updateState(CameraHandle& camera)
 {
 	// Update params on device
-	if (camera_changed || resize_dirty)
+	if (restartAccum || resize_dirty)
 		state.params.subframe_index = 0;
 
 	handleCameraUpdate(camera);

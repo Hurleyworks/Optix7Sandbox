@@ -6,6 +6,8 @@
 
 #include "EngineData.h"
 
+using Eigen::Vector4f;
+
 // the bulk of this code is from the Optix7 Whitted sample
 class WhittedEngine : public OptixEngine
 {
@@ -17,9 +19,8 @@ class WhittedEngine : public OptixEngine
 	void init(CameraHandle& camera) override;
 	void render(CameraHandle& camera) override
 	{
-		camera_changed = camera->isDirty();
-		//updateBackgroundColor();
-	//	OptixEngine::render(camera);
+		restartAccum = camera->isDirty();
+		updateBackgroundColor();
 		updateState(camera);
 		launchSubframe(camera);
 	}
@@ -29,7 +30,8 @@ class WhittedEngine : public OptixEngine
     unsigned int max_trace = 10;
 
 	bool resize_dirty = false;
-	bool camera_changed = true;
+	bool restartAccum = true;
+	Vector4f lastBackGround = Vector4f::Constant(0.0);
 
 	CUDAOutputBuffer<uchar4> output_buffer;
 

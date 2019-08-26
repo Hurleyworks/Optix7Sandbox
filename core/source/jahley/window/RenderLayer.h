@@ -21,7 +21,7 @@ class RenderLayer
 	~RenderLayer ();
 
 	virtual void onUpdate() = 0;
-	virtual void onInput(const InputEvent& input) = 0;
+	virtual bool onInput(const InputEvent& input) = 0;
 
 	virtual void onAttach() {}
 	virtual void onDetach() {}

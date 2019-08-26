@@ -34,7 +34,7 @@ void OptixLayer::onUpdate()
 		engine->render(camera);
 }
 
-void OptixLayer::onInput(const InputEvent& input)
+bool OptixLayer::onInput(const InputEvent& input)
 {
 	InputEvent::Type type = input.getType();
 	if (type == InputEvent::Type::Press || type == InputEvent::Drag)
@@ -42,5 +42,7 @@ void OptixLayer::onInput(const InputEvent& input)
 		
 		//LOG(DBUG) << "Dragging at: " << input.getX() << ", " << input.getY();
 	}
+
+	return false;
 }
 

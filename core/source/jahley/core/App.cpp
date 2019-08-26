@@ -103,11 +103,20 @@ namespace Jahley
 
 	void App::onInputEvent(const InputEvent & e)
 	{
+		bool sendToClient = true;
 		for (RenderLayerRef layer : layers)
-			layer->onInput(e);
+		{
+			if (layer->onInput(e))
+			{
+				sendToClient = false;
+				break;
+			}
+		}
+			
 
 		// send to client
-		onInput(e);
+		if(sendToClient)
+			onInput(e);
 	}
 
 	// preCrash

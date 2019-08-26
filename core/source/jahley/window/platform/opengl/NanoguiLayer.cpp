@@ -39,30 +39,32 @@ void NanoguiLayer::onUpdate()
 	drawWidgets();
 }
 
-void NanoguiLayer::onInput(const InputEvent& input)
+bool NanoguiLayer::onInput(const InputEvent& input)
 {
 	switch (input.getType())
 	{
 		case InputEvent::Press:
-			Screen::mouseButtonCallbackEvent(input.getButton(), MOUSE_PRESS, 0);
+			return Screen::mouseButtonCallbackEvent(input.getButton(), MOUSE_PRESS, 0);
 			//LOG(DBUG) << "PRESS";
 			break;
 
 		case InputEvent::Release:
-			Screen::mouseButtonCallbackEvent(input.getButton(), MOUSE_RELEASE, 0);
+			return Screen::mouseButtonCallbackEvent(input.getButton(), MOUSE_RELEASE, 0);
 			//LOG(DBUG) << "RELEASE";
 			break;
 
 		case InputEvent::Move:
-			Screen::cursorPosCallbackEvent((float)input.getX(), (float)input.getY());
+			return Screen::cursorPosCallbackEvent((float)input.getX(), (float)input.getY());
 			//LOG(DBUG) << "MOVE";
 			break;
 
 		case InputEvent::Drag:
-			Screen::cursorPosCallbackEvent((float)input.getX(), (float)input.getY());
+			return Screen::cursorPosCallbackEvent((float)input.getX(), (float)input.getY());
 			//LOG(DBUG) << "DRAG";
 			break;
 	}
+
+	return false;
 }
 
 // postInfoMessage

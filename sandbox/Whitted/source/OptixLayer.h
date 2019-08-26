@@ -17,7 +17,7 @@ class OptixLayer : public RenderLayer
 	void onDetach() override;
 
 	void onUpdate() override;
-	void onInput(const InputEvent& input) override;
+	bool onInput(const InputEvent& input) override;
 
  private:
 	OptixEngineRef engine = nullptr;
