@@ -42,8 +42,6 @@ class WhittedEngine : public OptixEngine
 	void createSBT();
 	void initLaunchParams();
 	
-	void updateBackgroundColor();
-
 	void createModules();
 	void createCameraProgram( std::vector<OptixProgramGroup>& program_groups);
 	void createGlassSphereProgram( std::vector<OptixProgramGroup>& program_groups);
@@ -62,7 +60,7 @@ class WhittedEngine : public OptixEngine
 	void syncCameraDataToSbt(const CameraData& camData);
 
 	void launchSubframe(CameraHandle& camera);
-
+	void updateBackgroundColor();
 	void updateState(CameraHandle& camera);
 	void handleResize(WhittedParams& params);
 

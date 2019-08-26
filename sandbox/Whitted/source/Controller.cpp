@@ -32,8 +32,6 @@ void Controller::onInput(const InputEvent& e, CameraHandle& camera)
 			break;
 
 		case InputEvent::ScrollUp:
-			
-
 			break;
 
 		case InputEvent::Drag:

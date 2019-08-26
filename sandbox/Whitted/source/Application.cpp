@@ -128,9 +128,6 @@ class Application : public Jahley::App
 
 	void createEngine()
 	{
-		
-		// this engine just renders a triangle and allows
-		// interactive setting of background(miss) color
 		engine = std::make_shared<WhittedEngine>(properties, config);
 		engine->init(camera);
 	}

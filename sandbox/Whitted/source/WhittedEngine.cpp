@@ -26,9 +26,30 @@ WhittedEngine::~WhittedEngine ()
 {	
 	try
 	{
-		
-
+		OPTIX_CHECK(optixPipelineDestroy(state.pipeline));
+		OPTIX_CHECK(optixProgramGroupDestroy(state.raygen_prog_group));
+		OPTIX_CHECK(optixProgramGroupDestroy(state.radiance_metal_sphere_prog_group));
+		OPTIX_CHECK(optixProgramGroupDestroy(state.occlusion_metal_sphere_prog_group));
+		OPTIX_CHECK(optixProgramGroupDestroy(state.radiance_glass_sphere_prog_group));
+		OPTIX_CHECK(optixProgramGroupDestroy(state.occlusion_glass_sphere_prog_group));
+		OPTIX_CHECK(optixProgramGroupDestroy(state.radiance_miss_prog_group));
+		OPTIX_CHECK(optixProgramGroupDestroy(state.radiance_floor_prog_group));
+		OPTIX_CHECK(optixProgramGroupDestroy(state.occlusion_floor_prog_group));
+		OPTIX_CHECK(optixModuleDestroy(state.shading_module));
+		OPTIX_CHECK(optixModuleDestroy(state.geometry_module));
+		OPTIX_CHECK(optixModuleDestroy(state.camera_module));
 		// context is destroyed automatically in OptixEngine destructor
+		//OPTIX_CHECK(optixDeviceContextDestroy(state.context));
+
+
+		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(state.sbt.raygenRecord)));
+		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(state.sbt.missRecordBase)));
+		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(state.sbt.hitgroupRecordBase)));
+		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(state.d_gas_output_buffer)));
+		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(state.params.accum_buffer)));
+		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(state.d_params)));
+
+		
 	}
 	catch (std::exception& e)
 	{
@@ -42,7 +63,6 @@ WhittedEngine::~WhittedEngine ()
 
 void WhittedEngine::init(CameraHandle& camera)
 {
-	//renderer.init(camera->getScreenWidth(), camera->getScreenHeight());
 	output_buffer.init(CUDAOutputBufferType::ZERO_COPY, camera->getScreenWidth(), camera->getScreenHeight());
 	
 	state.context = context->get();
@@ -56,7 +76,6 @@ void WhittedEngine::init(CameraHandle& camera)
 
 	output_buffer.setStream(state.stream);
 }
-
 
 std::string WhittedEngine::getPtxString(const std::string& name)
 {
@@ -93,10 +112,8 @@ std::string WhittedEngine::getPtxString(const std::string& name)
 
 void WhittedEngine::createGeomety()
 {
-	//
 	// Build Custom Primitives
-	//
-
+	
 	// Load AABB into device memory
 	OptixAabb   aabb[OBJ_COUNT];
 	CUdeviceptr d_aabb;
@@ -151,12 +168,10 @@ void WhittedEngine::createGeomety()
 	aabb_input.aabbArray.sbtIndexOffsetSizeInBytes = sizeof(uint32_t);
 	aabb_input.aabbArray.primitiveIndexOffset = 0;
 
-
 	OptixAccelBuildOptions accel_options = {
 		OPTIX_BUILD_FLAG_ALLOW_COMPACTION,  // buildFlags
 		OPTIX_BUILD_OPERATION_BUILD         // operation
 	};
-
 
 	buildGas(
 		accel_options,
@@ -377,10 +392,9 @@ void WhittedEngine::updateBackgroundColor()
 	{
 		lastBackGround = bg;
 		restartAccum = true;
-
 	}
-	MissRecord ms_sbt;
 
+	MissRecord ms_sbt;
 	optixSbtRecordPackHeader(state.radiance_miss_prog_group, &ms_sbt);
 	ms_sbt.data.bg_color.x = bg.x();
 	ms_sbt.data.bg_color.y = bg.y();
@@ -816,9 +830,11 @@ void WhittedEngine::launchSubframe(CameraHandle& camera)
 	output_buffer.unmap();
 	CUDA_SYNC_CHECK();
 
+	// grab the render from Optix
 	sabi::PixelBuffer& buffer = camera->getPixelBuffer();
 	std::memcpy(buffer.uint8Pixels.data(), output_buffer.getHostPointer(), buffer.byteCountUint8());
 
+	// update the accumulator
 	++state.params.subframe_index;
 }
 
