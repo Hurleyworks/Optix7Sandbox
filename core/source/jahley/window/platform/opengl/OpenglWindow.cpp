@@ -176,7 +176,7 @@ void OpenglWindow::create(const Vector2i& size, const std::string& caption,
 		get(window).getInput().onDrop(arg);
 	});
 	
-	quad.init(true);
+	quad.init(false);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

@@ -43,7 +43,8 @@ local ROOT = "../../"
 		THIRD_PARTY_DIR .. "libigl/include",
 		THIRD_PARTY_DIR .. "cs_signal/source",
 		THIRD_PARTY_DIR .. "doctest",
-		THIRD_PARTY_DIR .. "concurrent/include"
+		THIRD_PARTY_DIR .. "concurrent/include",
+		THIRD_PARTY_DIR .. "gdt/source",
 	}
 	
 	links 
@@ -63,6 +64,7 @@ local ROOT = "../../"
 		"nvrtc",
 		"stb",
 		"cs_signal",
+		"gdt"
     }
 	
 	targetdir (ROOT .. "builds/bin/" .. outputdir .. "/%{prj.name}")

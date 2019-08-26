@@ -1,5 +1,4 @@
-
-project "stb"
+project "gdt"
 	if _ACTION == "vs2019" then
 		cppdialect "C++17"
 		location ("../builds/VisualStudio2019/projects")
@@ -12,41 +11,37 @@ project "stb"
 	end
     kind "StaticLib"
     language "C++"
-    
+  
+  
     flags { "MultiProcessorCompile" }
-	
 	targetdir ("../builds/bin/" .. outputdir .. "/%{prj.name}")
     objdir ("../builds/bin-int/" .. outputdir .. "/%{prj.name}")
 	
 	includedirs
 	{
-        "include",
+		
+        "source",
     }
 
 	files
 	{
-		"include/stb.cpp", 
-		
+       "source/**.h", 
+       "source/**.hpp", 
+       "source/**.c",
+       "source/**.cpp",
     }
-	
-	 filter "configurations:Release"
-        optimize "On"
     
 	filter "system:windows"
-        staticruntime "On"
-        disablewarnings { "4244" }
-        files
-        {
-			
-        }
-
+	    staticruntime "On"
+        systemversion "latest"
+        disablewarnings { "4244", "5030" }
+		characterset "MBCS"
+       
 		defines 
 		{ 
-            "_CRT_SECURE_NO_WARNINGS"
+			"_WIN32",
+			"_WINDOWS",
+            "_CRT_SECURE_NO_WARNINGS",
+			"NOMINMAX"
 		}
-		filter { "system:windows", "configurations:Release"}
-			buildoptions "/MT"     
-
-		filter { "system:windows", "configurations:Debug"}
-			buildoptions "/MTd"  
-			
+	

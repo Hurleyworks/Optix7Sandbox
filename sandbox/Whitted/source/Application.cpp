@@ -1,13 +1,13 @@
 #include "Jahley.h"
 
-#include "TriangleEngine.h"
+#include "WhittedEngine.h"
 #include "OptixLayer.h"
 
 #include "Model.h"
 #include "View.h"
 #include "Controller.h"
 
-const std::string APP_NAME = "HelloOptix";
+const std::string APP_NAME = "Whitted";
 
 using sabi::PixelBuffer;
 using sabi::PerspectiveCam;
@@ -31,8 +31,8 @@ class Application : public Jahley::App
 		// create a camera
 		camera = PerspectiveCam::create();
 		float aspect = (float)settings.width / (float)settings.height;
-		camera->setPerspective(DEFAULT_FOV_DEGREES, aspect, 1, 1000);
-		camera->lookAt(Vector3f(0.0f, 0.0f, 2.0f), Eigen::Vector3f::Zero());
+		camera->setPerspective(60, aspect, 1, 1000);
+		camera->lookAt(Vector3f(8.0f, 4.0f, 4.0f), Vector3f::Constant(0.0f));
 
 		// setup the camera's PixelBuffer
 		ImageInfo spec;
@@ -128,28 +128,10 @@ class Application : public Jahley::App
 
 	void createEngine()
 	{
-		config.options.context_options.logCallbackFunction = &contextLogger;
-		config.options.context_options.logCallbackLevel = 4;
-
-		config.options.accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
-		config.options.accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
-
-		config.options.module_compile_options.maxRegisterCount = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
-		config.options.module_compile_options.optLevel = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
-		config.options.module_compile_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_LINEINFO;
-
-		config.options.pipeline_compile_options.usesMotionBlur = false;
-		config.options.pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
-		config.options.pipeline_compile_options.numPayloadValues = 3;
-		config.options.pipeline_compile_options.numAttributeValues = 3;
-		config.options.pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;  // TODO: should be OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
-		config.options.pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
-
-		config.programs.ptx = "optixTriangle.ptx";
-
+		
 		// this engine just renders a triangle and allows
 		// interactive setting of background(miss) color
-		engine = std::make_shared<TriangleEngine>(properties, config);
+		engine = std::make_shared<WhittedEngine>(properties, config);
 		engine->init(camera);
 	}
 

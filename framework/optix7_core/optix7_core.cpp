@@ -8,6 +8,7 @@
 
 #include "excludeFromBuild/OptixEngine.cpp"
 #include "excludeFromBuild/OptixRenderer.cpp"
+#include "excludeFromBuild/EXRReader.cpp"
 
 
 

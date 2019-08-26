@@ -143,5 +143,6 @@ include "sandbox/HelloWindow"
 include "sandbox/HelloOptix"
 include "sandbox/HelloNanogui"
 include "sandbox/NVCC"
+include "sandbox/Whitted"
 
 	
