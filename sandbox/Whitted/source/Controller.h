@@ -6,6 +6,7 @@
 #include <sabi_core/sabi_core.h>
 
 using sabi::InputEvent;
+using sabi::CameraHandle;
 
 class Controller
 {
@@ -19,6 +20,6 @@ class Controller
 	Controller ();
 	~Controller ();
 		
-	void onInput(const InputEvent& e);
+	void onInput(const InputEvent& e, CameraHandle& camera);
 
 }; // end class Controller

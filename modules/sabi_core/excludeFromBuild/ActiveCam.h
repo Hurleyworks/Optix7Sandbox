@@ -71,7 +71,7 @@ class ActiveCam
 	void setDirty(bool state) { dirty = state; }
 
 	// trackball
-	void starTracking() { lastPointOK = false; }
+	void startTracking() { lastPointOK = false; }
 	void track(const Vector2f & newPoint2D);
 
 	// PixelBuffer

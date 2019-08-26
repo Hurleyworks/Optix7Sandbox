@@ -101,7 +101,7 @@ class Application : public Jahley::App
 
 	void onInput(const InputEvent & e) override
 	{
-		controller.onInput(e);
+		controller.onInput(e, camera);
 	}
 
 	void checkForErrors()

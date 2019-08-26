@@ -3,6 +3,7 @@
 // Copyright (c) 2019, HurleyWorks
 
 #include "Controller.h"
+using Eigen::Vector2f;
 
 // ctor
 Controller::Controller ()
@@ -14,24 +15,30 @@ Controller::~Controller ()
 {	
 }
 
-void Controller::onInput(const InputEvent& e)
+void Controller::onInput(const InputEvent& e, CameraHandle& camera)
 {
 	switch (e.getType())
 	{
 		case InputEvent::Press:
-			//LOG(DBUG) << "PRESS";
+			camera->startTracking();
+			camera->track(Vector2f(e.getX(), e.getY()));
 			break;
 
 		case InputEvent::Release:
-			//LOG(DBUG) << "RELEASE";
+			camera->setDirty(false);
 			break;
 
 		case InputEvent::Move:
-			//LOG(DBUG) << "MOVE";
+			break;
+
+		case InputEvent::ScrollUp:
+			
+
 			break;
 
 		case InputEvent::Drag:
-			//LOG(DBUG) << "Dragging: " << e.getX() << ", " << e.getY();
+			camera->track(Vector2f(e.getX(), e.getY()));
+			camera->setDirty(true);
 			break;
 	}
 }

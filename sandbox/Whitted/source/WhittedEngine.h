@@ -17,6 +17,7 @@ class WhittedEngine : public OptixEngine
 	void init(CameraHandle& camera) override;
 	void render(CameraHandle& camera) override
 	{
+		camera_changed = camera->isDirty();
 		//updateBackgroundColor();
 	//	OptixEngine::render(camera);
 		updateState(camera);
