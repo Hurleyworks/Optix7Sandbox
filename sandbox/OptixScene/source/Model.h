@@ -5,6 +5,7 @@
 #pragma once
 
 #include <sabi_core/sabi_core.h>
+#include "OptixScene.h"
 
 using handleType = std::unique_ptr<uint8_t[], void(*)(void*)>;
 using sabi::PrimitiveType;
@@ -30,6 +31,12 @@ public:
  public:
 	Model (const PropertyService& properties);
 	~Model ();
+
+	SceneHandle createScene()
+	{
+		scene = std::make_shared<OptixScene>(properties);
+		return scene;
+	}
 
 	ErrMsg getNextErrorMessage()
 	{
@@ -58,6 +65,7 @@ public:
 	void clearScene();
 	
  private:
+	SceneHandle scene = nullptr;
 	PropertyService properties;
 	RenderableNode world = nullptr;
 	LoadStrategyHandle loadStrategy = nullptr;

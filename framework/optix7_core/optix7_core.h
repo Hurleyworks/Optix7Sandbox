@@ -14,11 +14,17 @@
 #include <vector_functions.h>
 #include <vector_types.h>
 
+
+#include "excludeFromBuild/util.h"
 #include "excludeFromBuild/OptixPreprocessor.h"
 #include "excludeFromBuild/OptixMath.h"
 #include "excludeFromBuild/OptixUtil.h"
 #include "excludeFromBuild/OptixConfig.h"
 #include "excludeFromBuild/OptixData.h"
+#include "excludeFromBuild/BufferView.h"
+#include "excludeFromBuild/GeometryData.h"
+#include "excludeFromBuild/MaterialData.h"
+#include "excludeFromBuild/Light.h"
 #include "excludeFromBuild/CUDAOutputBuffer.h"
 #include "excludeFromBuild/ImageReader.h"
 #include "excludeFromBuild/EXRReader.h"

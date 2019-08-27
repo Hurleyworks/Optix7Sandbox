@@ -1,13 +1,13 @@
 #include "Jahley.h"
 
-#include "PrimitiveEngine.h"
-#include "OptixLayer.h"
+#include "OptixScene.h"
+//#include "OptixLayer.h"
 
 #include "Model.h"
 #include "View.h"
 #include "Controller.h"
 
-const std::string APP_NAME = "Whitted";
+const std::string APP_NAME = "OptixScene";
 
 using sabi::PixelBuffer;
 using sabi::PerspectiveCam;
@@ -54,14 +54,14 @@ class Application : public Jahley::App
 			nanoguiLayer = RenderLayerRef(gui);
 			pushOverlay(nanoguiLayer, true);
 
-			// place this call after creating the gui so that 
-			// we can display any error messages to the user
-			// while creating an OptixEngine for this project
+			//// place this call after creating the gui so that 
+			//// we can display any error messages to the user
+			//// while creating an OptixEngine for this project
 			createEngine();
 
-			// create the Optix layer
-			optixLayer = std::make_shared<OptixLayer>(properties, camera, engine);
-			pushLayer(optixLayer, true);
+			//// create the Optix layer
+			//optixLayer = std::make_shared<OptixLayer>(properties, camera, engine);
+			//pushLayer(optixLayer, true);
 
 			// connect the View with Model using signal/slots
 			connect(view, &View::emitPrimitiveType, model, &Model::loadPrimitive);
@@ -77,7 +77,27 @@ class Application : public Jahley::App
 
 	void update() override
 	{
+		if (!ok) return;
+
 		checkForErrors();
+		try
+		{
+			scene->render(camera);
+		}
+		catch (std::exception& e)
+		{
+			ok = false;
+			LOG(CRITICAL) << e.what();
+			if(nanoguiLayer)
+				nanoguiLayer->postWarningMessage("Optix render error!", e.what());
+		}
+		catch (...)
+		{
+			ok = false;
+			LOG(CRITICAL) << "Caught unknown exception";
+			if (nanoguiLayer)
+				nanoguiLayer->postWarningMessage("Unexpected internal error!", "Caught unknown exception");
+	}
 
 		// display the render from Optix 
 		PixelBuffer& pixelBuffer = camera->getPixelBuffer();
@@ -128,17 +148,16 @@ class Application : public Jahley::App
 
 	void createEngine()
 	{
-		engine = std::make_shared<PrimitiveEngine>(properties, config);
-		engine->init(camera);
+		scene = model.createScene();
+		scene->init(camera);
 	}
 
   private:
 	  RenderLayerRef optixLayer = nullptr;
 	  RenderLayerRef nanoguiLayer = nullptr;
 	  CameraHandle camera = nullptr;
-	  OptixConfig config;
-	  OptixEngineRef engine = nullptr;
-
+	  SceneHandle scene = nullptr;
+	  bool ok = true;
 	  Model model;
 	  View view;
 	  Controller controller;

@@ -144,6 +144,6 @@ include "sandbox/HelloOptix"
 include "sandbox/HelloNanogui"
 include "sandbox/NVCC"
 include "sandbox/Whitted"
-include "sandbox/Primitive"
+include "sandbox/OptixScene"
 
 	

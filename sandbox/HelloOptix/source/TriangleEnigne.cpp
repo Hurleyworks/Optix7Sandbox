@@ -37,7 +37,7 @@ TriangleEngine::~TriangleEngine ()
 		OPTIX_CHECK(optixProgramGroupDestroy(raygen_prog_group));
 		OPTIX_CHECK(optixModuleDestroy(module));
 
-		// context is destroyed automatically in OptixEngine destructor
+		// ctx is destroyed automatically in OptixEngine destructor
 	}
 	catch (std::exception& e)
 	{
@@ -119,7 +119,7 @@ void TriangleEngine::createAccelerationStructure(const OptixConfig& config)
 	triangle_input.triangleArray.numSbtRecords = 1;
 
 	OptixAccelBufferSizes gas_buffer_sizes;
-	OPTIX_CHECK(optixAccelComputeMemoryUsage(context->get(), &config.options.accel_options, &triangle_input,
+	OPTIX_CHECK(optixAccelComputeMemoryUsage(ctx->get(), &config.options.accel_options, &triangle_input,
 		1,  // Number of build input
 		&gas_buffer_sizes));
 	CUdeviceptr d_temp_buffer_gas;
@@ -138,7 +138,7 @@ void TriangleEngine::createAccelerationStructure(const OptixConfig& config)
 	emitProperty.result = (CUdeviceptr)((char*)d_buffer_temp_output_gas_and_compacted_size + compactedSizeOffset);
 
 	OPTIX_CHECK(optixAccelBuild(
-		context->get(),
+		ctx->get(),
 		0,              // CUDA stream
 		&config.options.accel_options,
 		&triangle_input,
@@ -163,7 +163,7 @@ void TriangleEngine::createAccelerationStructure(const OptixConfig& config)
 		CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_gas_output_buffer), compacted_gas_size));
 
 		// use handle as input and output
-		OPTIX_CHECK(optixAccelCompact(context->get(), 0, gas_handle, d_gas_output_buffer, compacted_gas_size, &gas_handle));
+		OPTIX_CHECK(optixAccelCompact(ctx->get(), 0, gas_handle, d_gas_output_buffer, compacted_gas_size, &gas_handle));
 
 		CUDA_CHECK(cudaFree((void*)d_buffer_temp_output_gas_and_compacted_size));
 	}
@@ -178,7 +178,7 @@ void TriangleEngine::createModule(const OptixConfig& config, const String& ptxSt
 	const std::string ptx = ptxStr.toStdString();
 
 	OPTIX_CHECK_LOG(optixModuleCreateFromPTX(
-		context->get(),
+		ctx->get(),
 		&config.options.module_compile_options,
 		&config.options.pipeline_compile_options,
 		ptx.c_str(),
@@ -197,7 +197,7 @@ void TriangleEngine::createProgramGroups(const OptixConfig& config)
 	raygen_prog_group_desc.raygen.entryFunctionName = "__raygen__rg";
 
 	OPTIX_CHECK_LOG(optixProgramGroupCreate(
-		context->get(),
+		ctx->get(),
 		&raygen_prog_group_desc,
 		1,   // num program groups
 		&config.options.program_group_options,
@@ -212,7 +212,7 @@ void TriangleEngine::createProgramGroups(const OptixConfig& config)
 	miss_prog_group_desc.miss.entryFunctionName = "__miss__ms";
 	
 	OPTIX_CHECK_LOG(optixProgramGroupCreate(
-		context->get(),
+		ctx->get(),
 		&miss_prog_group_desc,
 		1,   // num program groups
 		&config.options.program_group_options,
@@ -227,7 +227,7 @@ void TriangleEngine::createProgramGroups(const OptixConfig& config)
 	hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = "__closesthit__ch";
 	sizeof_log = sizeof(log);
 	OPTIX_CHECK_LOG(optixProgramGroupCreate(
-		context->get(),
+		ctx->get(),
 		&hitgroup_prog_group_desc,
 		1,   // num program groups
 		&config.options.program_group_options,
@@ -242,7 +242,7 @@ void TriangleEngine::linkPipeline(const OptixConfig& config)
 	OptixProgramGroup program_groups[] = { raygen_prog_group, miss_prog_group, hitgroup_prog_group };
 
 	OPTIX_CHECK_LOG(optixPipelineCreate(
-		context->get(),
+		ctx->get(),
 		&config.options.pipeline_compile_options,
 		&config.options.pipeline_link_options,
 		program_groups,

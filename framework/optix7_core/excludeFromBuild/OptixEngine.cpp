@@ -9,7 +9,7 @@ OptixEngine::OptixEngine (const PropertyService& properties,const OptixConfig& c
 	: properties(properties),
 	  config(config)
 {	
-	context = OptixContext::create(config.options.context_options);
+	ctx = OptixContext::create(config.options.context_options);
 }
 
 // dtor

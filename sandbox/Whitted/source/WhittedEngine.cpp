@@ -65,7 +65,7 @@ void WhittedEngine::init(CameraHandle& camera)
 {
 	output_buffer.init(CUDAOutputBufferType::ZERO_COPY, camera->getScreenWidth(), camera->getScreenHeight());
 	
-	state.context = context->get();
+	state.context = ctx->get();
 	state.params.width = camera->getScreenWidth();
 	state.params.height = camera->getScreenHeight();
 

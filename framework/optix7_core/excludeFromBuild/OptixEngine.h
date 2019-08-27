@@ -24,7 +24,7 @@ class OptixEngine
 	PropertyService properties;
 	OptixConfig config;
 	OptixRenderer renderer;
-	ContextHandle context = nullptr;
+	ContextHandle ctx = nullptr;
 	OptixPipeline pipeline = nullptr;
 	OptixShaderBindingTable sbt = {};
 	OptixTraversableHandle gas_handle = 0;
