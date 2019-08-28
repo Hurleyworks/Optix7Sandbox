@@ -31,8 +31,8 @@ namespace
 // the bulk of this code is from the Optix7 optixWhitted sample
 
 // ctor
-OptixScene::OptixScene (const PropertyService& properties)
-	:properties(properties)
+OptixScene::OptixScene (const PropertyService& properties, const OptixConfig& config)
+	: OptixEngine(properties, config)
 {	
 	
 }
@@ -64,9 +64,10 @@ void OptixScene::init(CameraHandle& camera)
 	height = camera->getScreenHeight();
 	output_buffer.init(CUDAOutputBufferType::ZERO_COPY, width, height);
 
-	finalize();
+	m_context = ctx->get();
 
-	initLaunchParams(camera);
+	addCamera(camera);
+	
 }
 
 
@@ -93,7 +94,7 @@ CUdeviceptr OptixScene::getBuffer(int32_t buffer_index) const
 
 void OptixScene::finalize()
 {
-	createContext();
+	
 	buildMeshAccels();
 	buildInstanceAccel();
 	createPTXModule();
@@ -107,6 +108,9 @@ void OptixScene::finalize()
 
 	if (!m_cameras.empty())
 		m_cameras.front().setLookat(m_scene_aabb.center());*/
+
+	
+	initLaunchParams(camera());
 }
 
 void OptixScene::cleanup()
@@ -115,7 +119,7 @@ void OptixScene::cleanup()
 
 CameraHandle OptixScene::camera() const
 {
-	return CameraHandle();
+	return !m_cameras.empty() ? m_cameras.front() : nullptr;
 }
 
 void OptixScene::createContext()
@@ -788,6 +792,7 @@ void OptixScene::initLaunchParams(CameraHandle& camera)
 	params.frame_buffer = nullptr; // Will be set when output buffer is mapped
 
 	params.subframe_index = 0u;
+	
 
 	const float loffset = m_scene_aabb.max().maxCoeff();
 
@@ -819,6 +824,35 @@ void OptixScene::initLaunchParams(CameraHandle& camera)
 
 	params.miss_color = make_float3(0.1f);
 
+
+	// recalc the view matrix
+	camera->getViewMatrix();
+
+	const Vector3f& eye = camera->getEyePoint();
+	const Vector3f& forward = camera->getFoward();
+	const Vector3f& right = camera->getRight();
+	const Vector3f& up = camera->getUp();
+
+	float ulen, vlen, wlen;
+	wlen = forward.norm();
+	vlen = wlen * tanf(0.5f * camera->getFOV() * M_PIf / 180.0f);
+	ulen = vlen * camera->getAspect();;
+
+	float3 camRight, camUp, camForward, camEye;
+	camUp = make_float3(up.x(), up.y(), up.z());
+	camUp *= vlen;
+
+	camRight = make_float3(right.x(), right.y(), right.z());
+	camRight *= ulen;
+
+	camForward = make_float3(forward.x(), forward.y(), forward.z());
+	camEye = make_float3(eye.x(), eye.y(), eye.z());
+
+	params.eye = camEye;
+	params.U = camRight;
+	params.V = camUp;
+	params.W = camForward;
+
 	//CUDA_CHECK( cudaStreamCreate( &stream ) );
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_params), sizeof(whitted::LaunchParams)));
 
@@ -828,7 +862,7 @@ void OptixScene::initLaunchParams(CameraHandle& camera)
 void OptixScene::launchSubframe(CameraHandle& camera)
 {
 	// Launch
-		uchar4 * result_buffer_data = output_buffer.map();
+	uchar4 * result_buffer_data = output_buffer.map();
 	params.frame_buffer = result_buffer_data;
 	CUDA_CHECK(cudaMemcpyAsync(reinterpret_cast<void*>(d_params),
 		&params,

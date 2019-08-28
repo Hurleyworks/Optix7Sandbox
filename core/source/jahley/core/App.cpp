@@ -55,6 +55,7 @@ namespace Jahley
 		properties.renderProps->addDefault(RenderKey::ResourceFolder, INVALID_PATH);
 		properties.renderProps->addDefault(RenderKey::CommonFolder, INVALID_PATH);
 		properties.renderProps->addDefault(RenderKey::ShowPerformanceGraph, true);
+		properties.renderProps->addDefault(RenderKey::RenderError, DEFAULT_ERROR_MESSAGE);
 	}
 
 	App::~App ()
@@ -72,7 +73,7 @@ namespace Jahley
 			window->renderBegin(properties.renderProps->getVal<Vector4f>(RenderKey::BackgroundColor));
 
 			for (RenderLayerRef layer : layers)
-				layer->onUpdate();
+					layer->onUpdate();
 
 			// let the client update
 			update();
@@ -113,7 +114,6 @@ namespace Jahley
 			}
 		}
 			
-
 		// send to client
 		if(sendToClient)
 			onInput(e);

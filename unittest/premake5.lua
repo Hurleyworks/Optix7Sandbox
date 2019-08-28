@@ -28,6 +28,6 @@ end
 
 -- add sandbox projects here
 include "tests/HelloDocTest"
-
+include "tests/EigenTest"
 
 	

@@ -14,7 +14,7 @@ using Eigen::AlignedBox3f;
 using SceneHandle = std::shared_ptr<class OptixScene>;
 
 // the bulk of this code is from the Optix7 MeshViewer sample
-class OptixScene //: public OptixEngine
+class OptixScene : public OptixEngine
 {
 
 public:
@@ -38,14 +38,25 @@ public:
 	};
 
  public:
-	OptixScene (const PropertyService& properties);
+	OptixScene (const PropertyService& properties, const OptixConfig & config);
 	~OptixScene ();
 
-	void init(CameraHandle& camera);// override;
-	void render(CameraHandle& camera)// override
+	void init(CameraHandle& camera) override;
+	void render(CameraHandle& camera) override
 	{
-		restartAccum = camera->isDirty();
-		launchSubframe(camera);	
+		if (!ok) return;
+
+		try
+		{
+			restartAccum = camera->isDirty();
+			launchSubframe(camera);
+		}
+		catch (std::exception& e)
+		{
+			ok = false;
+			properties.renderProps->setValue(RenderKey::RenderError, std::string(e.what()));
+			LOG(CRITICAL) << "Caught exception: " << e.what();
+		}
 	}
 
 	 void addCamera(const CameraHandle& camera) { m_cameras.push_back(camera); }
@@ -60,7 +71,7 @@ public:
 	 void                           finalize();
 	 void                           cleanup();
 
-	 CameraHandle                                  camera()const;
+	 CameraHandle                              camera()const;
 	 OptixPipeline                             pipeline()const { return m_pipeline; }
 	 const OptixShaderBindingTable* sbt()const { return &m_sbt; }
 	 OptixTraversableHandle                    traversableHandle() const { return m_ias_handle; }
@@ -74,18 +85,17 @@ public:
 	 void buildInstanceAccel(int rayTypeCount = whitted::RAY_TYPE_COUNT);
 
  private:
-	PropertyService properties;
 	bool resize_dirty = false;
 	bool restartAccum = true;
+	bool ok = false;
 	Vector4f lastBackGround = Vector4f::Constant(0.0);
+
+	CUDAOutputBuffer<uchar4> output_buffer;
 
 	whitted::LaunchParams* d_params = nullptr;
 	whitted::LaunchParams   params = {};
-	int32_t                 width = 768;
-	int32_t                 height = 768;
-
-
-	CUDAOutputBuffer<uchar4> output_buffer;
+	int32_t width = DEFAULT_DESKTOP_WINDOW_WIDTH;
+	int32_t height = DEFAULT_DESKTOP_WINDOW_HEIGHT;
 
 	void createPTXModule();
 	void createProgramGroups();
@@ -94,7 +104,7 @@ public:
 	void initLaunchParams(CameraHandle& camera);
 	void launchSubframe(CameraHandle& camera);
 
-	std::vector<CameraHandle>                  m_cameras;
+	std::vector<CameraHandle>                m_cameras;
 	std::vector<std::shared_ptr<MeshGroup> >  m_meshes;
 	std::vector<MaterialData::Pbr>       m_materials;
 	std::vector<CUdeviceptr>             m_buffers;

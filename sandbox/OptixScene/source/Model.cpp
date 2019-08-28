@@ -128,7 +128,7 @@ void Model::createGroundPlane(const Vector2f& size)
 	spacetime.modelBound.min() = V.rowwise().minCoeff();
 	spacetime.modelBound.max() = V.rowwise().maxCoeff();
 	spacetime.worldTransform = Pose::Identity();
-	spacetime.startTransform = Pose::Identity();
+	spacetime.startTransform = spacetime.worldTransform;
 	spacetime.scale = Scale::Constant(1.0f);
 	spacetime.updateWorldBounds();
 
@@ -141,7 +141,7 @@ void Model::createGroundPlane(const Vector2f& size)
 	m->S.push_back(s);
 
 	RenderableData data;
-	data.clientID = -1;
+	data.clientID = INVALID_ID;
 	data.desc = RenderableDesc();
 	data.mesh = m;
 	data.name = name;

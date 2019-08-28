@@ -124,6 +124,14 @@ class Application : public Jahley::App
 					break;
 			}
 		}
+
+		std::string renderError = properties.renderProps->getVal<std::string>(RenderKey::RenderError);
+		if (renderError != DEFAULT_ERROR_MESSAGE)
+		{
+			nanoguiLayer->postWarningMessage("Critical", renderError);
+			properties.renderProps->setValue(RenderKey::RenderError, DEFAULT_ERROR_MESSAGE);
+
+		}
 	}
 
 	void createEngine()
