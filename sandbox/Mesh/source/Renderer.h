@@ -24,6 +24,7 @@ class Renderer : public OptixRenderer
 
  private:
 	Params params;
+	CUdeviceptr d_param;
 	CUDAOutputBuffer<uchar4> output_buffer;
 
 }; // end class Renderer

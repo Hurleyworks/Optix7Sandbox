@@ -118,8 +118,7 @@ class Application : public Jahley::App
 		if (engine->getGAS())
 		{
 			if (nanoguiLayer)
-				nanoguiLayer->postWarningMessage("Warning", "Adding more than 1 mesh is not supported yet");
-
+				nanoguiLayer->postWarningMessage("Warning", "Adding more than 1 mesh is not supported in this sample");
 			return;
 		}
 
@@ -138,6 +137,8 @@ class Application : public Jahley::App
 
 	void checkForErrors()
 	{
+		if (!nanoguiLayer) return;
+
 		ErrMsg err = model.getNextErrorMessage();
 		if (err.message.size())
 		{

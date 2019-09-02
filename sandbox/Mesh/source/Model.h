@@ -17,6 +17,7 @@ using sabi::MeshBuffersHandle;
 using sabi::LoadStrategyHandle;
 using sabi::RenderableNode;
 using sabi::RenderableData;
+using Eigen::Vector2f;
 
 class Model : public CsSignal::SlotBase, public CsSignal::SignalBase
 {
@@ -57,7 +58,15 @@ public:
 	}
 
 	void addPrimitive(PrimitiveType type, MeshOptions options = MeshOptions());
-	void createGroundPlane(const Eigen::Vector2f& size);
+	void createGroundPlane(const Vector2f& size);
+	void onMeshLoad(MeshBuffersHandle m);
+	void addMesh(MeshBuffersHandle mesh,
+				const std::string& name,
+				BodyID clientID,
+				const Pose& pose,
+				const Scale& scale,
+				const RenderableDesc& desc,
+				MeshOptions options);
 
 	void loadImage(const std::string& path, PixelBuffer & buffer);
 	void onDrop(const std::vector<std::string>& fileList);
@@ -70,14 +79,6 @@ public:
 	void removeNode(ItemID itemID);
 
 	void clearScene();
-	void onMeshLoad(MeshBuffersHandle m);
-	void addMesh(MeshBuffersHandle mesh,
-				const std::string& name,
-				BodyID clientID,
-				const Pose& pose,
-				const Scale& scale,
-				const RenderableDesc& desc,
-				MeshOptions options);
 	
  private:
 	PropertyService properties;
@@ -87,9 +88,5 @@ public:
 	ErrorQueue errorQueue;
 	MeshQueue meshQueue;
 	concurrent<ActiveLoader> activeLoader;
-
-	
-
-	
 
 }; // end class Model

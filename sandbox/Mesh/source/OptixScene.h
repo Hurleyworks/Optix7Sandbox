@@ -31,7 +31,6 @@ class OptixScene : public OptixEngine
 		renderer->render(camera, OptixEngine::getPtr());
 	}
 	
-
  private:
 	RendererHandle renderer = nullptr;
 	

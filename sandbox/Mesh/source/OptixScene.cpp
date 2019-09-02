@@ -26,14 +26,11 @@ void OptixScene::init(CameraHandle& camera)
 {
 	renderer = Renderer::create(camera->getScreenWidth(), camera->getScreenHeight());
 
-	//createAccel();
-
 	pipeHandle = createPipeline();
 	if (!pipeHandle)
 		throw std::runtime_error("Pipeline creation failed");
 
 	buildSBT(camera);
-	
 }
 
 // from Ingo Wald tutorials

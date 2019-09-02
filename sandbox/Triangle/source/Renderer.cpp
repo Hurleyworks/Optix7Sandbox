@@ -29,6 +29,8 @@ void Renderer::resize(unsigned int screenWidth, unsigned int screenHeight)
 	params.image_height = height;
 	params.origin_x = width / 2;
 	params.origin_y = height / 2;
+
+	
 }
 
 void Renderer::render(CameraHandle& camera, OptixEngineRef& engine)
@@ -39,7 +41,7 @@ void Renderer::render(CameraHandle& camera, OptixEngineRef& engine)
 	params.image = output_buffer.map();
 	params.handle = engine->getGAS();
 
-	CUdeviceptr d_param;
+	
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_param), sizeof(Params)));
 	CUDA_CHECK(cudaMemcpy(
 		reinterpret_cast<void*>(d_param),

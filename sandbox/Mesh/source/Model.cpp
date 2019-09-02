@@ -17,7 +17,6 @@ using sabi::MeshBuffers;
 using sabi::NormalizedClump;
 using sabi::MeshOps;
 using Eigen::AlignedBox3f;
-using Eigen::Vector2f;
 using Eigen::Vector3f;
 using sabi::WorldComposite;
 using sabi::PRenderableState;
@@ -31,10 +30,6 @@ Model::Model (const PropertyService& properties)
 	  world(WorldComposite::create())
 {	
 	loadStrategy = std::make_shared<NormalizedClump>();
-
-	// always make a ground plane
-	createGroundPlane(Vector2f(100.0f, 100.0f));
-
 }
 
 // dtor
@@ -328,6 +323,5 @@ void Model::addMesh(MeshBuffersHandle mesh,
 	data.state.state |= PRenderableState::Pickable;
 
 	createNewRenderable(data);
-
 }
 
