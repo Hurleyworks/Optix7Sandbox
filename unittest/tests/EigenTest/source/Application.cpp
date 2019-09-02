@@ -210,13 +210,36 @@ TEST_CASE("[MeshBuffer] sizeof")
 	CHECK(sizeof(size_t) == 8);
 	CHECK(sizeof(Surfaces) == 32);
 
-
 	// MeshBuffers has
 	// 2 MatrixXf = 48 bytes
 	// 1 Surfaces = 32 bytes;
 	// 1 size_t = 8 bytes
 	// total should be 88 bytes
 	CHECK(sizeof(MeshBuffers) == 88);
+}
+
+// copy eigen dynamic matrix into a std::vector
+TEST_CASE("[convert] std vector")
+{
+	const int pointCount = 1000;
+	MatrixXf V;
+	V.resize(3, pointCount);
+
+	for (int i = 0; i < pointCount; i++)
+	{
+		V.col(i) = Vector3f::Random();
+	}
+	
+	std::vector<float> vec(V.size());
+	std::memcpy(vec.data(), V.data(), V.size() * sizeof(float));
+
+	auto ptr1 = V.data();
+	auto ptr2 = vec.data();
+
+	for (int i = 0; i < V.size(); i++)
+	{
+		CHECK(*ptr1++ == *ptr2++);
+	}
 }
 
 class Application : public Jahley::App

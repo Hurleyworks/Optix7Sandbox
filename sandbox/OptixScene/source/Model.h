@@ -40,7 +40,6 @@ public:
 
 		scene->init(camera);
 
-
 		for (auto it : world->getChildren())
 		{
 			RenderableNode node = it.second;
@@ -48,66 +47,7 @@ public:
 
 			MeshBuffersHandle m = node->getMesh();
 
-			MeshBuffers* meshBuf = m.get();
-			MatrixXf V = *(MatrixXf*)(meshBuf);
-			LOG(DBUG) << V.cols();
-
-			size_t off = sizeof(Eigen::Vector3f) * 4;
-			MatrixXf N = *(MatrixXf*)(meshBuf + off);
-			LOG(DBUG) << N.cols();
-
-
-			size_t vertices = m->pointCount();
-			size_t triangles = m->triangleCount();
-			size_t normals = vertices;
-
-			const uint64_t buf_size = vertices * sizeof(float) * 3 + normals * sizeof(float) * 3 + triangles * sizeof(unsigned int) * 3;
-			const uint64_t buf_size2 = sizeof(*m.get());
-			scene->addBuffer(buf_size, m.get());
-
-			auto mesh = std::make_shared<OptixScene::MeshGroup>();
-			scene->addMesh(mesh);
-
-			mesh->name = node->getName();
-			mesh->transform = node->getSpaceTime().worldTransform.matrix();
-
-			MatrixXu tris;
-			m->getAllSurfaceIndices(tris);
-
-			size_t byteOffset = 0;
-
-			const CUdeviceptr buffer_base = scene->getBuffer(0);
-			GenericBufferView buffer_view;
-			buffer_view.data = buffer_base + byteOffset;
-			buffer_view.byte_stride = static_cast<uint16_t>(sizeof(unsigned int) * 3);
-			buffer_view.count = static_cast<uint32_t>(tris.cols()); 
-			buffer_view.elmt_byte_size = static_cast<uint16_t>(sizeof(unsigned int));
-
-			LOG(DBUG) << "byte stride: " << buffer_view.byte_stride;
-			LOG(DBUG) << "count: " << buffer_view.count;
-			LOG(DBUG) << "element size: " << buffer_view.elmt_byte_size;
-
-			if (buffer_view.isValid())
-			{
-				mesh->indices.push_back(buffer_view);
-			}
-			else
-			{
-				LOG(CRITICAL) << "Could not create indices for " << node->getName();
-			}
 			
-			byteOffset += buffer_view.byte_stride * buffer_view.count * buffer_view.elmt_byte_size;
-
-			LOG(DBUG) << sizeof(*m.get());
-			LOG(DBUG) << "BYTE OFFSET " << byteOffset;
-
-			/*MeshBuffers* buf = m.get();
-
-			for (int i = 0; i < 12; i++)
-			{
-				float* p = reinterpret_cast<float*>(buf + byteOffset + i * 3);
-				LOG(DBUG) << *p;
-			}*/
 			
 			
 

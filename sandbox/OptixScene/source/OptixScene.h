@@ -80,7 +80,6 @@ public:
 	 const std::vector<MaterialData::Pbr>& materials() const { return m_materials; }
 	 const std::vector<std::shared_ptr<MeshGroup>>& meshes() const { return m_meshes; }
 
-	 void createContext();
 	 void buildMeshAccels();
 	 void buildInstanceAccel(int rayTypeCount = whitted::RAY_TYPE_COUNT);
 

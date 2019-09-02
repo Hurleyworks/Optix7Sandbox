@@ -122,19 +122,6 @@ CameraHandle OptixScene::camera() const
 	return !m_cameras.empty() ? m_cameras.front() : nullptr;
 }
 
-void OptixScene::createContext()
-{
-
-	// Initialize CUDA
-	CUDA_CHECK(cudaFree(nullptr));
-
-	CUcontext          cuCtx = nullptr;  // zero means take the current context
-	OPTIX_CHECK(optixInit());
-	OptixDeviceContextOptions options = {};
-	options.logCallbackFunction = &contextLogger;
-	options.logCallbackLevel = 4;
-	OPTIX_CHECK(optixDeviceContextCreate(cuCtx, &options, &m_context));
-}
 
 void OptixScene::buildMeshAccels()
 {// Problem:
