@@ -2,13 +2,7 @@
 
 An environment for experimenting with the new Optix7 API
 
-## Getting Started
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
-
 ### Prerequisites
-
-System Requirements (for running binaries referencing OptiX)
 
 Graphics Hardware:
 
