@@ -1,6 +1,6 @@
 # Optix7Sandbox
 
-An framework for experimenting with the new Optix7 API
+A Sframework for experimenting with the new Optix7 API
 
 ### Prerequisites
 
