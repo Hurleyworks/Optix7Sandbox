@@ -59,50 +59,6 @@ void View::create(NanoguiLayer* const gui)
 		properties.renderProps->setValue(RenderKey::MeshColor, bg);
 		});
 
-	label = new Label(window, "Scene:", "sans-bold");
-	label->setColor(Color(r1, g1, b1, a1));
-
-	// create primitive meshes
-	PopupButton* primPopBtn = new PopupButton(window, "Add mesh", ENTYPO_ICON_PLUS);
-	Popup* primPopup = primPopBtn->popup();
-	primPopup->setLayout(new GroupLayout());
-
-	Button * b = new Button(primPopup, "Box");
-	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Box), MeshOptions());
-		});
-	b = new Button(primPopup, "Ball");
-	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Ball), MeshOptions());
-		});
-	b = new Button(primPopup, "Cylinder");
-	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Cylinder), MeshOptions());
-		});
-	b = new Button(primPopup, "Capsule");
-	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Capsule), MeshOptions());
-		});
-	b = new Button(primPopup, "Torus");
-	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Torus), MeshOptions());
-		});
-	b = new Button(primPopup, "Bunny");
-	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Bunny), MeshOptions());
-		});
-
-	Button * about = new Button(window->buttonPanel(), "", ENTYPO_ICON_INFO);
-	about->setCallback([=]() {
-		std::string msg = getSceneInfo().joinIntoString("\n").toStdString();
-		auto dlg = new MessageDialog(
-			gui, MessageDialog::Type::Information, "Scene Info", msg);
-		dlg->messageLabel()->setFixedWidth(550);
-		dlg->messageLabel()->setFontSize(20);
-		gui->performLayout();
-		dlg->center();
-		});
-
 	gui->performLayout();
 }
 
