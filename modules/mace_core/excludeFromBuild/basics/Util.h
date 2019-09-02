@@ -31,7 +31,9 @@ const int DEFAULT_DESKTOP_WINDOW_CHANNELS = 3;
 const std::string DEFAULT_DESKTOP_WINDOW_NAME = "DesktopWindow";
 const int DEFAULT_DESKTOP_WINDOW_REFRESH_RATE = 16;
 const bool DEFAULT_DESKTOP_WINDOW_RESIZABLE = true;
+const float DEFAULT_ZOOM_FACTOR = 0.05f;
 const Eigen::Vector4f DEFAULT_DESKTOP_WINDOW_BACKGROUND_COLOR = Eigen::Vector4f(0.2f, 0.22f, 0.24f, 1.0f);
+const Eigen::Vector4f DEFAULT_MESH_COLOR = Eigen::Vector4f(1.0f, 0.5f, 0.0f, 1.0f);
 
 using ItemID = int64_t;
 const int64_t INVALID_ID = -1;

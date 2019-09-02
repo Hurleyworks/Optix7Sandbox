@@ -21,6 +21,7 @@
 #include <limits>
 #include <algorithm>
 #include <functional>
+#include <stdint.h>
 
 // Eigen
 #include <Eigen/Core>
@@ -56,12 +57,20 @@
 // genetic 
 #include "excludeFromBuild/tools/openga.h"
 
+using juce::numElementsInArray;
+using juce::Random;
+using juce::jmin;
+using juce::jmax;
+
 namespace mace
 {
 	// tools
 	#include "excludeFromBuild/tools/FileTools.h"
 	#include "excludeFromBuild/tools/Pcg32.h"
 	#include "excludeFromBuild/tools/pcg32_8.h"
+	#include "excludeFromBuild/tools/Prime.h"
+	#include "excludeFromBuild/tools/RSA.h"
+	#include "excludeFromBuild/tools/LWSN.h"
 
 	// basics
 	#include "excludeFromBuild//basics/Buffer.h"

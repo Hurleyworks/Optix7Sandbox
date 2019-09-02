@@ -2,11 +2,11 @@
 // Created: 18 Aug 2019 4:00:14 pm
 // Copyright (c) 2019, HurleyWorks
 
-using sabi::PixelBuffer;
-using Eigen::Vector4f;
 
 // ctor
-OptixRenderer::OptixRenderer ()
+OptixRenderer::OptixRenderer(unsigned int screenWidth, unsigned int screenHeight)
+	: width(screenWidth),
+	  height(screenHeight)
 {	
 }
 
@@ -14,42 +14,3 @@ OptixRenderer::OptixRenderer ()
 OptixRenderer::~OptixRenderer ()
 {	
 }
-
-void OptixRenderer::init(int screenWidth, int screenHeight)
-{
-	output_buffer.init(CUDAOutputBufferType::ZERO_COPY, screenWidth, screenHeight);
-}
-
-void OptixRenderer::render(CameraHandle& camera, OptixTraversableHandle& gas_handle, OptixPipeline pipeline, const OptixShaderBindingTable& sbt)
-{
-	int width = camera->getScreenWidth();
-	int height = camera->getScreenHeight();
-
-	CUstream stream;
-	CUDA_CHECK(cudaStreamCreate(&stream));
-
-	Params params;
-	params.image = output_buffer.map();
-	params.image_width = width;
-	params.image_height = height;
-	params.origin_x = width / 2;
-	params.origin_y = height / 2;
-	params.handle = gas_handle;
-
-	CUdeviceptr d_param;
-	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_param), sizeof(Params)));
-	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(d_param),
-		&params, sizeof(params),
-		cudaMemcpyHostToDevice
-	));
-
-	OPTIX_CHECK(optixLaunch(pipeline, stream, d_param, sizeof(Params), &sbt, width, height, /*depth=*/1));
-	CUDA_SYNC_CHECK();
-
-	output_buffer.unmap();
-
-	PixelBuffer& buffer = camera->getPixelBuffer();
-	std::memcpy(buffer.uint8Pixels.data(), output_buffer.getHostPointer(), buffer.byteCountUint8());
-}
-

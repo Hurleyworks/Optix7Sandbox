@@ -6,9 +6,9 @@
 
 struct MeshBuffers
 {
+	Surfaces S;   // collection of triangles with different materials
 	MatrixXf V;   // vertices
 	MatrixXf N;   // vertex normals
-	Surfaces S;   // collection of triangles with different materials
 
 	size_t faceCount = 0; // must be computed
 	size_t pointCount() { return V.cols(); }

@@ -61,7 +61,6 @@ void OpenglWindow::renderImage(PixelBuffer&& pixelBuffer)
 	{
 		if (pixelBuffer.spec.channels == 3)
 		{
-
 			glTextureSubImage2D(textureID, 0, 0, 0, pixelBuffer.spec.width, pixelBuffer.spec.height, GL_RGB, GL_UNSIGNED_BYTE, pixelBuffer.uint8Pixels.data());
 		}
 		else if (pixelBuffer.spec.channels == 4)
@@ -163,8 +162,11 @@ void OpenglWindow::create(const Vector2i& size, const std::string& caption,
 	glfwSetWindowFocusCallback(window, [](GLFWwindow* window, int focused) { get(window).onWindowFocus(focused); });
 	glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height) {get(window).onWindowResize(width, height); });
 	glfwSetWindowCloseCallback(window, [](GLFWwindow* window) { get(window).onWindowClose(); });
+	
+	
 
 	// input events
+	glfwSetScrollCallback(window, [](GLFWwindow* window, double xOffset, double yOffset) {get(window).getInput().onScroll(xOffset, yOffset); });
 	glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) { get(window).getInput().onCursorPos(xpos, ypos); });
 	glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) { get(window).getInput().onMouseButtonEvent(button, action, mods);  });
 	glfwSetDropCallback(window, [](GLFWwindow* window, int count, const char** filenames)

@@ -87,6 +87,14 @@ class InputHandler : public CsSignal::SignalBase
 		onDragAndDrop(fileList);
 	}
 
+	void onScroll(double xOffset, double yOffset)
+	{
+		input.setType(yOffset > 0.0 ? InputEvent::ScrollUp : InputEvent::ScrollDown);
+
+		// emit the event
+		onEvent(input);
+	}
+
  private:
 	InputEvent input;
 	bool windowOpen = true;

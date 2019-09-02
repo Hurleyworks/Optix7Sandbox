@@ -138,12 +138,7 @@ project "CoreLibrary"
   
 -- add sandbox projects here
 include "sandbox/HelloWorld"
-include "sandbox/HelloPtx"
-include "sandbox/HelloWindow"
-include "sandbox/HelloOptix"
 include "sandbox/HelloNanogui"
-include "sandbox/NVCC"
-include "sandbox/Whitted"
-include "sandbox/OptixScene"
-
+include "sandbox/Mesh"
+include "sandbox/Triangle"
 	

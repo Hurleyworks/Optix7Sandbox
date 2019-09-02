@@ -3,10 +3,10 @@
 static const char* RenderKeyTable[] =
 {
 	"BackgroundColor",
+	"MeshColor",
 	"ResourceFolder",
 	"CommonFolder",
 	"ShowPerformanceGraph",
-	"RenderError",
 	"Invalid"
 };
 
@@ -15,10 +15,10 @@ struct RenderKey
 	enum ERenderKey
 	{
 		BackgroundColor,
+		MeshColor,
 		ResourceFolder,
 		CommonFolder,
 		ShowPerformanceGraph,
-		RenderError,
 		Count,
 		Invalid = Count
 	};

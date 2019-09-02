@@ -6,17 +6,21 @@
 
 using sabi::CameraHandle;
 
+using RendererHandle = std::unique_ptr<class OptixRenderer>;
+
 class OptixRenderer
 {
 
  public:
-	OptixRenderer ();
-	~OptixRenderer ();
+	virtual ~OptixRenderer ();
 
-	void init(int screenWidth, int screenHeight);
-	void render(CameraHandle& camera, OptixTraversableHandle & gas_handle, OptixPipeline pipeline, const OptixShaderBindingTable& sbt);
+	virtual void resize(unsigned int screenWidth, unsigned int screenHeight) = 0;
+	virtual void render(CameraHandle& camera, OptixEngineRef& engine) = 0;
 
- private:
-	 CUDAOutputBuffer<uchar4> output_buffer;
+ protected:
+	OptixRenderer(unsigned int screenWidth, unsigned int screenHeight);
+
+	unsigned int width = DEFAULT_DESKTOP_WINDOW_WIDTH;
+	unsigned int height = DEFAULT_DESKTOP_WINDOW_HEIGHT;
 
 }; // end class OptixRenderer

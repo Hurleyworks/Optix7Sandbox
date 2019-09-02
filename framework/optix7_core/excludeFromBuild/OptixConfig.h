@@ -1,5 +1,7 @@
 #pragma once
 
+#include "OptixData.h"
+
 struct OptixOptions
 {
 	OptixDeviceContextOptions context_options = {};
@@ -20,10 +22,14 @@ struct OptixDesc
 
 struct OptixPrograms
 {
-	std::string ptx = "";
-	OptixProgramGroup raygen_prog_group = nullptr;
-	OptixProgramGroup miss_prog_group = nullptr;
-	OptixProgramGroup hitgroup_prog_group = nullptr;
+	std::vector<ProgramGroupHandle> raygenProgs;
+	CUDABuffer raygenRecordsBuffer;
+
+	std::vector<ProgramGroupHandle> missProgs;
+	CUDABuffer missRecordsBuffer;
+
+	std::vector<ProgramGroupHandle> hitgroupProgs;
+	CUDABuffer hitgroupRecordsBuffer;
 };
 
 struct OptixConfig
