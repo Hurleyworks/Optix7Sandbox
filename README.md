@@ -9,7 +9,8 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 System Requirements (for running binaries referencing OptiX)
-##Graphics Hardware:
+
+Graphics Hardware:
 
 ● All NVIDIA GPUs of Compute Capability 5.0 (Maxwell) or higher are supported.
 Graphics Driver:
@@ -19,20 +20,11 @@ OptiX dll from the SDK are no longer needed since the symbols are loaded from th
 
 ● Windows 7/8.1/10 64-bit; 
 
-##CUDA Toolkit
-
-● It is not required to have any CUDA toolkit installed to be able to run OptiX-based applications.
-Development Environment Requirements (for compiling with OptiX)
-
 ● CUDA Toolkit 7, 8, 9, 10
 
 OptiX 7.0.0 has been built with CUDA 10.1, but any specified toolkit should work when compiling PTX for OptiX.
 
 OptiX uses the CUDA device API, but the CUDA runtime API objects can be cast to device API obj
-
-```
-Give examples
-```
 
 ### Installing
 
