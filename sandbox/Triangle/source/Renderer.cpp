@@ -16,6 +16,9 @@ Renderer::Renderer (unsigned int screenWidth, unsigned int screenHeight)
 	params.image_height = height;
 	params.origin_x = width / 2;
 	params.origin_y = height / 2;
+
+	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_param), sizeof(Params)));
+	CUDA_CHECK(cudaStreamCreate(&stream));
 }
 
 // dtor
@@ -29,20 +32,13 @@ void Renderer::resize(unsigned int screenWidth, unsigned int screenHeight)
 	params.image_height = height;
 	params.origin_x = width / 2;
 	params.origin_y = height / 2;
-
-	
 }
 
 void Renderer::render(CameraHandle& camera, OptixEngineRef& engine)
 {
-	CUstream stream;
-	CUDA_CHECK(cudaStreamCreate(&stream));
-
 	params.image = output_buffer.map();
 	params.handle = engine->getGAS();
-
 	
-	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_param), sizeof(Params)));
 	CUDA_CHECK(cudaMemcpy(
 		reinterpret_cast<void*>(d_param),
 		&params, sizeof(params),
