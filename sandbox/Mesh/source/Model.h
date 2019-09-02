@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <sabi_core/sabi_core.h>
+#include "ActiveLoader.h"
+#include <concurrent.hpp>
 
 using handleType = std::unique_ptr<uint8_t[], void(*)(void*)>;
 
@@ -27,6 +28,7 @@ class Model : public CsSignal::SlotBase, public CsSignal::SignalBase
 
 public:
 	using ErrorQueue = std::queue<ErrMsg>;
+	using MeshQueue = moodycamel::ConcurrentQueue<MeshBuffersHandle>;
 
 	SIGNAL_1(void emitRenderable(RenderableNode& node))
 	SIGNAL_2(emitRenderable, node)
@@ -46,6 +48,14 @@ public:
 		return ErrMsg();
 	}
 
+	MeshBuffersHandle getNextLoadedMeshBuffer()
+	{
+		MeshBuffersHandle mesh;
+		bool found = meshQueue.try_dequeue(mesh);
+
+		return found ? mesh : nullptr;
+	}
+
 	void addPrimitive(PrimitiveType type, MeshOptions options = MeshOptions());
 	void createGroundPlane(const Eigen::Vector2f& size);
 
@@ -60,20 +70,25 @@ public:
 	void removeNode(ItemID itemID);
 
 	void clearScene();
+	void onMeshLoad(MeshBuffersHandle m);
+	void addMesh(MeshBuffersHandle mesh,
+				const std::string& name,
+				BodyID clientID,
+				const Pose& pose,
+				const Scale& scale,
+				const RenderableDesc& desc,
+				MeshOptions options);
 	
  private:
 	PropertyService properties;
+	LoadMeshCallback loadMeshCallback = nullptr;
 	RenderableNode world = nullptr;
 	LoadStrategyHandle loadStrategy = nullptr;
 	ErrorQueue errorQueue;
+	MeshQueue meshQueue;
+	concurrent<ActiveLoader> activeLoader;
 
-	void addMesh(MeshBuffersHandle mesh,
-				 const std::string& name,
-				 BodyID clientID,
-				 const Pose& pose,
-				 const Scale& scale,
-				 const RenderableDesc& desc,
-				 MeshOptions options);
+	
 
 	
 

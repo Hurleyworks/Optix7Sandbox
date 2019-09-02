@@ -25,7 +25,7 @@ void View::create(NanoguiLayer* const gui)
 {
 	this->gui = gui;
 
-	Window* window = new Window(gui, "Hello Optix");
+	Window* window = new Window(gui, "Hello Optix7");
 	window->setPosition(Vector2i(15, 15));
 	window->setLayout(new GroupLayout());
 

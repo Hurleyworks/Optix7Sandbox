@@ -36,7 +36,8 @@ public:
  private:
 	 PropertyService properties;
 	 NanoguiLayer* gui = nullptr; // owned by App, don't delete
-	
+	 MeshOptions meshOptions = MeshOptions::CenterVertices | MeshOptions::NormalizeSize | MeshOptions::RestOnGround;
+
 	 // label colors
 	 int r1 = 255;
 	 int g1 = 100;

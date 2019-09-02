@@ -27,12 +27,14 @@ using igl::read_triangle_mesh;
 // ctor
 Model::Model (const PropertyService& properties)
 	: properties(properties),
-	   world(WorldComposite::create())
+	  loadMeshCallback(std::bind(&Model::onMeshLoad, this, std::placeholders::_1)),
+	  world(WorldComposite::create())
 {	
 	loadStrategy = std::make_shared<NormalizedClump>();
 
 	// always make a ground plane
 	createGroundPlane(Vector2f(100.0f, 100.0f));
+
 }
 
 // dtor
@@ -192,25 +194,8 @@ void Model::onDrop(const std::vector<std::string>& fileList)
 			std::string path = f.getFullPathName().toStdString();
 			File f(path);
 
-			Eigen::MatrixXd V;
-			Eigen::MatrixXi F;
-			if (!read_triangle_mesh(path, V, F))
-			{
-				LOG(CRITICAL) << "load mesh failed for: " << path;
-				return;
-			}
-
-			MeshBuffersHandle m = std::make_shared<MeshBuffers>();
-			m->V = V.transpose().cast<float>(); // Libigl needs to be transposed
-	
-			MatrixXu indices = F.cast<unsigned>();
-
-			Surface s;
-			s.indices() = indices.transpose(); // Libigl needs to be transposed
-			m->S.push_back(s);
-
-			MeshOptions options = MeshOptions::CenterVertices | MeshOptions::NormalizeSize | MeshOptions::RestOnGround;
-			addMesh(m, f.getFileNameWithoutExtension().toStdString(), INVALID_ID, Pose::Identity(), Scale::Constant(1.0f), RenderableDesc(), options);
+			// load on another thread so the app doesn' halt
+			activeLoader.call(&ActiveLoader::loadMesh, path, loadMeshCallback);
 		}
 	}
 }
@@ -278,6 +263,15 @@ void Model::removeNode(ItemID itemID)
 void Model::clearScene()
 {
 	world->removeChildren();
+}
+
+void Model::onMeshLoad(MeshBuffersHandle m)
+{
+	// this call comes from the ActiveLoader thread so
+	// we have to store the mesh in a thread safe container
+	// and then pick it up on the main thread during
+	// an update()
+	meshQueue.enqueue(m);
 }
 
 void Model::addMesh(MeshBuffersHandle mesh, 

@@ -32,7 +32,7 @@ class Application : public Jahley::App
 		camera = PerspectiveCam::create();
 		float aspect = (float)settings.width / (float)settings.height;
 		camera->setPerspective(DEFAULT_FOV_DEGREES, aspect, 1, 1000);
-		camera->lookAt(Vector3f(0.0f, 1.0f, 2.0f), Eigen::Vector3f::Zero());
+		camera->lookAt(Vector3f(1.0f, 1.0f, 1.0f), Eigen::Vector3f::Zero());
 
 		// setup the camera's PixelBuffer
 		ImageInfo spec;
@@ -79,6 +79,14 @@ class Application : public Jahley::App
 	void update() override
 	{
 		checkForErrors();
+
+		// add any meshes that were loaded on the ActiveLoader thread
+		MeshBuffersHandle mesh = model.getNextLoadedMeshBuffer();
+		if (mesh)
+		{
+			MeshOptions options = MeshOptions::CenterVertices | MeshOptions::NormalizeSize | MeshOptions::RestOnGround;
+			model.addMesh(mesh, "mesh",  INVALID_ID, Pose::Identity(), Scale::Constant(1.0f), RenderableDesc(), options);
+		}
 
 		// display the render from Optix 
 		PixelBuffer& pixelBuffer = camera->getPixelBuffer();

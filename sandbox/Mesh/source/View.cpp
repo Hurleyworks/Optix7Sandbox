@@ -25,7 +25,7 @@ void View::create(NanoguiLayer* const gui)
 {
 	this->gui = gui;
 
-	Window* window = new Window(gui, "Hello Optix");
+	Window* window = new Window(gui, "Hello Optix7");
 	window->setPosition(Vector2i(15, 15));
 	window->setLayout(new GroupLayout());
 
@@ -69,27 +69,27 @@ void View::create(NanoguiLayer* const gui)
 
 	Button * b = new Button(primPopup, "Box");
 	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Box), MeshOptions());
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Box), meshOptions);
 		});
 	b = new Button(primPopup, "Ball");
 	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Ball), MeshOptions());
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Ball), meshOptions);
 		});
 	b = new Button(primPopup, "Cylinder");
 	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Cylinder), MeshOptions());
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Cylinder), meshOptions);
 		});
 	b = new Button(primPopup, "Capsule");
 	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Capsule), MeshOptions());
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Capsule), meshOptions);
 		});
 	b = new Button(primPopup, "Torus");
 	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Torus), MeshOptions());
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Torus), meshOptions);
 		});
 	b = new Button(primPopup, "Bunny");
 	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Bunny), MeshOptions());
+		emitPrimitiveType(PrimitiveType(PrimitiveType::Bunny), meshOptions);
 		});
 
 	Button * about = new Button(window->buttonPanel(), "", ENTYPO_ICON_INFO);
