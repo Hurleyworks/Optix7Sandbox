@@ -32,7 +32,6 @@ void Renderer::resize(unsigned int screenWidth, unsigned int screenHeight)
 	params.image_height = height;
 	params.origin_x = width / 2;
 	params.origin_y = height / 2;
-	
 }
 
 void Renderer::render(CameraHandle& camera, OptixEngineRef& engine)

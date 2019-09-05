@@ -114,6 +114,7 @@ class OptixContext
 			CUDA_CHECK(cudaFree(0));
 
 			CUcontext cuCtx = 0;  // zero means take the current context
+			
 			OPTIX_CHECK(optixInit());
 			OPTIX_CHECK(optixDeviceContextCreate(cuCtx, &options, &context));
 		}
@@ -209,6 +210,8 @@ public:
 			&sizeof_log,
 			&module
 		));
+
+		if (sizeof_log > 1) PRINT(log);
 	}
 
 	OptixModule get()
@@ -279,6 +282,8 @@ class OptiXProgramGroup
 			&sizeof_log,
 			&programGroup
 		));
+
+		if (sizeof_log > 1) PRINT(log);
 	}
 
 	OptixProgramGroup get()
@@ -307,30 +312,40 @@ class OptiXProgramGroup
 	OptixProgramGroup programGroup = nullptr;
 };
 
-using PipelineHandle = std::shared_ptr<class OptiXPipeline>;
 
-class OptiXPipeline
+using PipelineHandle = std::shared_ptr<class ProgramPipeline>;
+
+class ProgramPipeline
 {
+	// A pipeline contains all of the programs required for a particular ray tracing launch
+	// An application may use a different pipeline for each launch, or may combine multiple
+	// ray-generation programs into a single pipeline.
 
+	// Programs are ﬁrst compiled into modules of type OptixModule. One or more modules are then
+	// used to create an OptixProgramGroup. Those program groups are then linked into an 
+	// OptixPipeline to enable them to work together on the GPU. This is similar to the compile and 
+	// link process commonly found in software development. The program groups are also used to 
+	// initialize the header of the SBT record associated with those programs.
+ 
  public:
 	static PipelineHandle create(const OptixPipelineCompileOptions& compileOptions, 
 								 const OptixPipelineLinkOptions& linkOptions,
-								 const std::vector<OptixProgramGroup> & programGroups)
+								 const std::vector<OptixProgramGroup>& programGroups)
 	{
-		return std::make_shared<OptiXPipeline>(compileOptions, linkOptions, programGroups);
+		return std::make_shared<ProgramPipeline>(compileOptions, linkOptions, programGroups);
 	}
 
  public:
-	OptiXPipeline(const OptixPipelineCompileOptions& compileOptions,
-				  const OptixPipelineLinkOptions& linkOptions, 
-				  const std::vector<OptixProgramGroup>& programGroups)
+	ProgramPipeline(const OptixPipelineCompileOptions& compileOptions,
+				    const OptixPipelineLinkOptions& linkOptions, 
+				    const std::vector<OptixProgramGroup>& programGroups)
 		: compileOptions(compileOptions),
 		  linkOptions(linkOptions),
 		  programGroups(programGroups)
 	{
 	}
 
-	~OptiXPipeline()
+	~ProgramPipeline()
 	{
 		LOG(DBUG) << _FN_;
 
@@ -349,7 +364,7 @@ class OptiXPipeline
 		if (pipeline)
 			return pipeline;
 		else
-			throw std::runtime_error("OptiXPipeline is invalid(nullptr)");
+			throw std::runtime_error("ProgramPipeline is invalid(nullptr)");
 	}
 
 	void link(ContextHandle context)
@@ -364,6 +379,8 @@ class OptiXPipeline
 						&sizeof_log,
 						&pipeline
 						));
+
+		if (sizeof_log > 1) PRINT(log);
 	}
 
 	OptixPipeline operator -> ()
@@ -371,7 +388,7 @@ class OptiXPipeline
 		if (pipeline)
 			return pipeline;
 		else
-			throw std::runtime_error("OptiXPipeline is invalid(nullptr)");
+			throw std::runtime_error("ProgramPipeline is invalid(nullptr)");
 	}
 
 	char log[2048]; // For error reporting from OptiX creation functions

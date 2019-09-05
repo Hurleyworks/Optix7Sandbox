@@ -22,11 +22,13 @@ OptixScene::~OptixScene ()
 	
 }
 
-void OptixScene::init(CameraHandle& camera)
+void OptixScene::init(CameraHandle& camera, const json& programGroups)
 {
+	ScopedStopWatch sw(_FN_);
+
 	renderer = Renderer::create(camera->getScreenWidth(), camera->getScreenHeight());
 
-	pipeHandle = createPipeline();
+	pipeHandle = createPipeline(programGroups);
 	if (!pipeHandle)
 		throw std::runtime_error("Pipeline creation failed");
 

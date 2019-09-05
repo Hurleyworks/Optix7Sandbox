@@ -45,6 +45,7 @@ local ROOT = "../../"
 		THIRD_PARTY_DIR .. "doctest",
 		THIRD_PARTY_DIR .. "concurrent/include",
 		THIRD_PARTY_DIR .. "gdt/source",
+		THIRD_PARTY_DIR .. "json/single_include/nlohmann",
 	}
 	
 	links 

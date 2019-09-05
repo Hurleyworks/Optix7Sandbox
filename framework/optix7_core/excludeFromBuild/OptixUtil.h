@@ -34,6 +34,11 @@
 
 #pragma once
 
+#ifndef PRINT
+# define PRINT(var) std::cout << #var << "=" << var << std::endl;
+# define PING std::cout << __FILE__ << "::" << __LINE__ << ": " << __FUNCTION__ << std::endl;
+#endif
+
 inline void contextLogger(unsigned int level, const char* tag, const char* message, void* /*cbdata */)
 {
 	LOG(INFO) << "[" << std::setw(2) << level << "][" << std::setw(12) << tag << "]: "

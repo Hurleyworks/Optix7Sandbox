@@ -47,6 +47,9 @@
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
 
+// json
+#include <json.hpp>
+
 // some useful stuff
 #include "excludeFromBuild/basics//Alignment.h"
 #include "excludeFromBuild/basics/Util.h"
@@ -61,6 +64,7 @@ using juce::numElementsInArray;
 using juce::Random;
 using juce::jmin;
 using juce::jmax;
+using json = nlohmann::json;
 
 namespace mace
 {

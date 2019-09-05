@@ -2,7 +2,6 @@
 
 #include "sabi_core/sabi_core.h"
 
-
 // openexr
 #include <ImfFrameBuffer.h>
 #include <ImfTiledInputFile.h>

@@ -18,12 +18,14 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	OptixEngineRef getPtr() { return shared_from_this(); }
 
 	using ProgramDB = std::unordered_map<String, PtxData>;
-	using Modules = std::vector<ModuleHandle>;
+	using Modules = std::unordered_map<String, ModuleHandle>;
+	using HitGroupPair = std::pair<ModuleHandle, String>;
+	using HitGroupData = std::vector<HitGroupPair>;
 
  public:
 	virtual ~OptixEngine ();
 
-	virtual void init(CameraHandle& camera) = 0;
+	virtual void init(CameraHandle& camera, const json& groups) = 0;
 	virtual void render(CameraHandle& camera) = 0;
 	virtual void buildSBT(CameraHandle& camera) = 0;
 	virtual void addRenderable(RenderableNode& node) {}
@@ -48,16 +50,19 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	OptixShaderBindingTable sbt = {};
 	OptixTraversableHandle gAccel= 0; 
 
-	PipelineHandle createPipeline();
+	PipelineHandle createPipeline(const json& groups);
 
 private:
 	ModuleHandle createModule(PtxData& data);
+
 	ProgramGroupHandle createRaygenPrograms(ModuleHandle& module, const String& functionName);
 	ProgramGroupHandle createMissPrograms(ModuleHandle& module, const String& functionName);
-	ProgramGroupHandle createHitgroupPrograms(ModuleHandle& module, const StringArray& functionNames);
+	ProgramGroupHandle createHitgroupPrograms(const HitGroupData & hitgroupData);
 	
 	void createProgramDatabase();
-	void createProgramGoups();
+	void createProgramGoups(const json & groups);
+	void createProgramGroup(const json& j);
+
 	String extractProgramFunctionName(const String& line, const String& prefix);
 
 }; // end class OptixEngine

@@ -3,6 +3,7 @@
 #include "OptixScene.h"
 #include "OptixLayer.h"
 
+#include "SceneConfig.h"
 #include "Model.h"
 #include "View.h"
 #include "Controller.h"
@@ -19,6 +20,7 @@ class Application : public Jahley::App
   public:
 	Application(DesktopWindowSettings settings, bool windowApp = false)
 		: Jahley::App(settings, windowApp),
+		  config(properties),
 		  model(properties),
 		  view(properties)
 	{
@@ -48,6 +50,8 @@ class Application : public Jahley::App
 	{
 		try
 		{
+			config.init();
+
 			// create the Gui overlay
 			NanoguiLayer* const gui = new NanoguiLayer(window->glfw(), properties, camera);
 			view.create(gui);
@@ -128,39 +132,17 @@ class Application : public Jahley::App
 
 	void createEngine()
 	{
-		// module options
-		config.options.module_compile_options.maxRegisterCount = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
-		config.options.module_compile_options.optLevel = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
-		config.options.module_compile_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_LINEINFO;
-
-		// pipeline compile options
-		config.options.pipeline_compile_options.usesMotionBlur = false;
-		config.options.pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_GAS;
-		config.options.pipeline_compile_options.numPayloadValues = 3;
-		config.options.pipeline_compile_options.numAttributeValues = 3;
-		config.options.pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;  // TODO: should be OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
-		config.options.pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
-
-		// pipeline line options
-		config.options.pipeline_link_options.maxTraceDepth = 5;
-		config.options.pipeline_link_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
-		config.options.pipeline_link_options.overrideUsesMotionBlur = false;
-
-		// acceleration structure options
-		config.options.accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
-		config.options.accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
-
-		engine = std::make_shared<OptixScene>(properties, config);
-		engine->init(camera);
+		engine = std::make_shared<OptixScene>(properties, config.getOptixConfig());
+		engine->init(camera, config.getProgramGroups());
 	}
 
   private:
 	  RenderLayerRef optixLayer = nullptr;
 	  RenderLayerRef nanoguiLayer = nullptr;
 	  CameraHandle camera = nullptr;
-	  OptixConfig config;
 	  OptixEngineRef engine = nullptr;
 
+	  SceneConfig config;
 	  Model model;
 	  View view;
 	  Controller controller;
