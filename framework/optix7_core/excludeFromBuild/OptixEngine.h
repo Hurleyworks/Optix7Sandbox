@@ -60,7 +60,7 @@ private:
 	ProgramGroupHandle createHitgroupPrograms(const HitGroupData & hitgroupData);
 	
 	void createProgramDatabase();
-	void createProgramGoups(const json & groups);
+	void createProgramGroups(const json & groups);
 	void createProgramGroup(const json& j);
 
 	String extractProgramFunctionName(const String& line, const String& prefix);

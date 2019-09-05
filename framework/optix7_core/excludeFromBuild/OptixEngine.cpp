@@ -99,15 +99,15 @@ ProgramGroupHandle OptixEngine::createHitgroupPrograms(const HitGroupData& hitgr
 	config.desc.hitgroup_prog_group_desc.hitgroup.moduleIS = nullptr;
 	config.desc.hitgroup_prog_group_desc.hitgroup.entryFunctionNameIS = nullptr;
 
-	for (auto const & group : hitgroupData)
+	for (auto const & pair : hitgroupData)
 	{
-		// check to make sure the incoming modules and functin names are in our program database
+		// check to make sure the incoming modules and function names are in our program database
 		bool foundModule = false;
 
-		// look for the incoming module
+		// search for the incoming module
 		for (auto mods : modules)
 		{
-			if (group.first == mods.second)
+			if (pair.first == mods.second)
 			{
 				foundModule = true;
 
@@ -117,11 +117,11 @@ ProgramGroupHandle OptixEngine::createHitgroupPrograms(const HitGroupData& hitgr
 				if (itr != programDB.end())
 				{
 					const PtxData& ptxData = itr->second;
-					int index = ptxData.functionNames.indexOf(group.second);
+					int index = ptxData.functionNames.indexOf(pair.second);
 					if (index == -1)
 					{
 						std::stringstream ss;
-						ss << "Could not find function " << group.second.toStdString() << " in ptx file:  " << mods.first;
+						ss << "Could not find function " << pair.second.toStdString() << " in ptx file:  " << mods.first;
 						throw std::runtime_error(ss.str());
 					}
 				}
@@ -130,26 +130,26 @@ ProgramGroupHandle OptixEngine::createHitgroupPrograms(const HitGroupData& hitgr
 		}
 
 		if (!foundModule)
-			throw std::runtime_error("Could not find hit module containig " + group.second.toStdString());
+			throw std::runtime_error("Could not find hit module containig " + pair.second.toStdString());
 
-		if (group.second.startsWith(CLOSEST_HIT_FUNCTION_PREFIX))
+		if (pair.second.startsWith(CLOSEST_HIT_FUNCTION_PREFIX))
 		{
-			config.desc.hitgroup_prog_group_desc.hitgroup.moduleCH = group.first->get();
-			config.desc.hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = group.second.getCharPointer().getAddress();
+			config.desc.hitgroup_prog_group_desc.hitgroup.moduleCH = pair.first->get();
+			config.desc.hitgroup_prog_group_desc.hitgroup.entryFunctionNameCH = pair.second.getCharPointer().getAddress();
 			continue;
 		}
 
-		if (group.second.startsWith(ANY_HIT_FUNCTION_PREFIX))
+		if (pair.second.startsWith(ANY_HIT_FUNCTION_PREFIX))
 		{
-			config.desc.hitgroup_prog_group_desc.hitgroup.moduleAH = group.first->get();
-			config.desc.hitgroup_prog_group_desc.hitgroup.entryFunctionNameAH = group.second.getCharPointer().getAddress();
+			config.desc.hitgroup_prog_group_desc.hitgroup.moduleAH = pair.first->get();
+			config.desc.hitgroup_prog_group_desc.hitgroup.entryFunctionNameAH = pair.second.getCharPointer().getAddress();
 			continue;
 		}
 
-		if (group.second.startsWith(INTERSECTION_FUNCTION_PREFIX))
+		if (pair.second.startsWith(INTERSECTION_FUNCTION_PREFIX))
 		{
-			config.desc.hitgroup_prog_group_desc.hitgroup.moduleIS = group.first->get();
-			config.desc.hitgroup_prog_group_desc.hitgroup.entryFunctionNameIS = group.second.getCharPointer().getAddress();
+			config.desc.hitgroup_prog_group_desc.hitgroup.moduleIS = pair.first->get();
+			config.desc.hitgroup_prog_group_desc.hitgroup.entryFunctionNameIS = pair.second.getCharPointer().getAddress();
 			continue;
 		}
 	}
@@ -241,7 +241,7 @@ void OptixEngine::createProgramDatabase()
 	}
 }
 
-void OptixEngine::createProgramGoups(const json& groups)
+void OptixEngine::createProgramGroups(const json& groups)
 {
 	// one module per ptx file 
 	for (auto it : programDB)
@@ -370,7 +370,7 @@ void OptixEngine::createProgramGroup(const json& j)
 PipelineHandle OptixEngine::createPipeline(const json& groups)
 {
 	createProgramDatabase();
-	createProgramGoups(groups);
+	createProgramGroups(groups);
 
 	std::vector<OptixProgramGroup> programGroups;
 
@@ -389,7 +389,8 @@ PipelineHandle OptixEngine::createPipeline(const json& groups)
 	LOG(DBUG) << "Linking " << programGroups.size() << " program groups";
 
 	PipelineHandle handle = ProgramPipeline::create(config.options.pipeline_compile_options, config.options.pipeline_link_options, programGroups);
-	handle->link(context);
+	if(handle)
+		handle->link(context);
 
 	return handle;
 }
