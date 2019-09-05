@@ -174,7 +174,6 @@ void OptixScene::buildSBT(CameraHandle& camera)
 	const size_t raygen_record_size = sizeof(RayGenSbtRecord);
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&raygen_record), raygen_record_size));
 
-	RayGenSbtRecord rg_sbt;
 	updateCamera(camera, rg_sbt);
 	
 	OPTIX_CHECK(optixSbtRecordPackHeader(config.programs.raygenProgs.front()->get(), &rg_sbt));
@@ -190,7 +189,6 @@ void OptixScene::buildSBT(CameraHandle& camera)
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&miss_record), miss_record_size));
 
 	// get the miss color from the user
-	MissSbtRecord ms_sbt;
 	Vector4f bg = properties.renderProps->getVal<Vector4f>(RenderKey::BackgroundColor);
 	ms_sbt.data.r = bg.x();
 	ms_sbt.data.b = bg.y();
@@ -209,7 +207,6 @@ void OptixScene::buildSBT(CameraHandle& camera)
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&hitgroup_record), hitgroup_record_size));
 
 	// get the mesh color from the user
-	HitGroupSbtRecord hg_sbt;
 	Vector4f col = properties.renderProps->getVal<Vector4f>(RenderKey::MeshColor);
 	hg_sbt.data.r = col.x();
 	hg_sbt.data.g = col.y();
@@ -230,13 +227,19 @@ void OptixScene::buildSBT(CameraHandle& camera)
 	sbt.hitgroupRecordBase = hitgroup_record;
 	sbt.hitgroupRecordStrideInBytes = sizeof(HitGroupSbtRecord);
 	sbt.hitgroupRecordCount = 1;
+
+	// safe to delete program groups and modules
+	//https://devtalk.nvidia.com/default/topic/1062343/optix/optix-7-module-and-program-group-lifetimes/
+	config.programs.hitgroupProgs.clear();
+	config.programs.missProgs.clear();
+	config.programs.raygenProgs.clear();
+
+	modules.clear();
 }
 
 void OptixScene::syncCamera(CameraHandle& camera)
 {
-	RayGenSbtRecord rg_sbt;
-	optixSbtRecordPackHeader(config.programs.raygenProgs.front()->get(), &rg_sbt);
-
+	
 	updateCamera(camera, rg_sbt);
 
 	CUDA_CHECK(cudaMemcpy(
@@ -283,8 +286,6 @@ void OptixScene::syncBackgoundColor()
 {
 	Vector4f bg = properties.renderProps->getVal<Vector4f>(RenderKey::BackgroundColor);
 
-	MissSbtRecord ms_sbt;
-	optixSbtRecordPackHeader(config.programs.missProgs.front()->get(), &ms_sbt);
 	ms_sbt.data.r = bg.x();
 	ms_sbt.data.g = bg.y();
 	ms_sbt.data.b = bg.z();
@@ -300,9 +301,6 @@ void OptixScene::syncBackgoundColor()
 void OptixScene::syncMeshColor()
 {
 	Vector4f col = properties.renderProps->getVal<Vector4f>(RenderKey::MeshColor);
-
-	HitGroupSbtRecord hg_sbt;
-	optixSbtRecordPackHeader(config.programs.hitgroupProgs.front()->get(), &hg_sbt);
 
 	hg_sbt.data.r = col.x();
 	hg_sbt.data.g = col.y();

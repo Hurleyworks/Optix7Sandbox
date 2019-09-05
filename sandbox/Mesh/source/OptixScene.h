@@ -38,6 +38,10 @@ class OptixScene : public OptixEngine
 	CUDABuffer indexBuffer;
 	CUDABuffer asBuffer;
 
+	RayGenSbtRecord rg_sbt;
+	MissSbtRecord ms_sbt;
+	HitGroupSbtRecord hg_sbt;
+
 	void buildSBT(CameraHandle& camera) override;
 
 	void syncCamera(CameraHandle& camera);

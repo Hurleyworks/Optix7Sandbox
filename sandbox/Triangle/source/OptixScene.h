@@ -33,6 +33,10 @@ class OptixScene : public OptixEngine
 	RendererHandle renderer = nullptr;
 	bool engineIsReady = false;
 	
+	RayGenSbtRecord rg_sbt;
+	MissSbtRecord ms_sbt;
+	HitGroupSbtRecord hg_sbt;
+
 	void createAccel();
 	void buildSBT(CameraHandle& camera) override;
 
