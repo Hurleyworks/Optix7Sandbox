@@ -4,17 +4,12 @@
 
 #pragma  once
 
-#include <sabi_core/sabi_core.h>
-#include <igl/read_triangle_mesh.h>
-
-using juce::File;
-using juce::StringArray;
-using juce::String;
 using sabi::Surface;
 using sabi::MeshBuffers;
 using sabi::MeshBuffersHandle;
 
 using igl::read_triangle_mesh;
+using igl::per_vertex_normals;
 
 using LoadMeshCallback = std::function<void(MeshBuffersHandle)>;
 
@@ -27,8 +22,6 @@ class ActiveLoader
 	
 	void loadMesh(const std::string& path, LoadMeshCallback& callback)
 	{
-		File f(path);
-
 		Eigen::MatrixXd V;
 		Eigen::MatrixXi F;
 		if (!read_triangle_mesh(path, V, F))
@@ -40,8 +33,12 @@ class ActiveLoader
 		MeshBuffersHandle m = std::make_shared<MeshBuffers>();
 		m->V = V.transpose().cast<float>(); // Libigl needs to be transposed
 
-		MatrixXu indices = F.cast<unsigned>();
+		// Compute per-vertex normals
+		Eigen::MatrixXd N;
+		per_vertex_normals(V, F, N);
+		m->N = N.transpose().cast<float>(); // Libigl needs to be transposed
 
+		MatrixXu indices = F.cast<unsigned>();
 		Surface s;
 		s.indices() = indices.transpose(); // Libigl needs to be transposed
 		m->S.push_back(s);

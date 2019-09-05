@@ -39,7 +39,7 @@ Model::~Model ()
 
 void Model::addPrimitive(PrimitiveType type, MeshOptions options)
 {
-	MeshBuffersHandle mesh = sabi::MeshOps::createPrimitiveMesh(PrimitiveType(type));
+	MeshBuffersHandle mesh = MeshOps::createPrimitiveMesh(PrimitiveType(type));
 	if (!mesh)
 	{
 		ErrMsg err;

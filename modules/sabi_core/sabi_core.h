@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../wabi_core/wabi_core.h"
+#include <igl/read_triangle_mesh.h>
+#include <igl/per_vertex_normals.h>
 
 const Eigen::Vector3f DEFAULT_CAMERA_POSIIION = Eigen::Vector3f(0.0f, 4.0f, -10.0f);
 const Eigen::Vector3f DEFAULT_CAMERA_TARGET = Eigen::Vector3f::Zero();
@@ -63,10 +65,11 @@ namespace sabi
 	#include "excludeFromBuild/LoadStrategy.h"
 	#include "excludeFromBuild/NormalizedClump.h"
 	#include "excludeFromBuild/MeshOps.h"
+	#include "excludeFromBuild/ActiveLoader.h"
 
 }
 
-// keep this out of any namespace for now
+// keep properties out of any namespace for now
 #include "excludeFromBuild/properties/ImageProps.h"
 #include "excludeFromBuild/properties/WorldProps.h"
 #include "excludeFromBuild/properties/RenderProps.h"

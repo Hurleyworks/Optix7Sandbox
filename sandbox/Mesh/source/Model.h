@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "ActiveLoader.h"
+#include <sabi_core/sabi_core.h>
 #include <concurrent.hpp>
 
 using handleType = std::unique_ptr<uint8_t[], void(*)(void*)>;
@@ -18,6 +18,8 @@ using sabi::LoadStrategyHandle;
 using sabi::RenderableNode;
 using sabi::RenderableData;
 using Eigen::Vector2f;
+using sabi::ActiveLoader;
+using sabi::LoadMeshCallback;
 
 class Model : public CsSignal::SlotBase, public CsSignal::SignalBase
 {
