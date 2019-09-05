@@ -43,8 +43,7 @@ void OptixScene::buildSBT(CameraHandle& camera)
 	const size_t raygen_record_size = sizeof(RayGenSbtRecord);
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&raygen_record), raygen_record_size));
 
-	
-	updateCamera(camera, rg_sbt);
+	updateCamera(camera);
 	
 	OPTIX_CHECK(optixSbtRecordPackHeader(config.programs.raygenProgs.front()->get(), &rg_sbt));
 	CUDA_CHECK(cudaMemcpy(
@@ -59,8 +58,6 @@ void OptixScene::buildSBT(CameraHandle& camera)
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&miss_record), miss_record_size));
 
 	Vector4f bg = properties.renderProps->getVal<Vector4f>(RenderKey::BackgroundColor);
-
-	
 	ms_sbt.data.r = bg.x();
 	ms_sbt.data.b = bg.y();
 	ms_sbt.data.g = bg.z();
@@ -77,7 +74,6 @@ void OptixScene::buildSBT(CameraHandle& camera)
 	size_t      hitgroup_record_size = sizeof(HitGroupSbtRecord);
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&hitgroup_record), hitgroup_record_size));
 
-	
 	Vector4f col = properties.renderProps->getVal<Vector4f>(RenderKey::MeshColor);
 	hg_sbt.data.r = col.x();
 	hg_sbt.data.g = col.y();
@@ -114,7 +110,6 @@ void OptixScene::createAccel()
 	CUdeviceptr            d_gas_output_buffer;
 	{
 		
-
 		// Triangle build input
 		const std::array<float3, 3> vertices =
 		{ {
@@ -200,8 +195,7 @@ void OptixScene::createAccel()
 
 void OptixScene::syncCamera(CameraHandle& camera)
 {
-
-	updateCamera(camera, rg_sbt);
+	updateCamera(camera);
 
 	CUDA_CHECK(cudaMemcpy(
 		reinterpret_cast<void*>(sbt.raygenRecord),
@@ -211,7 +205,7 @@ void OptixScene::syncCamera(CameraHandle& camera)
 	));
 }
 
-void OptixScene::updateCamera(CameraHandle& camera, RayGenSbtRecord& rg_sbt)
+void OptixScene::updateCamera(CameraHandle& camera)
 {
 	// recalc the view matrix
 	camera->getViewMatrix();

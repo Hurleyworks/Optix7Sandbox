@@ -174,7 +174,7 @@ void OptixScene::buildSBT(CameraHandle& camera)
 	const size_t raygen_record_size = sizeof(RayGenSbtRecord);
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&raygen_record), raygen_record_size));
 
-	updateCamera(camera, rg_sbt);
+	updateCamera(camera);
 	
 	OPTIX_CHECK(optixSbtRecordPackHeader(config.programs.raygenProgs.front()->get(), &rg_sbt));
 	CUDA_CHECK(cudaMemcpy(
@@ -239,8 +239,7 @@ void OptixScene::buildSBT(CameraHandle& camera)
 
 void OptixScene::syncCamera(CameraHandle& camera)
 {
-	
-	updateCamera(camera, rg_sbt);
+	updateCamera(camera);
 
 	CUDA_CHECK(cudaMemcpy(
 		reinterpret_cast<void*>(sbt.raygenRecord),
@@ -250,7 +249,7 @@ void OptixScene::syncCamera(CameraHandle& camera)
 	));
 }
 
-void OptixScene::updateCamera(CameraHandle& camera, RayGenSbtRecord& rg_sbt)
+void OptixScene::updateCamera(CameraHandle& camera)
 {
 	// recalc the view matrix
 	if(camera->isDirty())

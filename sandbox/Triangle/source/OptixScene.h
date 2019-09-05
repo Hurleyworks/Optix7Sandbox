@@ -41,7 +41,7 @@ class OptixScene : public OptixEngine
 	void buildSBT(CameraHandle& camera) override;
 
 	void syncCamera(CameraHandle& camera);
-	void updateCamera(CameraHandle& camera, RayGenSbtRecord& rg_sbt);
+	void updateCamera(CameraHandle& camera);
 	void syncBackgoundColor();
 	void syncMeshColor();
 
