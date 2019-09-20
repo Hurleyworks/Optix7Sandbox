@@ -36,6 +36,6 @@ include "openexr"
 include "cs_signal"
 include "stb"
 include "gdt"
-
+include "tinygltf"
 
 	
