@@ -34,6 +34,11 @@ OptixEngine::~OptixEngine ()
 		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.raygenRecord)));
 		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.missRecordBase)));
 		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.hitgroupRecordBase)));
+
+		// clean up from Context is destroyed
+		modules.clear();
+		config.programs.programs.clear();
+		
 	}
 	catch (std::exception& e)
 	{

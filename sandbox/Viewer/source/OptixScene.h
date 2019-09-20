@@ -21,15 +21,12 @@ class OptixScene : public OptixEngine
 
 	void render(CameraHandle& camera) override
 	{		
-		
 		// update app settings on gpu
 		syncCamera(camera);
 		syncBackgoundColor();
 		syncMeshColor();
 
 		renderer->render(camera, OptixEngine::getPtr());
-
-		properties.renderProps->setValue(RenderKey::ResetAccumulator, false);
 	}
 	
  private:
