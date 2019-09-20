@@ -35,7 +35,7 @@ OptixEngine::~OptixEngine ()
 		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.missRecordBase)));
 		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.hitgroupRecordBase)));
 
-		// clean up from Context is destroyed
+		// clean up before Context is destroyed
 		modules.clear();
 		config.programs.programs.clear();
 		

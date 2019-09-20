@@ -30,6 +30,13 @@
 
 struct OptixMaterialData
 {
+	// won't compile without making a ctor and dtor
+	OptixMaterialData()
+	{}
+
+	~OptixMaterialData()
+	{}
+
 	enum Type
 	{
 		PBR = 0
@@ -37,9 +44,9 @@ struct OptixMaterialData
 
 	struct Pbr
 	{
-		float4               base_color = { 1.0f, 0.0f, 0.5f, 1.0f };
-		float                metallic = .5f;
-		float                roughness = .5f;
+		float4               base_color = { 0.5f, 0.0f, 1.0f, 1.0f };
+		float                metallic = .1f;
+		float                roughness = .1f;
 
 		cudaTextureObject_t  base_color_tex = 0;
 		cudaTextureObject_t  metallic_roughness_tex = 0;
@@ -49,7 +56,10 @@ struct OptixMaterialData
 	Type type;
 
 	
+	union
+	{
 		Pbr  pbr;
+	};	
 	
 };
 

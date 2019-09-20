@@ -41,15 +41,8 @@ struct MissData
 	float r, g, b;
 };
 
-struct HitData
-{
-	float r, g, b;
-};
-
-
 struct HitGroupSBT
 {
-	
 	OptixGeometryData geometry_data;
 	OptixMaterialData material_data;
 };
@@ -58,7 +51,7 @@ struct HitGroupSBT
 const std::string radianceMissName = "radiance_miss_group";
 const std::string occlusionMissName = "occlusion_miss_group";
 
-const std::string radianceHitName = "hit_group_radiance";
-const std::string occlusionHitName = "hit_group_occlusion";
+const std::string radianceHitName = "radiance_hit_group";
+const std::string occlusionHitName = "occulsion_hit_group";
 
 const std::string raygentName = "raygen_group";

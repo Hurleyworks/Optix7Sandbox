@@ -95,7 +95,7 @@ void OptixScene::createRaygenRecord(CameraHandle& camera)
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&raygenRecord), raygenRecordSize));
 
 	updateCamera(camera);
-	ProgramGroupHandle raygen = findProgram("camera_group");
+	ProgramGroupHandle raygen = findProgram(raygentName);
 	if (!raygen)
 		throw std::runtime_error("No raygen program found!");
 
@@ -123,7 +123,7 @@ void OptixScene::createMissRecord()
 	missSBT.data.b = bg.y();
 	missSBT.data.g = bg.z();
 
-	ProgramGroupHandle miss = findProgram("miss_group");
+	ProgramGroupHandle miss = findProgram(radianceMissName);
 	if (!miss)
 		throw std::runtime_error("No miss program found!");
 
@@ -181,8 +181,6 @@ void OptixScene::createHitRecord()
 #if 1
 void OptixScene::createHitRecord()
 {
-	
-	
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&hitGroupRecordBase), hitgroupRecordSize));
 
 	//// get the mesh color from the user

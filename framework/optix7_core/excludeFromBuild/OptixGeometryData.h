@@ -30,6 +30,13 @@
 
 struct OptixGeometryData
 {
+	// won't compile without making a ctor and dtor
+	OptixGeometryData()
+	{}
+
+	~OptixGeometryData()
+	{}
+
     enum Type
     {
         TRIANGLE_MESH = 0,
@@ -39,10 +46,10 @@ struct OptixGeometryData
 
     struct TriangleMesh
     {
-        GenericOptixBufferView    indices;
-        OptixBufferView<float3>   positions;
-        OptixBufferView<float3>   normals;
-        OptixBufferView<float2>   texcoords;
+		OptixBufferViewUint32 indices;
+		OptixBufferView3f positions;
+		OptixBufferView3f normals;
+		OptixBufferView2f texcoords;
     };
 
 
@@ -55,17 +62,11 @@ struct OptixGeometryData
 
     Type  type;
 
-	TriangleMesh triangle_mesh;
-
-	// THIS won't compile, although the NV meshViewer sample does??????
-	 //Severity	Code	Description	Project	File	Line	Suppression State
-	// Error	C2280	 'SbtRecord<HitGroupSBT>::SbtRecord(void)': attempting to reference a deleted function	Viewer	D : \ActiveWorks\Code\Opensource\hurleyworks\Optix7Sandbox\sandbox\Viewer\source\OptixScene.cpp	15
-
-   /* union
+    union
     {
         TriangleMesh triangle_mesh;
         Sphere        sphere;
-    };*/
+    };
 };
 
 

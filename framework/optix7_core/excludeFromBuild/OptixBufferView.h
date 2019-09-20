@@ -47,4 +47,6 @@ struct OptixBufferView
     { return *reinterpret_cast<T*>( data + idx*(byte_stride ? byte_stride : sizeof( T ) ) ); }
 };
 
-typedef OptixBufferView<uint32_t> GenericOptixBufferView;
+using OptixBufferViewUint32 = OptixBufferView<uint32_t> ;
+using OptixBufferView3f = OptixBufferView<float3>;
+using OptixBufferView2f = OptixBufferView<float2>;

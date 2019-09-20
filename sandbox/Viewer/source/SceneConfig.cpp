@@ -54,7 +54,6 @@ void SceneConfig::init()
 
 const json & SceneConfig::getProgramGroups()
 {
-
 	progGroups[radianceHitName] = {
 		{"name", radianceHitName},
 		{"kind", OPTIX_PROGRAM_GROUP_KIND_HITGROUP},
@@ -75,14 +74,14 @@ const json & SceneConfig::getProgramGroups()
 		{"moduleIS", nullptr },
 		{"entryFunctionNameIS", nullptr } };
 
-	progGroups["camera_group"] = {
-		{"name", "camera_group"},
+	progGroups[raygentName] = {
+		{"name", raygentName},
 		{"kind", OPTIX_PROGRAM_GROUP_KIND_RAYGEN},
 		{"module", "programs" },
 		{"entryFunctionName", "__raygen__rg" } };
 
-	progGroups["miss_group"] = {
-		{"name", "miss_group"},
+	progGroups[radianceMissName] = {
+		{"name", radianceMissName},
 		{"kind", OPTIX_PROGRAM_GROUP_KIND_MISS},
 		{"module", "programs" },
 		{"entryFunctionName", "__miss__ms" } };

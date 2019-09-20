@@ -35,10 +35,10 @@ class OptixMesh
 	}
 
 	// FIXME make accessors
-	GenericOptixBufferView indices;
-	OptixBufferView<float3> positions;
-	OptixBufferView<float3> normals;
-	OptixBufferView<float2> texcoords;
+	OptixBufferViewUint32 indices;
+	OptixBufferView3f positions;
+	OptixBufferView3f normals;
+	OptixBufferView2f texcoords;
 	int32_t materialIndex = INVALID_INDEX;
 
  private:
@@ -48,11 +48,10 @@ class OptixMesh
 	// from Ingo Wald tutorial
 	CUDABuffer asBuffer;
 
-	// from OptixSDK meshViewer
+	// from OptixSDK meshViewer sample
 	size_t byteOffset = 0;
 	CUdeviceptr deviceBuffer = 0;
 	
-
 	void createBuffer(const uint64_t buf_size, const void* data);
 	void createGAS(ContextHandle& context);
 
