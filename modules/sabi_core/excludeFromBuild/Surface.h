@@ -26,6 +26,7 @@ class Surface
 	MatrixXu F; // triangle indices
 	std::string name = "default";
 	Material material;
+	
 
 }; // end class Surface
 

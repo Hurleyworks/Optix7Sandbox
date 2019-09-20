@@ -4,6 +4,10 @@
 #include "berserkpch.h"
 #include "sabi_core.h"
 
+#define TINYGLTF_IMPLEMENTATION
+
+#include <tiny_gltf.h>
+
 namespace sabi
 {
 	#include "excludeFromBuild/SpaceTime.cpp"
@@ -14,4 +18,6 @@ namespace sabi
 	#include "excludeFromBuild/NormalizedClump.cpp"
 	#include "excludeFromBuild/WorldItem.cpp"
 	#include "excludeFromBuild/WorldComposite.cpp"
+	#include "excludeFromBuild/VertexMap.cpp"
+	#include "excludeFromBuild/glTFHandler.cpp"
 }

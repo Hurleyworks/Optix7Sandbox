@@ -31,7 +31,11 @@ local ROOT = "../../"
 project "CoreLibrary"
     kind "StaticLib"
     language "C++"
-	defines { "NANOGUI_GLAD", "POCO_NO_AUTOMATIC_LIBS", "JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED", "NANOVG_GL3", "_ENABLE_EXTENDED_ALIGNED_STORAGE"}
+	defines { "NANOGUI_GLAD", "POCO_NO_AUTOMATIC_LIBS", "JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED", "NANOVG_GL3", "_ENABLE_EXTENDED_ALIGNED_STORAGE",
+	--"TINYGLTF_NO_INCLUDE_JSON",
+			"TINYGLTF_NO_INCLUDE_STB_IMAGE", 
+			"TINYGLTF_NO_INCLUDE_STB_IMAGE_WRITE",
+			"TINYGLTF_USE_CPP14",}
 	flags { "MultiProcessorCompile", "NoMinimalRebuild" }
 	
 	if _ACTION == "vs2019" then
@@ -95,6 +99,7 @@ project "CoreLibrary"
 		THIRD_PARTY_DIR .. "cs_signal/source",
 		THIRD_PARTY_DIR .. "concurrent",
 		THIRD_PARTY_DIR .. "json/single_include/nlohmann",
+		THIRD_PARTY_DIR .. "tinygltf/include",
 	}
 	
 	filter {} -- clear filter!
@@ -140,6 +145,6 @@ project "CoreLibrary"
 -- add sandbox projects here
 include "sandbox/HelloWorld"
 include "sandbox/HelloNanogui"
-include "sandbox/Mesh"
 include "sandbox/Triangle"
-	
+include "sandbox/Viewer"
+include "sandbox/IAS"

@@ -7,7 +7,7 @@
 OptixRenderer::OptixRenderer(unsigned int screenWidth, unsigned int screenHeight)
 	: width(screenWidth),
 	  height(screenHeight)
-{	
+{
 }
 
 // dtor

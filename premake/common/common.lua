@@ -5,7 +5,11 @@ local ROOT = "../../"
 
 	defines{
 		"NANOGUI_GLAD", "JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED", "POCO_NO_AUTOMATIC_LIBS",
-		"_USE_MATH_DEFINES", "_ENABLE_EXTENDED_ALIGNED_STORAGE"
+		"_USE_MATH_DEFINES", "_ENABLE_EXTENDED_ALIGNED_STORAGE",
+		"TINYGLTF_NO_INCLUDE_JSON",
+			"TINYGLTF_NO_INCLUDE_STB_IMAGE", 
+			"TINYGLTF_NO_INCLUDE_STB_IMAGE_WRITE",
+			"TINYGLTF_USE_CPP14",
 	}
 
 	flags { "MultiProcessorCompile", "NoMinimalRebuild" }
@@ -44,8 +48,9 @@ local ROOT = "../../"
 		THIRD_PARTY_DIR .. "cs_signal/source",
 		THIRD_PARTY_DIR .. "doctest",
 		THIRD_PARTY_DIR .. "concurrent/include",
-		THIRD_PARTY_DIR .. "gdt/source",
+		THIRD_PARTY_DIR .. "gdt/source",	
 		THIRD_PARTY_DIR .. "json/single_include/nlohmann",
+		THIRD_PARTY_DIR .. "tinygltf/include",
 	}
 	
 	links 
@@ -65,7 +70,7 @@ local ROOT = "../../"
 		"nvrtc",
 		"stb",
 		"cs_signal",
-		"gdt"
+		"gdt",
     }
 	
 	targetdir (ROOT .. "builds/bin/" .. outputdir .. "/%{prj.name}")

@@ -30,6 +30,7 @@ project "Nanogui"
 		"ext/nanovg/src",
 		"ext/glfw/include/GLFW",
 		"ext/glfw/include",
+		"../stb/include"
     }
 
 	files

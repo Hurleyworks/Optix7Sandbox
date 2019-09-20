@@ -34,11 +34,13 @@ const bool DEFAULT_DESKTOP_WINDOW_RESIZABLE = true;
 const float DEFAULT_ZOOM_FACTOR = 0.05f;
 const Eigen::Vector4f DEFAULT_DESKTOP_WINDOW_BACKGROUND_COLOR = Eigen::Vector4f(0.2f, 0.22f, 0.24f, 1.0f);
 const Eigen::Vector4f DEFAULT_MESH_COLOR = Eigen::Vector4f(1.0f, 0.5f, 0.0f, 1.0f);
+const float DEFAULT_RENDER_GAMMA = 1.0f;
 
 using ItemID = int64_t;
 const int64_t INVALID_ID = -1;
 const int64_t INVALID_INDEX = -1;
 const std::string INVALID_PATH = "invalid path";
+const std::string INVALID_NAME = "invalid name";
 const std::string DEFAULT_ERROR_MESSAGE = "AOK";
 const std::string DEFAULT_CAMERA_NAME = "Default_Camera";
 
@@ -61,13 +63,17 @@ struct ImageInfo
 };
 
 
+typedef Eigen::Matrix<uint16_t, Eigen::Dynamic, Eigen::Dynamic> MatrixXus;
 typedef Eigen::Matrix<uint32_t, Eigen::Dynamic, Eigen::Dynamic> MatrixXu;
 typedef Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic>      MatrixXi;
 typedef Eigen::Matrix<uint8_t, Eigen::Dynamic, Eigen::Dynamic>  MatrixXc;
 typedef Eigen::Matrix<uint32_t, Eigen::Dynamic, 1>              VectorXu;
 typedef Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>    MatrixXf;
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>   MatrixXd;
 typedef Eigen::Matrix<bool, Eigen::Dynamic, 1>                  VectorXb;
 typedef Eigen::Matrix<Float, 3, 3>                              Matrix3f;
+typedef Eigen::Matrix<Float, 4, 3>                              Matrix43f;
+typedef Eigen::Matrix<Float, 3, 4>                              Matrix34f;
 typedef Eigen::Matrix<uint32_t, 1, 3>                           Vector3u;
 typedef Eigen::Matrix<uint8_t, 1, 3>                            Vector3c;
 typedef Eigen::Matrix<uint32_t, 1, 4>                           Vector4u;

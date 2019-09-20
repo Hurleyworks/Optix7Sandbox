@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 
 /* scalar functions used in vector functions */
 #ifndef M_PIf

@@ -46,8 +46,6 @@ inline void contextLogger(unsigned int level, const char* tag, const char* messa
 }
 
 // taken from Optix 7 samples
-namespace sutil
-{
 	class Exception : public std::runtime_error
 	{
 	public:
@@ -67,7 +65,7 @@ namespace sutil
 			return out.str();
 		}
 	};
-}
+
 
 // optix checks
 #define OPTIX_CHECK( call )                                                    \
@@ -79,7 +77,7 @@ namespace sutil
             std::stringstream ss;                                              \
             ss << "Optix call '" << #call << "' failed: " __FILE__ ":"         \
                << __LINE__ << ")\n";                                           \
-            throw sutil::Exception( res, ss.str().c_str() );                   \
+            throw Exception( res, ss.str().c_str() );                   \
         }                                                                      \
     } while( 0 )
 
@@ -95,7 +93,7 @@ namespace sutil
                << __LINE__ << ")\nLog:\n" << log                               \
                << ( sizeof_log > sizeof( log ) ? "<TRUNCATED>" : "" )          \
                << "\n";                                                        \
-            throw sutil::Exception( res, ss.str().c_str() );                   \
+            throw Exception( res, ss.str().c_str() );                   \
         }                                                                      \
     } while( 0 )
 
@@ -111,7 +109,7 @@ namespace sutil
             ss << "CUDA call (" << #call << " ) failed with error: '"          \
                << cudaGetErrorString( error )                                  \
                << "' (" __FILE__ << ":" << __LINE__ << ")\n";                  \
-            throw sutil::Exception( ss.str().c_str() );                        \
+            throw Exception( ss.str().c_str() );                        \
         }                                                                      \
     } while( 0 )
 
@@ -127,7 +125,7 @@ namespace sutil
             ss << "CUDA error on synchronize with error '"                     \
                << cudaGetErrorString( error )                                  \
                << "' (" __FILE__ << ":" << __LINE__ << ")\n";                  \
-            throw sutil::Exception( ss.str().c_str() );                        \
+            throw Exception( ss.str().c_str() );                        \
         }                                                                      \
     } while( 0 )
 

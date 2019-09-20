@@ -3,8 +3,11 @@
 #include "../wabi_core/wabi_core.h"
 #include <igl/read_triangle_mesh.h>
 #include <igl/per_vertex_normals.h>
+#include <stb/include/stb_image.h>
+#include <stb/include/stb_image_write.h>
+#include <tiny_gltf.h>
 
-const Eigen::Vector3f DEFAULT_CAMERA_POSIIION = Eigen::Vector3f(0.0f, 4.0f, -10.0f);
+const Eigen::Vector3f DEFAULT_CAMERA_POSIIION = Eigen::Vector3f(2.0f, 3.0f, -4.0f);
 const Eigen::Vector3f DEFAULT_CAMERA_TARGET = Eigen::Vector3f::Zero();
 const float DEFAULT_FOV_DEGREES = 45.0f;
 const float DEFAULT_ASPECT = (float)DEFAULT_DESKTOP_WINDOW_WIDTH / (float)DEFAULT_DESKTOP_WINDOW_HEIGHT;
@@ -38,6 +41,7 @@ namespace sabi
 	#include "excludeFromBuild/InputEvent.h"
 
 	// renderable
+	#include "excludeFromBuild/VertexMap.h"
 	#include "excludeFromBuild/MeshOptions.h"
 	#include "excludeFromBuild/SpaceTime.h"
 	#include "excludeFromBuild/Material.h"
@@ -65,6 +69,7 @@ namespace sabi
 	#include "excludeFromBuild/LoadStrategy.h"
 	#include "excludeFromBuild/NormalizedClump.h"
 	#include "excludeFromBuild/MeshOps.h"
+	#include "excludeFromBuild/glTFHandler.h"
 	#include "excludeFromBuild/ActiveLoader.h"
 
 }

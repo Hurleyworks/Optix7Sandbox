@@ -1,7 +1,11 @@
 #pragma once
 
+using PixelBufferHandle = std::shared_ptr<struct PixelBuffer>;
+
 struct PixelBuffer
 {
+	static PixelBufferHandle createHandle() { return std::make_shared<PixelBuffer>(); }
+
 	PixelBuffer()
 	{
 		spec.width = DEFAULT_DESKTOP_WINDOW_WIDTH;
@@ -16,6 +20,7 @@ struct PixelBuffer
 
 	~PixelBuffer()
 	{
+		LOG(DBUG) << _FN_;
 		reset();
 	}
 
@@ -74,3 +79,5 @@ struct PixelBuffer
 	MatrixXc uint8Pixels;
 	MatrixXf floatPixels;
 };
+
+using Images = std::vector<PixelBufferHandle>;

@@ -54,6 +54,7 @@ void SceneConfig::init()
 const json & SceneConfig::getProgramGroups()
 {
 	progGroups["geometry_group"] = {
+		{"name", "geometry_group" },
 		{"kind", OPTIX_PROGRAM_GROUP_KIND_HITGROUP},
 		{"moduleCH", "programs" },
 		{"entryFunctionNameCH", "__closesthit__ch" },
@@ -63,11 +64,13 @@ const json & SceneConfig::getProgramGroups()
 		{"entryFunctionNameIS", nullptr } };
 
 	progGroups["camera_group"] = {
+		{"name", "camera_group" },
 		{"kind", OPTIX_PROGRAM_GROUP_KIND_RAYGEN},
 		{"module", "programs" },
 		{"entryFunctionName", "__raygen__rg" } };
 
 	progGroups["miss_group"] = {
+		{"name", "miss_group" },
 		{"kind", OPTIX_PROGRAM_GROUP_KIND_MISS},
 		{"module", "programs" },
 		{"entryFunctionName", "__miss__ms" } };

@@ -7,11 +7,11 @@
 using sabi::Surface;
 using sabi::MeshBuffers;
 using sabi::MeshBuffersHandle;
+using juce::File;
 
 using igl::read_triangle_mesh;
 using igl::per_vertex_normals;
 
-using LoadMeshCallback = std::function<void(MeshBuffersHandle)>;
 
 class ActiveLoader 
 {
@@ -22,6 +22,11 @@ class ActiveLoader
 	
 	void loadMesh(const std::string& path, LoadMeshCallback& callback)
 	{
+		/*File f(path);
+		if (f.getFileExtension() == ".gltf")
+		{
+			return loadGLTF(path, callback);
+		}*/
 		Eigen::MatrixXd V;
 		Eigen::MatrixXi F;
 		if (!read_triangle_mesh(path, V, F))
@@ -43,7 +48,46 @@ class ActiveLoader
 		s.indices() = indices.transpose(); // Libigl needs to be transposed
 		m->S.push_back(s);
 
-		callback(m);
+		callback(m, path);
 	}
+
+	
+#if 0
+	
+	void loadGLTF(const std::string& path, LoadMeshCallback& callback)
+	{
+		ScopedStopWatch sw(_FN_);
+
+		tinygltf::TinyGLTF loader;
+		std::string err;
+		std::string warn;
+		tinygltf::Model model;
+		bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, path);
+
+		if (!warn.empty()) 
+			LOG(WARNING) <<  warn.c_str();
+
+		if (!err.empty()) 
+			LOG(CRITICAL) << err.c_str();
+
+		if (!ret) 
+			throw std::runtime_error("Failed to parse glTF: " + path);
+
+		for (const auto& gltf_buffer : model.buffers)
+		{
+			const uint64_t buf_size = gltf_buffer.data.size();
+			std::cerr << "Processing glTF buffer '" << gltf_buffer.name << "'\n"
+				<< "\tbyte size: " << buf_size << "\n"
+				<< "\turi      : " << gltf_buffer.uri << std::endl;
+
+			//scene.addBuffer(buf_size, gltf_buffer.data.data());
+		}
+
+		glTFLoader gltf;
+		gltf.processNodes(model, callback);
+		
+	}
+
+#endif
 
 }; // end class ActiveLoader

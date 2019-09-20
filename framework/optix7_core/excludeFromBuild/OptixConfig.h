@@ -1,6 +1,7 @@
 #pragma once
 
-#include "OptixData.h"
+
+using ProgramMap = std::unordered_map<String, ProgramGroupHandle>;
 
 struct OptixOptions
 {
@@ -22,14 +23,7 @@ struct OptixDesc
 
 struct OptixPrograms
 {
-	std::vector<ProgramGroupHandle> raygenProgs;
-	CUDABuffer raygenRecordsBuffer;
-
-	std::vector<ProgramGroupHandle> missProgs;
-	CUDABuffer missRecordsBuffer;
-
-	std::vector<ProgramGroupHandle> hitgroupProgs;
-	CUDABuffer hitgroupRecordsBuffer;
+	ProgramMap programs;
 };
 
 struct OptixConfig

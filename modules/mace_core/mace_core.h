@@ -66,6 +66,9 @@ using juce::jmin;
 using juce::jmax;
 using json = nlohmann::json;
 
+using Poco::BinaryWriter;
+using Poco::BinaryReader;
+
 namespace mace
 {
 	// tools

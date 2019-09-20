@@ -7,6 +7,8 @@ static const char* RenderKeyTable[] =
 	"ResourceFolder",
 	"CommonFolder",
 	"ShowPerformanceGraph",
+	"ResetAccumulator",
+	"Gamma",
 	"Invalid"
 };
 
@@ -19,6 +21,8 @@ struct RenderKey
 		ResourceFolder,
 		CommonFolder,
 		ShowPerformanceGraph,
+		ResetAccumulator,
+		Gamma,
 		Count,
 		Invalid = Count
 	};

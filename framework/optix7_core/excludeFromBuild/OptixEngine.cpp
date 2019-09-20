@@ -34,14 +34,6 @@ OptixEngine::~OptixEngine ()
 		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.raygenRecord)));
 		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.missRecordBase)));
 		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.hitgroupRecordBase)));
-
-		// delete program groups before context is destroyed
-		config.programs.hitgroupProgs.clear();
-		config.programs.missProgs.clear();
-		config.programs.raygenProgs.clear();
-
-		// delete the modules before the context is destroyed
-		modules.clear();
 	}
 	catch (std::exception& e)
 	{
@@ -57,14 +49,9 @@ ProgramGroupHandle OptixEngine::createRaygenPrograms(ModuleHandle& module, const
 {
 	config.desc.raygen_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
 
-	if (module && functionName != String::empty)
-	{
-		config.desc.raygen_prog_group_desc.raygen.module = module->get();
-		config.desc.raygen_prog_group_desc.raygen.entryFunctionName = functionName.getCharPointer().getAddress();
-	}
-	else 
-		return nullptr;
-
+	config.desc.raygen_prog_group_desc.raygen.module = module ? module->get() : nullptr;
+	config.desc.raygen_prog_group_desc.raygen.entryFunctionName = functionName.length() ? functionName.getCharPointer().getAddress() : nullptr;
+	
 	ProgramGroupHandle handle = OptiXProgramGroup::create(config.options.program_group_options, config.desc.raygen_prog_group_desc);
 	handle->makeGroup(context);
 
@@ -75,14 +62,9 @@ ProgramGroupHandle OptixEngine::createMissPrograms(ModuleHandle& module, const S
 {
 	config.desc.miss_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_MISS;
 
-	if (module && functionName != String::empty)
-	{
-		config.desc.miss_prog_group_desc.miss.module = module->get();
-		config.desc.miss_prog_group_desc.miss.entryFunctionName = functionName.getCharPointer().getAddress();
-	}
-	else
-		return nullptr;
-
+	config.desc.miss_prog_group_desc.miss.module = module ? module->get() : nullptr;
+	config.desc.miss_prog_group_desc.miss.entryFunctionName = functionName.length() ? functionName.getCharPointer().getAddress() : nullptr;
+	
 	ProgramGroupHandle handle = OptiXProgramGroup::create(config.options.program_group_options, config.desc.miss_prog_group_desc);
 	handle->makeGroup(context);
 
@@ -243,6 +225,8 @@ void OptixEngine::createProgramDatabase()
 
 void OptixEngine::createProgramGroups(const json& groups)
 {
+	ScopedStopWatch sw(_FN_);
+
 	// one module per ptx file 
 	for (auto it : programDB)
 	{
@@ -261,6 +245,9 @@ void OptixEngine::createProgramGroups(const json& groups)
 void OptixEngine::createProgramGroup(const json& j)
 {
 	if (!j["kind"].is_number_integer()) return;
+	if (!j["name"].is_string()) return;
+
+	std::string name = j["name"];
 	
 	int kind = j["kind"];
 	
@@ -268,6 +255,8 @@ void OptixEngine::createProgramGroup(const json& j)
 	{
 		case OPTIX_PROGRAM_GROUP_KIND_RAYGEN:
 		{
+			if (j["module"].is_null()) break;
+
 			String key = j["module"];
 			
 			auto it = modules.find(key);
@@ -276,23 +265,40 @@ void OptixEngine::createProgramGroup(const json& j)
 				String funcName = j["entryFunctionName"];
 				ProgramGroupHandle handle = createRaygenPrograms(it->second, funcName);
 				if (handle)
-					config.programs.raygenProgs.push_back(handle);
+					config.programs.programs.insert(std::make_pair(name, handle));
+					//config.programs.raygenProgs.push_back(handle);
 			}
 			break;
 		}
 
 		case OPTIX_PROGRAM_GROUP_KIND_MISS:
 		{
+			// nullpre modules are allowed
+			if (j["module"].is_null())
+			{
+				ModuleHandle null = nullptr;
+				ProgramGroupHandle handle = createMissPrograms(null, "");
+				if (handle)
+					config.programs.programs.insert(std::make_pair(name, handle));
+				break;
+			}
+
 			String key = j["module"];
 
 			auto it = modules.find(key);
 			if (it != modules.end())
 			{
-				String funcName = j["entryFunctionName"];
+				
+				bool nullName = j["entryFunctionName"].is_null();
+				String funcName = nullName ? "" : j["entryFunctionName"];
+
 				ProgramGroupHandle handle = createMissPrograms(it->second, funcName);
 				if (handle)
-					config.programs.missProgs.push_back(handle);
+					config.programs.programs.insert(std::make_pair(name, handle));
+					//config.programs.missProgs.push_back(handle);
+				
 			}
+			
 			break;
 		}
 
@@ -303,6 +309,7 @@ void OptixEngine::createProgramGroup(const json& j)
 			ModuleHandle CH = nullptr;
 			ModuleHandle AH = nullptr;
 			ModuleHandle IS = nullptr;
+
 			String funcCH = "nullptr";
 			String funcAH = "nullptr";
 			String funcIS = "nullptr";
@@ -353,12 +360,16 @@ void OptixEngine::createProgramGroup(const json& j)
 
 			ProgramGroupHandle handle = createHitgroupPrograms(groupData);
 			if (handle)
-				config.programs.hitgroupProgs.push_back(handle);
+			{
+				LOG(DBUG) << "ADDING " << name;
+				config.programs.programs.insert(std::make_pair(name, handle));
+			}
+				
+				//config.programs.hitgroupProgs.push_back(handle);
 			
 			break;
 		}
 			
-		
 		case OPTIX_PROGRAM_GROUP_KIND_EXCEPTION:
 			break;
 		
@@ -374,14 +385,11 @@ PipelineHandle OptixEngine::createPipeline(const json& groups)
 
 	std::vector<OptixProgramGroup> programGroups;
 
-	for (auto prog : config.programs.raygenProgs)
-		programGroups.push_back(prog->get());
+	for (auto it : config.programs.programs)
+	{
+		programGroups.push_back(it.second->get());
+	}
 
-	for (auto prog : config.programs.missProgs)
-		programGroups.push_back(prog->get());
-
-	for (auto prog : config.programs.hitgroupProgs)
-		programGroups.push_back(prog->get());
 
 	if (!programGroups.size())
 		throw std::runtime_error("No program groups avaialble for creating pipeline");

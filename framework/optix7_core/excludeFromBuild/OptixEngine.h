@@ -10,6 +10,8 @@ using juce::StringArray;
 using juce::String;
 using sabi::CameraHandle;
 using sabi::RenderableNode;
+using sabi::PixelBufferHandle;
+using sabi::Images;
 
 class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected Noncopyable
 {
@@ -29,10 +31,16 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	virtual void render(CameraHandle& camera) = 0;
 	virtual void buildSBT(CameraHandle& camera) = 0;
 	virtual void addRenderable(RenderableNode& node) {}
+	virtual void addImage(PixelBufferHandle& image) {}
 
 	const OptixPipeline getPipeline() const { return pipeHandle->get(); }
 	const OptixShaderBindingTable* getSBT() const { return &sbt; }
 	const OptixTraversableHandle& getGAS() const { return gAccel; }
+	const OptixTraversableHandle& getIAS() const { return sceneAccel; }
+
+	bool restartRender() const { return properties.renderProps->getVal<bool>(RenderKey::ResetAccumulator); }
+	void setRenderRestart(bool state) const {properties.renderProps->setValue(RenderKey::ResetAccumulator, state);}
+	const PropertyService& props() const { return properties; }
 
  protected:
 	OptixEngine(const PropertyService& properties, const OptixConfig& config);
@@ -48,9 +56,14 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	ContextHandle context = nullptr;
 	PipelineHandle pipeHandle = nullptr;
 	OptixShaderBindingTable sbt = {};
-	OptixTraversableHandle gAccel= 0; 
-
+	OptixTraversableHandle sceneAccel= 0; 
+	OptixTraversableHandle gAccel = 0;
 	PipelineHandle createPipeline(const json& groups);
+	ProgramGroupHandle findProgram(const String& key)
+	{
+		auto it = config.programs.programs.find(key);
+		return it != config.programs.programs.end() ? it->second : nullptr;
+	}
 
 private:
 	ModuleHandle createModule(PtxData& data);

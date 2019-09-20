@@ -5,7 +5,6 @@
 #pragma once
 
 using sabi::CameraHandle;
-
 using RendererHandle = std::unique_ptr<class OptixRenderer>;
 
 class OptixRenderer
@@ -13,6 +12,9 @@ class OptixRenderer
 
  public:
 	virtual ~OptixRenderer ();
+
+	virtual void updateCameraState(CameraHandle& camera) {}
+	virtual void initLaunchParams() {}
 
 	virtual void resize(unsigned int screenWidth, unsigned int screenHeight) = 0;
 	virtual void render(CameraHandle& camera, OptixEngineRef& engine) = 0;
@@ -22,5 +24,6 @@ class OptixRenderer
 
 	unsigned int width = DEFAULT_DESKTOP_WINDOW_WIDTH;
 	unsigned int height = DEFAULT_DESKTOP_WINDOW_HEIGHT;
+	
 
 }; // end class OptixRenderer

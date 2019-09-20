@@ -50,12 +50,15 @@ namespace Jahley
 		properties.worldProps->addDefault(WorldKey::TotalRealTriangles, DEFAULT_TRIANGLE_COUNT);
 		properties.worldProps->addDefault(WorldKey::TotalInstancedTriangles, DEFAULT_INSTANCED_TRIANGLE_COUNT);
 
+		// FIXME mayber should let the client set these?
 		// render properties
 		properties.renderProps->addDefault(RenderKey::BackgroundColor, DEFAULT_DESKTOP_WINDOW_BACKGROUND_COLOR);
 		properties.renderProps->addDefault(RenderKey::MeshColor, DEFAULT_MESH_COLOR);
 		properties.renderProps->addDefault(RenderKey::ResourceFolder, INVALID_PATH);
 		properties.renderProps->addDefault(RenderKey::CommonFolder, INVALID_PATH);
 		properties.renderProps->addDefault(RenderKey::ShowPerformanceGraph, true);
+		properties.renderProps->addDefault(RenderKey::ResetAccumulator, false);
+		properties.renderProps->addDefault(RenderKey::Gamma, DEFAULT_RENDER_GAMMA);
 	}
 
 	App::~App ()
