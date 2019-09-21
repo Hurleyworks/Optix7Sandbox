@@ -49,7 +49,8 @@ void OptixScene::init(CameraHandle& camera, const json& programGroups)
 
 	rebuildSceneAccel();
 
-	//// ok to release modules and program groups
+	// Don't release modules and programs since we need them 
+	// for dynamic hit record creation
 	//modules.clear();
 	//config.programs.programs.clear();
 }
@@ -66,11 +67,10 @@ void OptixScene::addRenderable(RenderableNode& node)
 		mesh->init(context);
 		meshes.push_back(mesh);
 
-		// add a new HitGroupRecord
-		updateSBT(mesh);
-		
-		rebuildSceneAccel();
+		rebuildHitgroupSBT();
 
+		rebuildSceneAccel();
+	
 		// must restart render
 		setRenderRestart(true);
 	}
@@ -113,7 +113,7 @@ void OptixScene::createRaygenRecord(CameraHandle& camera)
 void OptixScene::createMissRecord()
 {
 	CUdeviceptr d_missRecord;
-	size_t      missRecordSize = sizeof(MissRecord);
+	
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_missRecord), missRecordSize));
 
 	// get the miss color from the user
@@ -134,13 +134,12 @@ void OptixScene::createMissRecord()
 		cudaMemcpyHostToDevice
 	));
 
-
 	sbt.missRecordBase = d_missRecord;
-	sbt.missRecordStrideInBytes = sizeof(MissRecord);
+	sbt.missRecordStrideInBytes = missRecordSize;
 	sbt.missRecordCount = 1; //  RAY_TYPE_COUNT;
 }
 
-void OptixScene::createHitRecord()
+void OptixScene::createEmptyHitRecord()
 {
 	ProgramGroupHandle radianceHit = findProgram(radianceHitName);
 	if (!radianceHit)
@@ -155,9 +154,8 @@ void OptixScene::createHitRecord()
 	OPTIX_CHECK(optixSbtRecordPackHeader(radianceHit->get(), &rec));
 	hitgroup_records.push_back(rec);
 
-	//OPTIX_CHECK(optixSbtRecordPackHeader(occlusionHit->get(), &rec));
-	//xhitgroup_records.push_back(rec);
-
+	OPTIX_CHECK(optixSbtRecordPackHeader(occlusionHit->get(), &rec));
+	hitgroup_records.push_back(rec);
 
 	CUDA_CHECK(cudaMalloc(
 		reinterpret_cast<void**>(&sbt.hitgroupRecordBase),
@@ -198,9 +196,9 @@ void OptixScene::rebuildSceneAccel()
 		optixInstance.traversableHandle = mesh->getGAS();
 		memcpy(optixInstance.transform, mesh->getWorldTransform().data(), sizeof(float) * 12);
 
-		// THIS CAUSES A CRASH
-		//sbtOffset += 1; //  *RAY_TYPE_COUNT;
+		sbtOffset += 1*RAY_TYPE_COUNT;
 	}
+
 	const size_t instancesSizeInBytes = sizeof(OptixInstance) * instanceCount;
 	CUdeviceptr  deviceInstances;
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&deviceInstances), instancesSizeInBytes));
@@ -258,12 +256,28 @@ void OptixScene::rebuildSceneAccel()
 	CUDA_CHECK(cudaFree(reinterpret_cast<void*>(deviceInstances)));
 }
 
-void OptixScene::updateSBT(OptixMeshHandle mesh)
+void OptixScene::rebuildHitgroupSBT()
 {
-	// fill in the already created record
-	if (meshes.size() == 1)
+	ProgramGroupHandle radianceHit = findProgram(radianceHitName);
+	if (!radianceHit)
+		throw std::runtime_error("No radiance hit program found!");
+
+	ProgramGroupHandle occulsionHit = findProgram(occlusionHitName);
+	if (!occulsionHit)
+		throw std::runtime_error("No occulsion hit program found!");
+
+	// delete the old hitgroup records
+	CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.hitgroupRecordBase)));
+	sbt.hitgroupRecordBase = 0;
+	sbt.hitgroupRecordCount = 0;
+	sbt.hitgroupRecordStrideInBytes = 0;
+	hitgroup_records.clear(); // d'uh forgetting to do this was the cause of much crashing
+	
+	for (auto mesh : meshes)
 	{
-		HitGroupRecord& rec = hitgroup_records.back();
+		HitGroupRecord rec = {};
+		memset(&rec, 0, hitgroup_record_size);
+		OPTIX_CHECK(optixSbtRecordPackHeader(radianceHit->get(), &rec));
 
 		rec.data.geometry_data.type = OptixGeometryData::TRIANGLE_MESH;
 		rec.data.geometry_data.triangle_mesh.positions = mesh->positions;
@@ -274,46 +288,11 @@ void OptixScene::updateSBT(OptixMeshHandle mesh)
 		// use default material 
 		rec.data.material_data.pbr = OptixMaterialData::Pbr();
 
-		CUDA_CHECK(cudaMalloc(
-			reinterpret_cast<void**>(&sbt.hitgroupRecordBase),
-			hitgroup_record_size * hitgroup_records.size()
-		));
-		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>(sbt.hitgroupRecordBase),
-			hitgroup_records.data(),
-			hitgroup_record_size * hitgroup_records.size(),
-			cudaMemcpyHostToDevice
-		));
+		hitgroup_records.push_back(rec);
 
-		return;
+		OPTIX_CHECK(optixSbtRecordPackHeader(occulsionHit->get(), &rec));
+		hitgroup_records.push_back(rec);
 	}
-	
-	CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.hitgroupRecordBase)));
-
-	ProgramGroupHandle radianceHit = findProgram(radianceHitName);
-	if (!radianceHit)
-		throw std::runtime_error("No radiance hit program found!");
-
-	ProgramGroupHandle occulsionHit = findProgram(occlusionHitName);
-	if (!occulsionHit)
-		throw std::runtime_error("No occulsion hit program found!");
-
-	HitGroupRecord rec = {};
-	memset(&rec, 0, sizeof(HitGroupRecord));
-	OPTIX_CHECK(optixSbtRecordPackHeader(radianceHit->get(), &rec));
-	
-	rec.data.geometry_data.type = OptixGeometryData::TRIANGLE_MESH;
-	rec.data.geometry_data.triangle_mesh.positions = mesh->positions;
-	rec.data.geometry_data.triangle_mesh.normals = mesh->normals;
-	rec.data.geometry_data.triangle_mesh.texcoords = mesh->texcoords;
-	rec.data.geometry_data.triangle_mesh.indices = mesh->indices;
-	
-	// use default material 
-	rec.data.material_data.pbr = OptixMaterialData::Pbr();
-
-	hitgroup_records.push_back(rec);
-	OPTIX_CHECK(optixSbtRecordPackHeader(occulsionHit->get(), &rec));
-	hitgroup_records.push_back(rec);
 
 	CUDA_CHECK(cudaMalloc(
 		reinterpret_cast<void**>(&sbt.hitgroupRecordBase),
@@ -326,15 +305,20 @@ void OptixScene::updateSBT(OptixMeshHandle mesh)
 		cudaMemcpyHostToDevice
 	));
 
+	sbt.hitgroupRecordStrideInBytes = static_cast<unsigned int>(hitgroup_record_size);
 	sbt.hitgroupRecordCount = static_cast<unsigned int>(hitgroup_records.size());
-	
+
 }
 
 void OptixScene::buildSBT(CameraHandle& camera)
 {
 	createRaygenRecord(camera);
 	createMissRecord();
-	createHitRecord();
+
+	// need an empty one for launch
+	// we will build a real one as
+	// meshes are added
+	createEmptyHitRecord();
 }
 
 void OptixScene::syncCamera(CameraHandle& camera)

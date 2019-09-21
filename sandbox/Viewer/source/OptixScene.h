@@ -38,18 +38,19 @@ class OptixScene : public OptixEngine
 	const size_t hitgroup_record_size = sizeof(HitGroupRecord);
 	std::vector<HitGroupRecord> hitgroup_records;
 
-	// SBT records
+	// raygen and miss records
 	RaygenRecord raygenRecord;
 	const size_t raygenRecordSize = sizeof(RaygenRecord);
+
 	MissRecord missRecord;
-	//HitGroupRecord hitgroupSBT;
+	const size_t missRecordSize = sizeof(MissRecord);
 
 	void createRaygenRecord(CameraHandle& camera);
 	void createMissRecord();
-	void createHitRecord();
+	void createEmptyHitRecord();
 
 	void rebuildSceneAccel();
-	void updateSBT(OptixMeshHandle mesh);
+	void rebuildHitgroupSBT();
 	void buildSBT(CameraHandle& camera) override;
 	void updateCamera(CameraHandle& camera);
 
