@@ -15,6 +15,10 @@ class View : public CsSignal::SignalBase
 {
 
  public:
+
+	SIGNAL_1(void emitConfigName(const std::string& name))
+	SIGNAL_2(emitConfigName, name)
+
 	SIGNAL_1(void emitCudaFolder(const std::string& path))
 	SIGNAL_2(emitCudaFolder, path)
 
@@ -57,9 +61,11 @@ class View : public CsSignal::SignalBase
 
 	 bool includeSubfolders = true;
 	 String lastSelectedFolder = INVALID_PATH;
+	 String configFolder = INVALID_PATH;
 	 String cudaFolder = INVALID_PATH;
+	 String configName = String::empty;
 	 String optix7sdkFolder = "C:\\ProgramData\\NVIDIA Corporation\\OptiX SDK 7.0.0\\SDK";
-	 String optixFrameworkFolder = "D:\\ActiveWorks\\Code\\Opensource\\hurleyworks\\Optix7Sandbox\\framework\\optix7_core\\excludeFromBuild";
+	 String optixFrameworkFolder = "..\\..\\..\\..\\..\\framework\\optix7_core\\excludeFromBuild";
 
 	 // ugly windows stuff
 	 static int CALLBACK browseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);

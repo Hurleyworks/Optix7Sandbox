@@ -1,7 +1,7 @@
 {
-  "cuda_input_folder": "D:\\ActiveWorks\\Code\\Berserko\\resources\\Mesh\\cuda",
-  "ptx_output_folder": "D:\\ActiveWorks\\Code\\Berserko\\resources\\Mesh\\ptx",
-  "include_folder_1": "D:\\ActiveWorks\\Code\\Berserko\\framework\\optix7_core\\excludeFromBuild",
+  "cuda_input_folder": "",
+  "ptx_output_folder": "",
+  "include_folder_1": "invalid path",
   "include_folder_2": "invalid path",
   "include_folder_3": "invalid path",
   "include_folder_4": "invalid path"

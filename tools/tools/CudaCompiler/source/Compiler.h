@@ -39,7 +39,7 @@ class Compiler
 	StringArray args;
 	String nvccExe = "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.1/bin/nvcc.exe";
 	String help = "--help";
-	String fastMath = "-use-fast-math"; // doesn't work.
+	String fastMath = "-use_fast_math"; // doesn't work.
 	String ptx = "-ptx";
 	String lineInfo = "-lineinfo";
 	String machine = "-m 64";

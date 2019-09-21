@@ -1,6 +1,8 @@
+#include <sabi_core/sabi_core.h>
 #include "Jahley.h"
+#include <igl/read_triangle_mesh.h>
 
-const std::string APP_NAME = "HelloDocTest";
+const std::string APP_NAME = "EigenTest";
 
 #ifdef CHECK
 #undef CHECK
@@ -47,6 +49,151 @@ struct C
 using sabi::MeshBuffers;
 using sabi::Surface;
 using sabi::Surfaces;
+using sabi::VMapDB;
+
+using Poco::BinaryWriter;
+using Poco::BinaryReader;
+using Eigen::Vector3f;
+using Eigen::Vector2f;
+using igl::read_triangle_mesh;
+
+std::stringstream loadTriangleMesh(const std::string& path)
+{
+	std::stringstream str;
+
+	MatrixXd V;
+	MatrixXi F;
+	if (!read_triangle_mesh(path, V, F))
+	{
+		LOG(CRITICAL) << "load mesh failed for: " << path;
+	}
+
+	// libIGL must be transposed
+	V.transposeInPlace();
+	F.transposeInPlace();
+
+	// pack the indices and vertices into a binary stream
+	BinaryWriter writer(str);
+	for (int i = 0; i < F.cols(); i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			// must make this assignment first 
+			// or it fails for some reason
+			// writer << F.col(i)[j]; FAILS
+			int index = F.col(i)[j];
+			writer << index;
+		}
+	}
+
+	for (int i = 0; i < V.cols(); i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			// must make this assignment first 
+			// or it fails for some reason
+			// writer << V.col(i)[j]; FAILS
+			float f = V.col(i)[j];
+			writer << f;
+		}
+	}
+
+	return str;
+}
+
+
+TEST_CASE("poco")
+{
+	std::stringstream str;
+
+	BinaryWriter writer(str);
+	writer << true
+		<< 'x'
+		<< 42
+		<< 3.14159265
+		<< "foo bar";
+
+	bool   b;
+	char   c;
+	int    i;
+	double d;
+	std::string s;
+
+	BinaryReader reader(str);
+	reader >> b
+		>> c
+		>> i
+		>> d
+		>> s;
+
+	CHECK(b == true);
+	CHECK(c == 'x');
+	CHECK(i == 42);
+	CHECK(d == 3.14159265);
+	CHECK(s == "foo bar");
+}
+
+TEST_CASE("eigen2binary")
+{
+	std::stringstream str;
+	BinaryWriter writer(str);
+
+	float x = 1.0f;
+	float y = 2.0f;
+	float z = 3.0f;
+
+	Vector3f v(x, y, z);
+
+	for (int i = 0; i < 3; i++)
+		writer << v[i];
+
+	Vector3f v2;
+	BinaryReader reader(str);
+	for (int i = 0; i < 3; i++)
+		reader >> v2[i];
+
+	for (int i = 0; i < 3; i++)
+		CHECK(v2[i] == v[i]);
+}
+
+TEST_CASE("eigenpack")
+{
+	std::string resourceFolder = getResourcePath(APP_NAME).toStdString();
+
+	// unit cube centered on origin
+	std::stringstream str = loadTriangleMesh(resourceFolder + "/box.obj");
+
+	// should be 36 indices integers and 24 vertex floats
+	int totalBytes = 36 * sizeof(int) + 24 * sizeof(float);
+	const uint64_t buf_size = str.str().size();
+
+	CHECK(str.str().size() == totalBytes);
+
+	BinaryReader reader(str);
+
+	// should be 12 triangles = 36 integers
+	int index;
+	for (int i = 0; i < 36; i++)
+	{
+		reader >> index;
+
+		// indices must be in range of 0-7 ( only 8 vertices )
+		CHECK(index >= 0);
+		CHECK(index < 8);
+	}
+
+	// should be 8 vertices = 24 floats
+	float f;
+	for (int i = 0; i < 24; i++)
+	{
+		reader >> f;
+
+		// must be in range of -0.5 and 0.5 since it's a unit cube
+		CHECK(f >= -0.5f);
+		CHECK(f <= 0.5f);
+	}
+}
+
 
 TEST_CASE("[sizeof] testing sizeof")
 {
@@ -209,13 +356,15 @@ TEST_CASE("[MeshBuffer] sizeof")
 	CHECK(sizeof(MatrixXu) == 24);
 	CHECK(sizeof(size_t) == 8);
 	CHECK(sizeof(Surfaces) == 32);
+	CHECK(sizeof(VMapDB) == 80);
 
 	// MeshBuffers has
 	// 2 MatrixXf = 48 bytes
 	// 1 Surfaces = 32 bytes;
 	// 1 size_t = 8 bytes
-	// total should be 88 bytes
-	CHECK(sizeof(MeshBuffers) == 88);
+	// VMapDB = 80 bytes;
+	// total should be 168 bytes
+	CHECK(sizeof(MeshBuffers) == 168);
 }
 
 // copy eigen dynamic matrix into a std::vector

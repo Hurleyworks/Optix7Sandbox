@@ -1,8 +1,0 @@
-{
-  "cuda_input_folder": "D:\\ActiveWorks\\Code\\Berserko\\resources\\Test\\cuda",
-  "ptx_output_folder": "D:\\ActiveWorks\\Code\\Berserko\\resources\\Test\\ptx",
-  "include_folder_1": "D:\\ActiveWorks\\Code\\Berserko\\framework\\optix7_core",
-  "include_folder_2": "invalid path",
-  "include_folder_3": "invalid path",
-  "include_folder_4": "invalid path"
-}

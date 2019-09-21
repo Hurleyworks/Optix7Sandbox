@@ -1,5 +1,6 @@
 #include "Jahley.h"
 
+#include "CompilerConfig.h"
 #include "Model.h"
 #include "View.h"
 
@@ -11,6 +12,7 @@ class Application : public Jahley::App
   public:
 	Application(DesktopWindowSettings settings, bool windowApp = false)
 		: Jahley::App(settings, windowApp),
+		  config(properties),
 		  view(properties)
 	{
 		// store the resource folder for this project
@@ -33,12 +35,25 @@ class Application : public Jahley::App
 			nanoguiLayer = RenderLayerRef(gui);
 			pushOverlay(nanoguiLayer, true);
 
+			config.init();
+
 			// hook up View and Model via signal/slots
 			connect(view, &View::emitCudaFolder, model, &Model::findCudaFiles);
 			connect(view, &View::emitPtxFolder, model, &Model::setPtxOutputFolder);
 			connect(view, &View::emitCompile, model, &Model::runNVCC);
 			connect(view, &View::emitIncludeFolder, model, &Model::addIncludePath);
 			connect(view, &View::emitReset, model, &Model::reset);
+
+			// hook up View and CompilerConfig via signal/slots
+			connect(view, &View::emitCudaFolder, config, &CompilerConfig::setCudaFolder);
+			connect(view, &View::emitPtxFolder, config, &CompilerConfig::setPtxFolder);
+			connect(view, &View::emitIncludeFolder, config, &CompilerConfig::addIncludeFolder);
+			connect(view, &View::emitConfigName, config, &CompilerConfig::loadConfig);
+
+			connect(config, &CompilerConfig::emitCudaFolder, model, &Model::findCudaFiles);
+			connect(config, &CompilerConfig::emitIncludeFolder, model, &Model::addIncludePath);
+			connect(config, &CompilerConfig::emitPtxFolder, model, &Model::setPtxOutputFolder);
+
 		}
 		catch (std::exception& e)
 		{
@@ -61,9 +76,10 @@ class Application : public Jahley::App
 	}
 
   private:
-	  RenderLayerRef nanoguiLayer = nullptr;
-	  Model model;
+	  CompilerConfig config;
 	  View view;
+	  Model model;
+	  RenderLayerRef nanoguiLayer = nullptr;
 };
 
 Jahley::App* Jahley::CreateApplication()

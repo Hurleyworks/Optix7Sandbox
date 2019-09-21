@@ -10,6 +10,7 @@
 
 using namespace nanogui;
 using juce::String;
+using juce::File;
 using std::cout;
 using std::endl;
 
@@ -28,6 +29,17 @@ void View::create(NanoguiLayer* const gui)
 {
 	this->gui = gui;
 
+	configFolder = String(properties.renderProps->getVal<std::string>(RenderKey::ResourceFolder));
+	File f(configFolder);
+	if (!f.exists())
+	{
+		throw std::runtime_error("No resource folder found at " + configFolder.toStdString());
+	}
+
+	configFolder = configFolder.replaceCharacter('/', '\\');
+	optixFrameworkFolder = optixFrameworkFolder.replaceCharacter('/', '\\');
+	LOG(DBUG) << optixFrameworkFolder;
+
 	lastSelectedFolder =  properties.renderProps->getVal<std::string>(RenderKey::CommonFolder);
 	
 	// won't work without changing forward slashes to back slashes
@@ -45,7 +57,15 @@ void View::create(NanoguiLayer* const gui)
 		});
 	resetButton->setTooltip("Reset the compiler");
 
-    Button * b= new Button(window, "Select Cuda input folder");
+	Button* b = new Button(window, "Load config");
+	b->setCallback([&] {
+		configName = file_dialog(
+			{ {"json", "JSON config file"}, {"json", "Text file"} }, false);
+		emitConfigName(configName.toStdString());
+		});
+	b->setTooltip("Select folder with cuda files to compile");
+
+    b = new Button(window, "Select Cuda input folder");
 	b->setCallback([&] {
 		cudaFolder = browseFolder(cudaFolder);
 		emitCudaFolder(cudaFolder.toStdString());

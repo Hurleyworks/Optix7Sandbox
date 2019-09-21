@@ -10,6 +10,7 @@ using juce::ChildProcess;
 
 void Compiler::findCudaFiles(const std::string& cudaFolder)
 {
+	LOG(DBUG) << "Searching for cuda files in " << cudaFolder;
 	StringArray files;
 	String wildCard("*.cu*");
 	FileServices::getFiles(cudaFolder, files, wildCard);
@@ -26,6 +27,8 @@ void Compiler::findCudaFiles(const std::string& cudaFolder)
 
 void Compiler::addIncludePath(const std::string& includeFolder, bool subfolders)
 {
+	LOG(DBUG) << "Adding include folder: " << includeFolder;
+
 	File folder(includeFolder);
 	if (!folder.exists() || !folder.isDirectory()) return;
 
@@ -66,6 +69,8 @@ void Compiler::compile(const String& cudaFile, const String& ptxFile)
 
 	args.add(nvccExe);
 	args.add(ptx);
+	args.add(fastMath);
+	args.add(lineInfo);
 	args.add(sdkInclude);
 	args.add(util);
 	args.add(sdkRoot);
@@ -73,6 +78,7 @@ void Compiler::compile(const String& cudaFile, const String& ptxFile)
 	// add the user added includes
 	for (auto path : includes)
 	{
+		LOG(DBUG) << path;
 		args.add(path);
 	}
 

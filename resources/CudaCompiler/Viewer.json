@@ -1,0 +1,8 @@
+{
+  "cuda_input_folder": "D:\\ActiveWorks\\Code\\Opensource\\hurleyworks\\Optix7Sandbox\\resources\\Viewer\\cuda",
+  "ptx_output_folder": "D:\\ActiveWorks\\Code\\Opensource\\hurleyworks\\Optix7Sandbox\\resources\\Viewer\\ptx",
+  "include_folder_1": "D:\\ActiveWorks\\Code\\Opensource\\hurleyworks\\Optix7Sandbox\\framework\\optix7_core\\excludeFromBuild",
+  "include_folder_2": "invalid path",
+  "include_folder_3": "invalid path",
+  "include_folder_4": "invalid path"
+}

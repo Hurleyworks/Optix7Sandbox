@@ -202,14 +202,14 @@ extern "C" __global__ void __raygen__rg()
 	params.frame_buffer[ image_index ] = make_color ( accum_color );
 	if ( subframe_index == 0 )
 	{
-		if( launch_idx.y == 0 && launch_idx.x == 0 )
+		/* if( launch_idx.y == 0 && launch_idx.x == 0 )
 		{
 			printf("############################################\n");
 			printf("Restarting Render!!\n(within a %ix%i-sized launch)\n",
 				 launch_dims.x,
 				 launch_dims.y);
 			 printf("############################################\n");
-		}
+		} */
 		 params.frame_buffer[ image_index ] = make_color ( accum_color );
 	} 
 }
