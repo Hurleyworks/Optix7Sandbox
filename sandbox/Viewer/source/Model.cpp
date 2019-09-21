@@ -178,14 +178,21 @@ void Model::onDrop(const std::vector<std::string>& fileList)
 		{
 			// FIXME
 			StringArray files;
-			String wildCard("*.*");
+			String wildCard("*.gltf;*.ply;*.obj");
 			FileServices::getFiles(f.getFullPathName(), files, wildCard);
 
 			for (auto path : files)
 			{
 				File f(path);
-				std::string filename = f.getFullPathName().toStdString();
-				LOG(DBUG) << filename;
+				// load on another thread 
+				if (f.getFileExtension() == ".gltf")
+				{
+					glTFLoader.call(&glTFLoader::loadGeometry, path.toStdString(), loadMeshCallback);
+				}
+				else
+				{
+					activeLoader.call(&ActiveLoader::loadMesh, path.toStdString(), loadMeshCallback);
+				}
 			}
 		}
 		else if (f.existsAsFile())
