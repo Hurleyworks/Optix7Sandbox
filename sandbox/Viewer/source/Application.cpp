@@ -71,6 +71,7 @@ class Application : public Jahley::App
 			connect(view, &View::emitPrimitiveType, model, &Model::addPrimitive);
 			connect(model, &Model::emitRenderable, *this, &Application::addRenderable);
 			connect(view, &View::emitModelPath, model, &Model::loadModelFromIcon);
+			connect(view, &View::emitGroundPlane, model, &Model::createGroundPlane);
 		}
 		catch (std::exception& e)
 		{

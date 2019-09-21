@@ -75,6 +75,9 @@ void View::create(NanoguiLayer* const gui)
 		}
 		});
 
+	Button* b = new Button(window, "Add ground plane");
+	b->setCallback([&] { emitGroundPlane(Vector2f(100.0f, 100.0f)); });
+	b->setTooltip("Add a ground plane");
 
 	Button * about = new Button(window->buttonPanel(), "", ENTYPO_ICON_INFO);
 	about->setCallback([=]() {

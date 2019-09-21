@@ -50,7 +50,7 @@ void OptixScene::init(CameraHandle& camera, const json& programGroups)
 	rebuildSceneAccel();
 
 	// Don't release modules and programs since we need them 
-	// for dynamic hit record creation
+	// for dynamic hitgroup record creation
 	//modules.clear();
 	//config.programs.programs.clear();
 }
@@ -139,7 +139,7 @@ void OptixScene::createMissRecord()
 	sbt.missRecordCount = 1; //  RAY_TYPE_COUNT;
 }
 
-void OptixScene::createEmptyHitRecord()
+void OptixScene::createEmptyHitGroupRecord()
 {
 	ProgramGroupHandle radianceHit = findProgram(radianceHitName);
 	if (!radianceHit)
@@ -276,9 +276,9 @@ void OptixScene::rebuildHitgroupSBT()
 	for (auto mesh : meshes)
 	{
 		HitGroupRecord rec = {};
-		memset(&rec, 0, hitgroup_record_size);
+		
 		OPTIX_CHECK(optixSbtRecordPackHeader(radianceHit->get(), &rec));
-
+		
 		rec.data.geometry_data.type = OptixGeometryData::TRIANGLE_MESH;
 		rec.data.geometry_data.triangle_mesh.positions = mesh->positions;
 		rec.data.geometry_data.triangle_mesh.normals = mesh->normals;
@@ -307,7 +307,6 @@ void OptixScene::rebuildHitgroupSBT()
 
 	sbt.hitgroupRecordStrideInBytes = static_cast<unsigned int>(hitgroup_record_size);
 	sbt.hitgroupRecordCount = static_cast<unsigned int>(hitgroup_records.size());
-
 }
 
 void OptixScene::buildSBT(CameraHandle& camera)
@@ -315,10 +314,10 @@ void OptixScene::buildSBT(CameraHandle& camera)
 	createRaygenRecord(camera);
 	createMissRecord();
 
-	// need an empty one for launch
+	// need an empty HitGroupRecord for launch
 	// we will build a real one as
 	// meshes are added
-	createEmptyHitRecord();
+	createEmptyHitGroupRecord();
 }
 
 void OptixScene::syncCamera(CameraHandle& camera)

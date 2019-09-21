@@ -35,6 +35,7 @@ Model::Model(const PropertyService& properties)
 	world(WorldComposite::create())
 {
 	loadStrategy = std::make_shared<NormalizedClump>();
+	
 }
 
 // dtor
@@ -44,6 +45,9 @@ Model::~Model()
 
 void Model::addPrimitive(PrimitiveType type, MeshOptions options)
 {
+	createGroundPlane(Vector2f(100.0f, 100.0f));
+	return;
+
 	MeshBuffersHandle mesh = MeshOps::createPrimitiveMesh(PrimitiveType(type));
 	if (!mesh)
 	{

@@ -16,9 +16,7 @@ Renderer::Renderer (unsigned int screenWidth, unsigned int screenHeight)
 	params.image_height = height;
 	params.origin_x = width / 2;
 	params.origin_y = height / 2;
-
-	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&deviceParams), sizeof(LaunchParams)));
-	CUDA_CHECK(cudaStreamCreate(&stream));;
+	
 }
 
 // dtor
@@ -82,7 +80,7 @@ void Renderer::render(CameraHandle& camera, OptixEngineRef& engine)
 
 		renderBuffer.unmap();
 
-		// capture the Optix render 
+		// acquire the Optix render 
 		PixelBuffer& pixels = camera->getPixelBuffer();
 		std::memcpy(pixels.uint8Pixels.data(), renderBuffer.getHostPointer(), pixels.byteCountUint8());
 
@@ -145,6 +143,6 @@ void Renderer::initLaunchParams()
 	params.sceneAccel = 0;
 	params.gamma = DEFAULT_RENDER_GAMMA;
 
-	//CUDA_CHECK( cudaStreamCreate( &stream ) );
+	CUDA_CHECK( cudaStreamCreate( &stream ) );
 	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&deviceParams), sizeof(LaunchParams)));
 }

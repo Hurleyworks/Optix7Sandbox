@@ -61,7 +61,7 @@ public:
 	}
 
 	void addPrimitive(PrimitiveType type, MeshOptions options = MeshOptions());
-	void createGroundPlane(const Vector2f& size);
+	void createGroundPlane(const Vector2f& size = Vector2f(100.0f, 100.0f));
 	void onMeshLoad(MeshBuffersHandle m, std::string path);
 	void onImagesLoad(const Images&& images);
 	void addMesh(MeshBuffersHandle mesh,
@@ -79,7 +79,6 @@ public:
 	void createNewRenderable(const RenderableData& d);
 	void createNewInstance(const RenderableData& d);
 	
-
 	void addNode(RenderableNode& node);
 	void removeNode(RenderableNode& node);
 	void removeNode(ItemID itemID);

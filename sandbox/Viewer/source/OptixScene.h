@@ -21,7 +21,7 @@ class OptixScene : public OptixEngine
 
 	void render(CameraHandle& camera) override
 	{		
-		// update app settings on gpu
+		// update app settings on device
 		syncCamera(camera);
 		syncBackgoundColor();
 		
@@ -47,7 +47,7 @@ class OptixScene : public OptixEngine
 
 	void createRaygenRecord(CameraHandle& camera);
 	void createMissRecord();
-	void createEmptyHitRecord();
+	void createEmptyHitGroupRecord();
 
 	void rebuildSceneAccel();
 	void rebuildHitgroupSBT();

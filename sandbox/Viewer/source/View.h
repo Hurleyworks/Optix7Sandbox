@@ -11,6 +11,7 @@ struct PropertyService;
 using juce::StringArray;
 using sabi::PrimitiveType;
 using sabi::MeshOptions;
+using Eigen::Vector2f;
 
 class View : public CsSignal::SignalBase
 { 
@@ -26,6 +27,9 @@ public:
 
 	SIGNAL_1(void emitModelPath(const std::string& path))
 	SIGNAL_2(emitModelPath, path)
+
+	SIGNAL_1(void emitGroundPlane(const Vector2f& size))
+	SIGNAL_2(emitGroundPlane, size)
 
  public:
 	View (const PropertyService& properties);

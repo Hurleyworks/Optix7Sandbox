@@ -11,11 +11,6 @@ Controller::Controller (const PropertyService& properties)
 {	
 }
 
-// dtor
-Controller::~Controller ()
-{	
-}
-
 void Controller::onInput(const InputEvent& e, CameraHandle& camera)
 {
 	switch (e.getType())
@@ -27,7 +22,6 @@ void Controller::onInput(const InputEvent& e, CameraHandle& camera)
 
 		case InputEvent::Release:
 			camera->setDirty(false);
-			//properties.renderProps->setValue(RenderKey::ResetAccumulator, true);
 			break;
 
 		case InputEvent::Move:
@@ -46,7 +40,6 @@ void Controller::onInput(const InputEvent& e, CameraHandle& camera)
 		case InputEvent::Drag:
 			camera->track(Vector2f(e.getX(), e.getY()));
 			camera->setDirty(true);
-			// must reset the accumulator, if present
 			properties.renderProps->setValue(RenderKey::ResetAccumulator, true);
 			break;
 	}
