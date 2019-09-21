@@ -31,6 +31,12 @@ public:
 	SIGNAL_1(void emitGroundPlane(const Vector2f& size))
 	SIGNAL_2(emitGroundPlane, size)
 
+	SIGNAL_1(void emitFrameGrab())
+	SIGNAL_2(emitFrameGrab)
+
+	SIGNAL_1(void emitScreenGrab())
+	SIGNAL_2(emitScreenGrab)
+
  public:
 	View (const PropertyService& properties);
 	~View ();

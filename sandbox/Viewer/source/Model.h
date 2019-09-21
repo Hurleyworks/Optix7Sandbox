@@ -60,10 +60,12 @@ public:
 		return found ? image : nullptr;
 	}
 
+	void loadImage(const std::string& path, PixelBuffer& buffer);
+	void onImagesLoad(const Images&& images);
+
 	void addPrimitive(PrimitiveType type, MeshOptions options = MeshOptions());
 	void createGroundPlane(const Vector2f& size = Vector2f(100.0f, 100.0f));
 	void onMeshLoad(MeshBuffersHandle m, std::string path);
-	void onImagesLoad(const Images&& images);
 	void addMesh(MeshBuffersHandle mesh,
 				const std::string& path,
 				BodyID clientID,
@@ -71,8 +73,7 @@ public:
 				const Scale& scale,
 				RenderableDesc desc,
 				MeshOptions options);
-
-	void loadImage(const std::string& path, PixelBuffer& buffer);
+	
 	void loadModelFromIcon(const std::string& iconPath);
 	void onDrop(const std::vector<std::string>& fileList);
 

@@ -72,6 +72,8 @@ class Application : public Jahley::App
 			connect(model, &Model::emitRenderable, *this, &Application::addRenderable);
 			connect(view, &View::emitModelPath, model, &Model::loadModelFromIcon);
 			connect(view, &View::emitGroundPlane, model, &Model::createGroundPlane);
+			connect(view, &View::emitFrameGrab, *this, &Application::onFrameGrab);
+			connect(view, &View::emitScreenGrab, *this, &Application::onScreenGrab);
 		}
 		catch (std::exception& e)
 		{
@@ -86,6 +88,9 @@ class Application : public Jahley::App
 	{
 		checkForErrors();
 
+		if (captureScreen) 
+			saveScreen();
+
 		// add any meshes that were loaded on the ActiveLoader thread
 		Model::MeshData mesh = model.getNextLoadedMeshBuffer();
 		if (mesh.first)
@@ -98,6 +103,9 @@ class Application : public Jahley::App
 		PixelBuffer& pixelBuffer = camera->getPixelBuffer();
 		if (pixelBuffer.uint8Pixels.size())
 		{
+			if (captureRender)
+				saveRender(pixelBuffer);
+
 			window->renderImage(std::move(pixelBuffer));
 		}
 	}
@@ -158,17 +166,67 @@ class Application : public Jahley::App
 		}
 	}
 
+	void saveScreen()
+	{
+		ImageInfo spec;
+		spec.width = camera->getScreenWidth();
+		spec.height = camera->getScreenHeight();
+		spec.channels = 4;
+
+		PixelBuffer screenShot;
+		screenShot.init(spec);
+
+		glReadPixels(0, 0, spec.width, spec.height, GL_RGBA, GL_UNSIGNED_BYTE, screenShot.uint8Pixels.data());
+
+		std::string screenshotPath = properties.renderProps->getVal<std::string>(RenderKey::ResourceFolder);
+		screenshotPath += "/screenGrabs/grab.png";
+
+		// need to flip vertically
+		MatrixXc flipped;
+		screenShot.flipVertical(flipped);
+
+		String path(screenshotPath);
+		path = path.replaceCharacter('/', '\\');
+
+		stbi_write_png(path.toStdString().c_str(), spec.width, spec.height, 4, flipped.data(), 4 * spec.width);
+
+		captureScreen = false;
+	}
+
+	void saveRender(PixelBuffer& pixelBuffer)
+	{
+		std::string framegrabPath = properties.renderProps->getVal<std::string>(RenderKey::ResourceFolder);
+		framegrabPath += "/frameGrabs/grab.png";
+
+		String path(framegrabPath);
+		path = path.replaceCharacter('/', '\\');
+
+		ImageInfo spec = pixelBuffer.spec;
+		MatrixXc flipped;
+		pixelBuffer.flipVertical(flipped);
+
+		stbi_write_png(path.toStdString().c_str(), spec.width, spec.height, 4, flipped.data(), 4 * spec.width);
+
+		captureRender = false;
+	}
+
 	void createEngine()
 	{
 		engine = std::make_shared<OptixScene>(properties, config.getOptixConfig());
 		engine->init(camera, config.getProgramGroups());
 	}
 
+	void onScreenGrab() {captureScreen = true;}
+	void onFrameGrab() { captureRender = true; }
+
   private:
 	  RenderLayerRef optixLayer = nullptr;
 	  RenderLayerRef nanoguiLayer = nullptr;
 	  CameraHandle camera = nullptr;
 	  OptixEngineRef engine = nullptr;
+
+	  bool captureScreen = false;
+	  bool captureRender = false;
 
 	  SceneConfig config;
 	  Model model;

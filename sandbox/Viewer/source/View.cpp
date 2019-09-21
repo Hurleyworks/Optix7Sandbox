@@ -79,6 +79,18 @@ void View::create(NanoguiLayer* const gui)
 	b->setCallback([&] { emitGroundPlane(Vector2f(100.0f, 100.0f)); });
 	b->setTooltip("Add a ground plane");
 
+	label = new Label(window, "Render:", "sans-bold");
+	label->setColor(Color(r1, g1, b1, a1));
+
+	b = new Button(window, "Frame grab");
+	b->setCallback([&] { emitFrameGrab(); });
+	b->setTooltip("Capture render");
+
+	b = new Button(window, "Screen grab");
+	b->setCallback([&] { emitScreenGrab(); });
+	b->setTooltip("Capture screen");
+
+
 	Button * about = new Button(window->buttonPanel(), "", ENTYPO_ICON_INFO);
 	about->setCallback([=]() {
 		std::string msg = getSceneInfo().joinIntoString("\n").toStdString();

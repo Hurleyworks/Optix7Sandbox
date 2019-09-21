@@ -40,6 +40,20 @@ struct PixelBuffer
 	int byteCountUint8() const { return spec.width * spec.height * spec.channels * sizeof(uint8_t); } 
 	int bytecountFloat() const { return spec.width * spec.height * spec.channels * sizeof(float); }
 
+	void flipVertical(MatrixXc& flipped)
+	{
+		if (!uint8Pixels.data()) return;
+
+		flipped.resize(spec.channels, getPixelCount());
+
+		// from polymer https ://github.com/ddiakopoulos/polymer/blob/dev/lib-engine/gfx/gl/glfw-app.cpp
+		for (int y = 0; y < spec.height; ++y)
+		{
+			memcpy(flipped.data() + y * spec.width * 4, uint8Pixels.data() + (spec.height - y - 1) * spec.width * 4, spec.width * 4);
+		}
+
+	}
+
 	// move only!
 	PixelBuffer(const PixelBuffer& other) = delete;
 	PixelBuffer& operator = (const PixelBuffer& other) = delete;
