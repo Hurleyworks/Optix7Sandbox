@@ -8,9 +8,9 @@
 
 class OptixScene : public OptixEngine
 {
-	using RayGenSbtRecord = SbtRecord<RayGenData>;
-	using MissSbtRecord = SbtRecord<MissData>;
-	using HitGroupSbtRecord = SbtRecord<HitGroupSBT>;
+	using RaygenRecord = SbtRecord<RayGenData>;
+	using MissRecord = SbtRecord<MissData>;
+	using HitGroupRecord = SbtRecord<HitGroupSBT>;
 
  public:
 	OptixScene (const PropertyService& properties, const OptixConfig& config);
@@ -24,8 +24,7 @@ class OptixScene : public OptixEngine
 		// update app settings on gpu
 		syncCamera(camera);
 		syncBackgoundColor();
-		syncMeshColor();
-
+		
 		renderer->render(camera, OptixEngine::getPtr());
 	}
 	
@@ -34,15 +33,16 @@ class OptixScene : public OptixEngine
 	
 	std::vector<OptixMeshHandle> meshes;
 
-	std::vector<HitGroupSbtRecord> hitgroup_records;
 	CUdeviceptr deviceIASoutputBuffer = 0;
-	CUdeviceptr hitGroupRecordBase = 0;
-	size_t hitgroupRecordSize = sizeof(HitGroupSbtRecord);
+	CUdeviceptr hitgroup_record_base = 0;
+	const size_t hitgroup_record_size = sizeof(HitGroupRecord);
+	std::vector<HitGroupRecord> hitgroup_records;
 
 	// SBT records
-	RayGenSbtRecord raygenSBT;
-	MissSbtRecord missSBT;
-	HitGroupSbtRecord hitgroupSBT;
+	RaygenRecord raygenRecord;
+	const size_t raygenRecordSize = sizeof(RaygenRecord);
+	MissRecord missRecord;
+	//HitGroupRecord hitgroupSBT;
 
 	void createRaygenRecord(CameraHandle& camera);
 	void createMissRecord();
@@ -56,6 +56,5 @@ class OptixScene : public OptixEngine
 	// sync app settings with device
 	void syncCamera(CameraHandle& camera);
 	void syncBackgoundColor();
-	void syncMeshColor();
 
 }; // end class OptixScene

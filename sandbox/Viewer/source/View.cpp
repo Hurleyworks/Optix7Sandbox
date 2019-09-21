@@ -7,6 +7,7 @@
 
 using namespace nanogui;
 using juce::String;
+using juce::File;
 using std::cout;
 using std::endl;
 
@@ -23,11 +24,15 @@ View::~View ()
 
 void View::create(NanoguiLayer* const gui)
 {
-	this->gui = gui;
+	commonFolder = properties.renderProps->getVal<std::string>(RenderKey::CommonFolder);
 
+	this->gui = gui;
+	auto ctx = gui->nvgContext();
 	Window* window = new Window(gui, "Hello Optix7");
 	window->setPosition(Vector2i(15, 15));
 	window->setLayout(new GroupLayout());
+
+	modelIcons = loadImageDirectory(ctx, commonFolder + "/models");
 
 	Label * label = new Label(window, "Background color:", "sans-bold");
 	label->setColor(Color(r1, g1, b1, a1));
@@ -47,58 +52,29 @@ void View::create(NanoguiLayer* const gui)
 		properties.renderProps->setValue(RenderKey::ResetAccumulator, true);
 		});
 
-	label = new Label(window, "Mesh color:", "sans-bold");
-	label->setColor(Color(r1, g1, b1, a1));
-	Vector4f col = properties.renderProps->getVal<Vector4f>(RenderKey::MeshColor);
-	
-	cp = new ColorPicker(window, nanogui::Color(col.x(), col.y(), col.z(), 1.0f));
-	cp->setFixedSize({ 100, 20 });
-	cp->setCallback([&](const Color& c) {
-		Eigen::Vector4f bg(c.r(), c.g(), c.b(), c.w());
-		properties.renderProps->setValue(RenderKey::MeshColor, bg);
-		// must reset the accumulator, if present
-		properties.renderProps->setValue(RenderKey::ResetAccumulator, true);
-		});
-
-	cp->setFinalCallback([&](const Color& c) {
-		Eigen::Vector4f bg(c.r(), c.g(), c.b(), c.w());
-		properties.renderProps->setValue(RenderKey::MeshColor, bg);
-		// must reset the accumulator, if present
-		properties.renderProps->setValue(RenderKey::ResetAccumulator, true);
-		});
-
 	label = new Label(window, "Scene:", "sans-bold");
 	label->setColor(Color(r1, g1, b1, a1));
 
-	// create primitive meshes
-	PopupButton* primPopBtn = new PopupButton(window, "Add mesh", ENTYPO_ICON_PLUS);
-	Popup* primPopup = primPopBtn->popup();
-	primPopup->setLayout(new GroupLayout());
+	PopupButton* imagePanelBtn = new PopupButton(window, "Models");
+	imagePanelBtn->setIcon(ENTYPO_ICON_FOLDER);
+	Popup* popup = imagePanelBtn->popup();
+	VScrollPanel* vscroll = new VScrollPanel(popup);
+	ImagePanel* imgPanel = new ImagePanel(vscroll);
+	imgPanel->setImages(modelIcons);
+	popup->setFixedSize(Vector2i(245, 150));
 
-	Button * b = new Button(primPopup, "Box");
-	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Box), meshOptions);
+
+	imgPanel->setCallback([&, imagePanelBtn](int i) {
+		imagePanelBtn->setPushed(false);
+		std::string path = modelIcons[i].second;
+		path = path + ".png";
+		File f(path);
+		if (f.existsAsFile())
+		{
+			emitModelPath(path);
+		}
 		});
-	b = new Button(primPopup, "Ball");
-	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Ball), meshOptions);
-		});
-	b = new Button(primPopup, "Cylinder");
-	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Cylinder), meshOptions);
-		});
-	b = new Button(primPopup, "Capsule");
-	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Capsule), meshOptions);
-		});
-	b = new Button(primPopup, "Torus");
-	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Torus), meshOptions);
-		});
-	b = new Button(primPopup, "Bunny");
-	b->setCallback([&] {
-		emitPrimitiveType(PrimitiveType(PrimitiveType::Bunny), meshOptions);
-		});
+
 
 	Button * about = new Button(window->buttonPanel(), "", ENTYPO_ICON_INFO);
 	about->setCallback([=]() {

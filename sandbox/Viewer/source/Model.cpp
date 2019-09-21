@@ -245,6 +245,30 @@ void Model::createNewInstance(const RenderableData& data)
 {
 }
 
+void Model::loadModelFromIcon(const std::string& iconPath)
+{
+	File f(iconPath);
+	String modelName = f.getFileNameWithoutExtension();
+
+	std::string commonFolder = properties.renderProps->getVal<std::string>(RenderKey::CommonFolder);
+	std::string modelFolder = commonFolder + "/models";
+	StringArray files;
+	String wildCard("*.gltf");
+	FileServices::getFiles(modelFolder, files, wildCard);
+
+	for (auto path : files)
+	{
+		File f(path);
+		String fileName = f.getFileName();
+		if (fileName.startsWithIgnoreCase(modelName))
+		{
+			LOG(DBUG) << fileName;
+			glTFLoader.call(&glTFLoader::loadGeometry, path.toStdString(), loadMeshCallback);
+			break;
+		}	
+	}
+}
+
 void Model::addNode(RenderableNode& node)
 {
 }

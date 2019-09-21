@@ -73,10 +73,12 @@ public:
 				MeshOptions options);
 
 	void loadImage(const std::string& path, PixelBuffer& buffer);
+	void loadModelFromIcon(const std::string& iconPath);
 	void onDrop(const std::vector<std::string>& fileList);
 
 	void createNewRenderable(const RenderableData& d);
 	void createNewInstance(const RenderableData& d);
+	
 
 	void addNode(RenderableNode& node);
 	void removeNode(RenderableNode& node);

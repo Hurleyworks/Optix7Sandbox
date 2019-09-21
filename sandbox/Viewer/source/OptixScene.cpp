@@ -66,11 +66,11 @@ void OptixScene::addRenderable(RenderableNode& node)
 		mesh->init(context);
 		meshes.push_back(mesh);
 
-		// add a new HitGroupSbtRecord
+		// add a new HitGroupRecord
 		updateSBT(mesh);
 		
 		rebuildSceneAccel();
-		
+
 		// must restart render
 		setRenderRestart(true);
 	}
@@ -90,58 +90,56 @@ void OptixScene::addRenderable(RenderableNode& node)
 
 void OptixScene::createRaygenRecord(CameraHandle& camera)
 {
-	CUdeviceptr  raygenRecord;
-	const size_t raygenRecordSize = sizeof(RayGenSbtRecord);
-	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&raygenRecord), raygenRecordSize));
+	CUdeviceptr  d_raygenRecord;
+	
+	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_raygenRecord), raygenRecordSize));
 
 	updateCamera(camera);
 	ProgramGroupHandle raygen = findProgram(raygentName);
 	if (!raygen)
 		throw std::runtime_error("No raygen program found!");
 
-	OPTIX_CHECK(optixSbtRecordPackHeader(raygen->get(), &raygenSBT));
+	OPTIX_CHECK(optixSbtRecordPackHeader(raygen->get(), &raygenRecord));
 	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(raygenRecord),
-		&raygenSBT,
+		reinterpret_cast<void*>(d_raygenRecord),
+		&raygenRecord,
 		raygenRecordSize,
 		cudaMemcpyHostToDevice
 	));
 
-	sbt.raygenRecord = raygenRecord;
+	sbt.raygenRecord = d_raygenRecord;
 }
-
 
 void OptixScene::createMissRecord()
 {
-	CUdeviceptr missRecord;
-	size_t      missRecordSize = sizeof(MissSbtRecord);
-	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&missRecord), missRecordSize));
+	CUdeviceptr d_missRecord;
+	size_t      missRecordSize = sizeof(MissRecord);
+	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_missRecord), missRecordSize));
 
 	// get the miss color from the user
 	Vector4f bg = properties.renderProps->getVal<Vector4f>(RenderKey::BackgroundColor);
-	missSBT.data.r = bg.x();
-	missSBT.data.b = bg.y();
-	missSBT.data.g = bg.z();
+	missRecord.data.r = bg.x();
+	missRecord.data.b = bg.y();
+	missRecord.data.g = bg.z();
 
 	ProgramGroupHandle miss = findProgram(radianceMissName);
 	if (!miss)
 		throw std::runtime_error("No miss program found!");
 
-	OPTIX_CHECK(optixSbtRecordPackHeader(miss->get(), &missSBT));
+	OPTIX_CHECK(optixSbtRecordPackHeader(miss->get(), &missRecord));
 	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(missRecord),
-		&missSBT,
+		reinterpret_cast<void*>(d_missRecord),
+		&missRecord,
 		missRecordSize,
 		cudaMemcpyHostToDevice
 	));
 
 
-	sbt.missRecordBase = missRecord;
-	sbt.missRecordStrideInBytes = sizeof(MissSbtRecord);
-	sbt.missRecordCount = RAY_TYPE_COUNT;
+	sbt.missRecordBase = d_missRecord;
+	sbt.missRecordStrideInBytes = sizeof(MissRecord);
+	sbt.missRecordCount = 1; //  RAY_TYPE_COUNT;
 }
 
-#if 0
 void OptixScene::createHitRecord()
 {
 	ProgramGroupHandle radianceHit = findProgram(radianceHitName);
@@ -152,17 +150,15 @@ void OptixScene::createHitRecord()
 	if (!occlusionHit)
 		throw std::runtime_error("No occlusion hit program found!");
 
-	HitGroupSbtRecord rec = {};
-	memset(&rec, 0, sizeof(HitGroupSbtRecord));
+	HitGroupRecord rec = {};
+	memset(&rec, 0, hitgroup_record_size);
 	OPTIX_CHECK(optixSbtRecordPackHeader(radianceHit->get(), &rec));
 	hitgroup_records.push_back(rec);
 
-	HitGroupSbtRecord rec2 = {};
-	memset(&rec2, 0, sizeof(HitGroupSbtRecord));
-	OPTIX_CHECK(optixSbtRecordPackHeader(occlusionHit->get(), &rec2));
-	hitgroup_records.push_back(rec2);
+	//OPTIX_CHECK(optixSbtRecordPackHeader(occlusionHit->get(), &rec));
+	//xhitgroup_records.push_back(rec);
 
-	const size_t hitgroup_record_size = sizeof(HitGroupSbtRecord);
+
 	CUDA_CHECK(cudaMalloc(
 		reinterpret_cast<void**>(&sbt.hitgroupRecordBase),
 		hitgroup_record_size * hitgroup_records.size()
@@ -177,44 +173,6 @@ void OptixScene::createHitRecord()
 	sbt.hitgroupRecordStrideInBytes = static_cast<unsigned int>(hitgroup_record_size);
 	sbt.hitgroupRecordCount = static_cast<unsigned int>(hitgroup_records.size());
 }
-#endif 
-#if 1
-void OptixScene::createHitRecord()
-{
-	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&hitGroupRecordBase), hitgroupRecordSize));
-
-	//// get the mesh color from the user
-	//Vector4f col = properties.renderProps->getVal<Vector4f>(RenderKey::MeshColor);
-	//hitgroupSBT.data.r = col.x();
-	//hitgroupSBT.data.g = col.y();
-	//hitgroupSBT.data.b = col.z();
-
-	ProgramGroupHandle radianceHitGroup = findProgram(radianceHitName);
-	if (!radianceHitGroup)
-		throw std::runtime_error("No radiance hit program found!");
-
-	ProgramGroupHandle occlusionHit = findProgram(occlusionHitName);
-	if (!occlusionHit)
-		throw std::runtime_error("No occlusion hit program found!");
-
-	OPTIX_CHECK(optixSbtRecordPackHeader(radianceHitGroup->get(), &hitgroupSBT));
-	//OPTIX_CHECK(optixSbtRecordPackHeader(occlusionHit->get(), &hitgroupSBT));
-
-	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(hitGroupRecordBase),
-		&hitgroupSBT,
-		hitgroupRecordSize,
-		cudaMemcpyHostToDevice
-	));
-
-	sbt.hitgroupRecordBase = hitGroupRecordBase;
-	sbt.hitgroupRecordStrideInBytes = sizeof(HitGroupSbtRecord);
-	hitgroup_records.push_back(hitgroupSBT);
-	//hitgroup_records.push_back(hitgroupSBT); // for occluion?
-	sbt.hitgroupRecordCount = hitgroup_records.size();
-
-}
-#endif
 
 void OptixScene::rebuildSceneAccel()
 {
@@ -226,7 +184,7 @@ void OptixScene::rebuildSceneAccel()
 
 	std::vector<OptixInstance> optixInstances(instanceCount);
 
-	unsigned int sbtOffset = 0;// hitgroup_records.size() - 1; //  RAY_TYPE_COUNT;
+	unsigned int sbtOffset = 0; //  hitgroup_records.size() - RAY_TYPE_COUNT;
 	for (size_t i = 0; i < meshes.size(); ++i)
 	{
 		auto& mesh = meshes[i];
@@ -302,58 +260,61 @@ void OptixScene::rebuildSceneAccel()
 
 void OptixScene::updateSBT(OptixMeshHandle mesh)
 {
-	
+	// fill in the already created record
 	if (meshes.size() == 1)
 	{
+		HitGroupRecord& rec = hitgroup_records.back();
 
-		hitgroupSBT.data.geometry_data.type = OptixGeometryData::TRIANGLE_MESH;
-		hitgroupSBT.data.geometry_data.triangle_mesh.positions = mesh->positions;
-		hitgroupSBT.data.geometry_data.triangle_mesh.normals = mesh->normals;
-		hitgroupSBT.data.geometry_data.triangle_mesh.texcoords = mesh->texcoords;
-		hitgroupSBT.data.geometry_data.triangle_mesh.indices = mesh->indices;
+		rec.data.geometry_data.type = OptixGeometryData::TRIANGLE_MESH;
+		rec.data.geometry_data.triangle_mesh.positions = mesh->positions;
+		rec.data.geometry_data.triangle_mesh.normals = mesh->normals;
+		rec.data.geometry_data.triangle_mesh.texcoords = mesh->texcoords;
+		rec.data.geometry_data.triangle_mesh.indices = mesh->indices;
 
-		// use default materail 
-		hitgroupSBT.data.material_data.pbr = OptixMaterialData::Pbr();
+		// use default material 
+		rec.data.material_data.pbr = OptixMaterialData::Pbr();
 
+		CUDA_CHECK(cudaMalloc(
+			reinterpret_cast<void**>(&sbt.hitgroupRecordBase),
+			hitgroup_record_size * hitgroup_records.size()
+		));
 		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>(hitGroupRecordBase),
-			&hitgroupSBT,
-			hitgroupRecordSize,
+			reinterpret_cast<void*>(sbt.hitgroupRecordBase),
+			hitgroup_records.data(),
+			hitgroup_record_size * hitgroup_records.size(),
 			cudaMemcpyHostToDevice
 		));
 
-		
 		return;
 	}
-
+	
+	CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.hitgroupRecordBase)));
 
 	ProgramGroupHandle radianceHit = findProgram(radianceHitName);
 	if (!radianceHit)
 		throw std::runtime_error("No radiance hit program found!");
 
-/*	ProgramGroupHandle occulsionHit = findProgram(occlusionHitName);
+	ProgramGroupHandle occulsionHit = findProgram(occlusionHitName);
 	if (!occulsionHit)
-		throw std::runtime_error("No occulsion hit program found!")*/;
+		throw std::runtime_error("No occulsion hit program found!");
 
-	HitGroupSbtRecord rec = {};
-	memset(&rec, 0, sizeof(HitGroupSbtRecord));
+	HitGroupRecord rec = {};
+	memset(&rec, 0, sizeof(HitGroupRecord));
 	OPTIX_CHECK(optixSbtRecordPackHeader(radianceHit->get(), &rec));
 	
-
 	rec.data.geometry_data.type = OptixGeometryData::TRIANGLE_MESH;
 	rec.data.geometry_data.triangle_mesh.positions = mesh->positions;
 	rec.data.geometry_data.triangle_mesh.normals = mesh->normals;
 	rec.data.geometry_data.triangle_mesh.texcoords = mesh->texcoords;
 	rec.data.geometry_data.triangle_mesh.indices = mesh->indices;
 	
-	// use default materail 
+	// use default material 
 	rec.data.material_data.pbr = OptixMaterialData::Pbr();
 
 	hitgroup_records.push_back(rec);
-	//OPTIX_CHECK(optixSbtRecordPackHeader(occulsionHit->get(), &rec));
-	//hitgroup_records.push_back(rec);
+	OPTIX_CHECK(optixSbtRecordPackHeader(occulsionHit->get(), &rec));
+	hitgroup_records.push_back(rec);
 
-	const size_t hitgroup_record_size = sizeof(HitGroupSbtRecord);
 	CUDA_CHECK(cudaMalloc(
 		reinterpret_cast<void**>(&sbt.hitgroupRecordBase),
 		hitgroup_record_size * hitgroup_records.size()
@@ -365,7 +326,6 @@ void OptixScene::updateSBT(OptixMeshHandle mesh)
 		cudaMemcpyHostToDevice
 	));
 
-	//sbt.hitgroupRecordStrideInBytes = static_cast<unsigned int>(hitgroup_record_size);
 	sbt.hitgroupRecordCount = static_cast<unsigned int>(hitgroup_records.size());
 	
 }
@@ -383,8 +343,8 @@ void OptixScene::syncCamera(CameraHandle& camera)
 
 	CUDA_CHECK(cudaMemcpy(
 		reinterpret_cast<void*>(sbt.raygenRecord),
-		&raygenSBT,
-		sizeof(RayGenSbtRecord),
+		&raygenRecord,
+		sizeof(RaygenRecord),
 		cudaMemcpyHostToDevice
 	));
 }
@@ -394,7 +354,6 @@ void OptixScene::updateCamera(CameraHandle& camera)
 	// recalc the view matrix
 	if (camera->isDirty())
 	{
-		// must reset the accumulator, 
 		camera->getViewMatrix();
 	}
 
@@ -418,46 +377,25 @@ void OptixScene::updateCamera(CameraHandle& camera)
 	camForward = make_float3(forward.x(), forward.y(), forward.z());
 	camEye = make_float3(eye.x(), eye.y(), eye.z());
 
-	raygenSBT.data.cam_eye = camEye;
-	raygenSBT.data.camera_u = camRight;
-	raygenSBT.data.camera_v = camUp;
-	raygenSBT.data.camera_w = camForward;
+	raygenRecord.data.cam_eye = camEye;
+	raygenRecord.data.camera_u = camRight;
+	raygenRecord.data.camera_v = camUp;
+	raygenRecord.data.camera_w = camForward;
 }
 
 void OptixScene::syncBackgoundColor()
 {
 	Vector4f bg = properties.renderProps->getVal<Vector4f>(RenderKey::BackgroundColor);
 
-	missSBT.data.r = bg.x();
-	missSBT.data.g = bg.y();
-	missSBT.data.b = bg.z();
+	missRecord.data.r = bg.x();
+	missRecord.data.g = bg.y();
+	missRecord.data.b = bg.z();
 
 	CUDA_CHECK(cudaMemcpy(
 		reinterpret_cast<void*>(sbt.missRecordBase),
-		&missSBT,
-		sizeof(MissSbtRecord),
+		&missRecord,
+		sizeof(MissRecord),
 		cudaMemcpyHostToDevice
 	));
 }
 
-void OptixScene::syncMeshColor()
-{
-
-#if 0
-	Vector4f col = properties.renderProps->getVal<Vector4f>(RenderKey::MeshColor);
-
-	
-	//optixSbtRecordPackHeader(config.programs.hitgroupProgs.front()->get(), &hitgroupSBT);
-
-	hitgroupSBT.data.r = col.x();
-	hitgroupSBT.data.g = col.y();
-	hitgroupSBT.data.b = col.z();
-
-	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(sbt.hitgroupRecordBase),
-		&hitgroupSBT,
-		sizeof(HitGroupSbtRecord),
-		cudaMemcpyHostToDevice
-	));
-#endif
-}

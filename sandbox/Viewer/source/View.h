@@ -24,8 +24,11 @@ public:
 	SIGNAL_1(void emitPrimitiveType(PrimitiveType type, MeshOptions options))
 	SIGNAL_2(emitPrimitiveType, type, options)
 
+	SIGNAL_1(void emitModelPath(const std::string& path))
+	SIGNAL_2(emitModelPath, path)
+
  public:
-	View (const PropertyService & properties);
+	View (const PropertyService& properties);
 	~View ();
 	
 	void create(NanoguiLayer* const gui);
@@ -37,6 +40,8 @@ public:
 	 PropertyService properties;
 	 NanoguiLayer* gui = nullptr; // owned by App, don't delete
 	 MeshOptions meshOptions = MeshOptions::CenterVertices | MeshOptions::NormalizeSize | MeshOptions::RestOnGround | MeshOptions::LoadStrategy;
+	 std::string commonFolder;
+	 std::vector<std::pair<int, std::string>> modelIcons;
 
 	 // label colors
 	 int r1 = 255;

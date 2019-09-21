@@ -70,6 +70,7 @@ class Application : public Jahley::App
 			// connect the View with Model using signal/slots
 			connect(view, &View::emitPrimitiveType, model, &Model::addPrimitive);
 			connect(model, &Model::emitRenderable, *this, &Application::addRenderable);
+			connect(view, &View::emitModelPath, model, &Model::loadModelFromIcon);
 		}
 		catch (std::exception& e)
 		{
@@ -89,7 +90,7 @@ class Application : public Jahley::App
 		if (mesh.first)
 		{
 			MeshOptions options = MeshOptions::CenterVertices | MeshOptions::NormalizeSize | MeshOptions::RestOnGround | MeshOptions::LoadStrategy;
-			model.addMesh(mesh.first, "mesh",  INVALID_ID, Pose::Identity(), Scale::Constant(1.0f), RenderableDesc(), options);
+			model.addMesh(mesh.first, mesh.second,  INVALID_ID, Pose::Identity(), Scale::Constant(1.0f), RenderableDesc(), options);
 		}
 
 		// display the render from Optix 
@@ -114,7 +115,6 @@ class Application : public Jahley::App
 
 	void onInput(const InputEvent & e) override
 	{
-		
 		controller.onInput(e, camera);
 	}
 
