@@ -89,7 +89,7 @@ class Application : public Jahley::App
 		checkForErrors();
 
 		if (captureScreen) 
-			saveScreen(APP_NAME);
+			App::saveScreen(APP_NAME);
 
 		// add any meshes that were loaded on the ActiveLoader thread
 		Model::MeshData mesh = model.getNextLoadedMeshBuffer();
