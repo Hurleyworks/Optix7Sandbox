@@ -17,6 +17,7 @@ class OptixScene : public OptixEngine
 	~OptixScene ();
 
 	void init(CameraHandle& camera, const json& programGroups) override;
+	void clearScene() override {}
 	void render(CameraHandle& camera) override
 	{
 		if (!engineIsReady) return;

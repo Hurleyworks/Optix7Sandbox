@@ -31,6 +31,7 @@ namespace Jahley
 		// rendering
 		void pushLayer(RenderLayerRef layer, bool attach);
 		void pushOverlay(RenderLayerRef layer, bool attach);
+		bool saveScreen(const std::string& appName);
 
 		// slot 
 		void onInputEvent(const InputEvent & e);
@@ -39,7 +40,7 @@ namespace Jahley
 		void preCrash();
 		void onFatalError(g3::FatalMessagePtr fatal_message);
 
-		bool saveScreen(const std::string& appName);
+		void resetSceneStats();
 
 	  protected:
 		App(DesktopWindowSettings settings = DesktopWindowSettings(), bool windowApp = false);
@@ -52,7 +53,7 @@ namespace Jahley
 		bool captureScreen = false;
 		bool captureRender = false;
 
-		std::chrono::time_point<std::chrono::system_clock>  startTime = std::chrono::system_clock::now();
+		std::chrono::time_point<std::chrono::system_clock> startTime = std::chrono::system_clock::now();
 
 	  private:
 		bool windowApp = false;

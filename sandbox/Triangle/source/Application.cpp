@@ -54,7 +54,7 @@ class Application : public Jahley::App
 
 			// create the Gui overlay
 			NanoguiLayer* const gui = new NanoguiLayer(window->glfw(), properties, camera);
-			view.create(gui);
+			view.create(gui, APP_NAME);
 			nanoguiLayer = RenderLayerRef(gui);
 			pushOverlay(nanoguiLayer, true);
 
@@ -68,7 +68,7 @@ class Application : public Jahley::App
 			pushLayer(optixLayer, true);
 
 			// connect the View with Model using signal/slots
-			connect(view, &View::emitPrimitiveType, model, &Model::loadPrimitive);
+			connect(view, &View::emitScreenGrab, *this, &Application::onScreenGrab);
 		}
 		catch (std::exception& e)
 		{
@@ -81,6 +81,9 @@ class Application : public Jahley::App
 
 	void update() override
 	{
+		if (captureScreen)
+			App::saveScreen(APP_NAME);
+
 		checkForErrors();
 
 		// display the render from Optix 
@@ -135,6 +138,8 @@ class Application : public Jahley::App
 		engine = std::make_shared<OptixScene>(properties, config.getOptixConfig());
 		engine->init(camera, config.getProgramGroups());
 	}
+
+	void onScreenGrab() { captureScreen = true; }
 
   private:
 	  RenderLayerRef optixLayer = nullptr;

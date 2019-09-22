@@ -185,4 +185,12 @@ namespace Jahley
 
 		return stbi_write_png(path.toStdString().c_str(), spec.width, spec.height, 4, flipped.data(), 4 * spec.width);
 	}
+
+	void App::resetSceneStats()
+	{
+		properties.worldProps->setValue(WorldKey::TotalMeshes, DEFAULT_MESH_COUNT);
+		properties.worldProps->setValue(WorldKey::TotalInstances, DEFAULT_INSTANCES_COUNT);
+		properties.worldProps->setValue(WorldKey::TotalRealTriangles, DEFAULT_TRIANGLE_COUNT);
+		properties.worldProps->setValue(WorldKey::TotalInstancedTriangles, DEFAULT_INSTANCED_TRIANGLE_COUNT);
+	}
 }

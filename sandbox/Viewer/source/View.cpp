@@ -22,13 +22,13 @@ View::~View ()
 {	
 }
 
-void View::create(NanoguiLayer* const gui)
+void View::create(NanoguiLayer* const gui, const std::string& appName)
 {
 	commonFolder = properties.renderProps->getVal<std::string>(RenderKey::CommonFolder);
 
 	this->gui = gui;
 	auto ctx = gui->nvgContext();
-	Window* window = new Window(gui, "Hello Optix7");
+	Window* window = new Window(gui, appName);
 	window->setPosition(Vector2i(15, 15));
 	window->setLayout(new GroupLayout());
 

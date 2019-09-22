@@ -108,7 +108,7 @@ void OptixScene::buildSBT(CameraHandle& camera)
 
 void OptixScene::createAccel()
 {
-	CUdeviceptr            d_gas_output_buffer;
+	CUdeviceptr d_gas_output_buffer;
 	{
 		
 
@@ -197,7 +197,6 @@ void OptixScene::createAccel()
 
 void OptixScene::syncCamera(CameraHandle& camera)
 {
-
 	ProgramGroupHandle raygen = findProgram("camera_group");
 
 	RayGenSbtRecord rg_sbt;

@@ -54,7 +54,7 @@ class Application : public Jahley::App
 
 			// create the gui overlay
 			NanoguiLayer* const gui = new NanoguiLayer(window->glfw(), properties, camera);
-			view.create(gui);
+			view.create(gui, APP_NAME);
 			nanoguiLayer = RenderLayerRef(gui);
 			pushOverlay(nanoguiLayer, true);
 
@@ -178,7 +178,7 @@ class Application : public Jahley::App
 
 	void onScreenGrab() {captureScreen = true;}
 	void onFrameGrab() { captureRender = true; }
-	void onClearScene() { engine->clearScene(); }
+	void onClearScene() { engine->clearScene(); App::resetSceneStats(); }
 
   private:
 	  RenderLayerRef optixLayer = nullptr;

@@ -21,14 +21,15 @@ class View : public CsSignal::SignalBase
 	// Easily reusable & configurable to display different data
 
 public:
-	SIGNAL_1(void emitPrimitiveType(PrimitiveType type, MeshOptions options))
-	SIGNAL_2(emitPrimitiveType, type, options)
+	SIGNAL_1(void emitScreenGrab())
+	SIGNAL_2(emitScreenGrab)
+
 
  public:
 	View (const PropertyService & properties);
 	~View ();
 	
-	void create(NanoguiLayer* const gui);
+	void create(NanoguiLayer* const gui, const std::string& appName);
 
 	// this fixed crashing in MessageDialog!
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW

@@ -44,7 +44,7 @@ public:
 	View (const PropertyService& properties);
 	~View ();
 	
-	void create(NanoguiLayer* const gui);
+	void create(NanoguiLayer* const gui, const std::string& appName);
 
 	// this fixed crashing in MessageDialog!
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW

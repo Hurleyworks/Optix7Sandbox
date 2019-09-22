@@ -21,11 +21,11 @@ View::~View ()
 {	
 }
 
-void View::create(NanoguiLayer* const gui)
+void View::create(NanoguiLayer* const gui, const std::string& appName)
 {
 	this->gui = gui;
 
-	Window* window = new Window(gui, "Hello Optix7");
+	Window* window = new Window(gui, appName);
 	window->setPosition(Vector2i(15, 15));
 	window->setLayout(new GroupLayout());
 
@@ -58,6 +58,10 @@ void View::create(NanoguiLayer* const gui)
 		Eigen::Vector4f bg(c.r(), c.g(), c.b(), c.w());
 		properties.renderProps->setValue(RenderKey::MeshColor, bg);
 		});
+
+	Button *b = new Button(window, "Screen grab");
+	b->setCallback([&] { emitScreenGrab(); });
+	b->setTooltip("Capture screen");
 
 	gui->performLayout();
 }
