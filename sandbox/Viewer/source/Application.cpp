@@ -104,8 +104,11 @@ class Application : public Jahley::App
 		if (pixelBuffer.uint8Pixels.size())
 		{
 			if (captureRender)
-				saveRender(pixelBuffer);
-
+			{
+				model.saveRender(pixelBuffer, APP_NAME, std::chrono::system_clock::now() - startTime);
+				captureRender = false;
+			}
+				
 			window->renderImage(std::move(pixelBuffer));
 		}
 	}
@@ -178,36 +181,35 @@ class Application : public Jahley::App
 
 		glReadPixels(0, 0, spec.width, spec.height, GL_RGBA, GL_UNSIGNED_BYTE, screenShot.uint8Pixels.data());
 
-		std::string screenshotPath = properties.renderProps->getVal<std::string>(RenderKey::ResourceFolder);
-		screenshotPath += "/screenGrabs/grab.png";
-
 		// need to flip vertically
 		MatrixXc flipped;
 		screenShot.flipVertical(flipped);
 
+		String screenshotPath = properties.renderProps->getVal<std::string>(RenderKey::ResourceFolder);
+		screenshotPath += "/screenGrabs";
+
+		std::chrono::duration<double> time = std::chrono::system_clock::now() - startTime;
+
+		File f(screenshotPath);
+		if (!f.exists())
+		{
+			f.createDirectory();
+		}
+
+		String name(APP_NAME);
+		name += "__screenGrab__" + String(time.count()) + "s.png";
+
+		screenshotPath += File::separator + name;
+
 		String path(screenshotPath);
 		path = path.replaceCharacter('/', '\\');
 
-		stbi_write_png(path.toStdString().c_str(), spec.width, spec.height, 4, flipped.data(), 4 * spec.width);
+		if (!stbi_write_png(path.toStdString().c_str(), spec.width, spec.height, 4, flipped.data(), 4 * spec.width))
+		{
+			nanoguiLayer->postWarningMessage("Critical", "Screen grab failed " + path.toStdString());
+		}
 
 		captureScreen = false;
-	}
-
-	void saveRender(PixelBuffer& pixelBuffer)
-	{
-		std::string framegrabPath = properties.renderProps->getVal<std::string>(RenderKey::ResourceFolder);
-		framegrabPath += "/frameGrabs/grab.png";
-
-		String path(framegrabPath);
-		path = path.replaceCharacter('/', '\\');
-
-		ImageInfo spec = pixelBuffer.spec;
-		MatrixXc flipped;
-		pixelBuffer.flipVertical(flipped);
-
-		stbi_write_png(path.toStdString().c_str(), spec.width, spec.height, 4, flipped.data(), 4 * spec.width);
-
-		captureRender = false;
 	}
 
 	void createEngine()
@@ -232,6 +234,8 @@ class Application : public Jahley::App
 	  Model model;
 	  View view;
 	  Controller controller;
+
+	  std::chrono::time_point<std::chrono::system_clock>  startTime = std::chrono::system_clock::now();
 };
 
 Jahley::App* Jahley::CreateApplication()

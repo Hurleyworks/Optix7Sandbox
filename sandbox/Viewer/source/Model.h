@@ -62,6 +62,7 @@ public:
 
 	void loadImage(const std::string& path, PixelBuffer& buffer);
 	void onImagesLoad(const Images&& images);
+	void saveRender(PixelBuffer& pixelBuffer, const std::string& appName, std::chrono::duration<double> time);
 
 	void addPrimitive(PrimitiveType type, MeshOptions options = MeshOptions());
 	void createGroundPlane(const Vector2f& size = Vector2f(100.0f, 100.0f));

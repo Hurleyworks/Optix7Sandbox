@@ -83,6 +83,7 @@ project "PocoFoundationLite"
 		"src/Pipe.cpp",
 		"src/Error.cpp",
 		"src/DateTime.cpp",
+		"src/LocalDateTime.cpp",
 		"src/DateTimeFormat.cpp",
 		"src/DateTimeFormatter.cpp",
 		"src/DateTimeParser.cpp",

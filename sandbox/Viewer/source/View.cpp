@@ -55,6 +55,10 @@ void View::create(NanoguiLayer* const gui)
 	label = new Label(window, "Scene:", "sans-bold");
 	label->setColor(Color(r1, g1, b1, a1));
 
+	Button* b = new Button(window, "Add ground plane");
+	b->setCallback([&] { emitGroundPlane(Vector2f(100.0f, 100.0f)); });
+	b->setTooltip("Add a ground plane");
+
 	PopupButton* imagePanelBtn = new PopupButton(window, "Models");
 	imagePanelBtn->setIcon(ENTYPO_ICON_FOLDER);
 	Popup* popup = imagePanelBtn->popup();
@@ -75,9 +79,7 @@ void View::create(NanoguiLayer* const gui)
 		}
 		});
 
-	Button* b = new Button(window, "Add ground plane");
-	b->setCallback([&] { emitGroundPlane(Vector2f(100.0f, 100.0f)); });
-	b->setTooltip("Add a ground plane");
+	
 
 	label = new Label(window, "Render:", "sans-bold");
 	label->setColor(Color(r1, g1, b1, a1));

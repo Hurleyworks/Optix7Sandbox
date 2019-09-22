@@ -27,6 +27,7 @@ using igl::read_triangle_mesh;
 using igl::write_triangle_mesh;
 using namespace std::placeholders;
 
+
 // ctor
 Model::Model(const PropertyService& properties)
 	: properties(properties),
@@ -325,6 +326,40 @@ void Model::onImagesLoad(const Images&& images)
 	{
 		imageQueue.enqueue(image);
 	}
+}
+
+void Model::saveRender(PixelBuffer& pixelBuffer, const std::string& appName, std::chrono::duration<double> time)
+{
+	String framegrabPath = properties.renderProps->getVal<std::string>(RenderKey::ResourceFolder);
+	framegrabPath += "/frameGrabs";
+
+	File f(framegrabPath);
+	if (!f.exists())
+	{
+		f.createDirectory();
+	}
+
+	String name(appName);
+	name += "__frameGrab__" + String(time.count()) +  "s.png";
+
+	framegrabPath += File::separator + name;
+
+	// fix file separators
+	String path(framegrabPath);
+	path = path.replaceCharacter('/', '\\');
+
+	ImageInfo spec = pixelBuffer.spec;
+	MatrixXc flipped;
+	pixelBuffer.flipVertical(flipped);
+
+	if(!stbi_write_png(path.toStdString().c_str(), spec.width, spec.height, 4, flipped.data(), 4 * spec.width))
+	{
+		ErrMsg err;
+		err.severity = ErrorSeverity::Critical;
+		err.message = "Frame saving failed! " + path.toStdString();
+		errorQueue.push(err);
+	}
+
 }
 
 void Model::addMesh(MeshBuffersHandle mesh,
