@@ -40,12 +40,12 @@ void OptixMesh::init(ContextHandle& context)
 
 	ScopedStopWatch sw(_FN_);
 
-	// pack all the MeshBuffer data into a binary stream
-	std::stringstream str;
 	MeshBuffersHandle& mesh = weakNode.lock()->getMesh();
 	if (!mesh)
 		throw std::runtime_error(weakNode.lock()->getName() + " has no mesh");
 
+	// pack all the MeshBuffer data into a binary stream
+	std::stringstream str;
 	mesh->packIntoBinarStream(str);
 
 	// send it to device

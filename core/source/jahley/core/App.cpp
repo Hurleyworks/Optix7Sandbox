@@ -120,7 +120,6 @@ namespace Jahley
 			}
 		}
 			
-
 		// send to client
 		if(sendToClient)
 			onInput(e);
@@ -166,13 +165,13 @@ namespace Jahley
 		String screenshotPath = properties.renderProps->getVal<std::string>(RenderKey::ResourceFolder);
 		screenshotPath += "/screenGrabs";
 
-		std::chrono::duration<double> time = std::chrono::system_clock::now() - startTime;
-
 		File f(screenshotPath);
 		if (!f.exists())
 		{
 			f.createDirectory();
 		}
+
+		std::chrono::duration<double> time = std::chrono::system_clock::now() - startTime;
 
 		String name(appName);
 		name += "__screenGrab__" + String(time.count()) + "s.png";
@@ -185,6 +184,5 @@ namespace Jahley
 		captureScreen = false;
 
 		return stbi_write_png(path.toStdString().c_str(), spec.width, spec.height, 4, flipped.data(), 4 * spec.width);
-		
 	}
 }

@@ -79,7 +79,9 @@ void View::create(NanoguiLayer* const gui)
 		}
 		});
 
-	
+	b = new Button(window, "Clear scene");
+	b->setCallback([&] { emitClearScene(); });
+	b->setTooltip("Clear scene");
 
 	label = new Label(window, "Render:", "sans-bold");
 	label->setColor(Color(r1, g1, b1, a1));

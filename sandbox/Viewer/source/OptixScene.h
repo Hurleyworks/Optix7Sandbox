@@ -18,6 +18,7 @@ class OptixScene : public OptixEngine
 
 	void init(CameraHandle& camera, const json& groups) override;
 	void addRenderable(RenderableNode& node) override;
+	void clearScene() override;
 
 	void render(CameraHandle& camera) override
 	{		

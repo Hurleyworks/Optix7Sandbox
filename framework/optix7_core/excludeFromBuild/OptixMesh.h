@@ -25,7 +25,7 @@ class OptixMesh
 	OptixTraversableHandle getGAS() const { return weakNode.expired() ? 0 : GAS; }
 	Matrix43f getWorldTransform()
 	{
-		if (weakNode.expired()) return Matrix43f();
+		if (weakNode.expired()) return Matrix43f().setIdentity();
 
 		Matrix4f m = weakNode.lock()->getSpaceTime().worldTransform.matrix();
 		m.transposeInPlace(); // must transpose for Optix

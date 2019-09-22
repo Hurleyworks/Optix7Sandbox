@@ -37,6 +37,9 @@ public:
 	SIGNAL_1(void emitScreenGrab())
 	SIGNAL_2(emitScreenGrab)
 
+	SIGNAL_1(void emitClearScene())
+	SIGNAL_2(emitClearScene)
+
  public:
 	View (const PropertyService& properties);
 	~View ();

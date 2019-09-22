@@ -88,6 +88,15 @@ void OptixScene::addRenderable(RenderableNode& node)
 	}
 }
 
+void OptixScene::clearScene()
+{
+	meshes.clear();
+	rebuildHitgroupSBT();
+	rebuildSceneAccel();
+	createEmptyHitGroupRecord();
+	setRenderRestart(true);
+}
+
 void OptixScene::createRaygenRecord(CameraHandle& camera)
 {
 	CUdeviceptr  d_raygenRecord;

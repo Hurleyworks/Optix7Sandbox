@@ -30,6 +30,7 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	virtual void init(CameraHandle& camera, const json& groups) = 0;
 	virtual void render(CameraHandle& camera) = 0;
 	virtual void buildSBT(CameraHandle& camera) = 0;
+	virtual void clearScene() = 0;
 	virtual void addRenderable(RenderableNode& node) {}
 	virtual void addImage(PixelBufferHandle& image) {}
 
@@ -58,6 +59,7 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	OptixShaderBindingTable sbt = {};
 	OptixTraversableHandle sceneAccel= 0; 
 	OptixTraversableHandle gAccel = 0;
+
 	PipelineHandle createPipeline(const json& groups);
 	ProgramGroupHandle findProgram(const String& key)
 	{

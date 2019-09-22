@@ -271,14 +271,13 @@ void OptixEngine::createProgramGroup(const json& j)
 				ProgramGroupHandle handle = createRaygenPrograms(it->second, funcName);
 				if (handle)
 					config.programs.programs.insert(std::make_pair(name, handle));
-					//config.programs.raygenProgs.push_back(handle);
 			}
 			break;
 		}
 
 		case OPTIX_PROGRAM_GROUP_KIND_MISS:
 		{
-			// nullpre modules are allowed
+			// nullptr modules are allowed
 			if (j["module"].is_null())
 			{
 				ModuleHandle null = nullptr;
@@ -300,8 +299,6 @@ void OptixEngine::createProgramGroup(const json& j)
 				ProgramGroupHandle handle = createMissPrograms(it->second, funcName);
 				if (handle)
 					config.programs.programs.insert(std::make_pair(name, handle));
-					//config.programs.missProgs.push_back(handle);
-				
 			}
 			
 			break;
@@ -369,9 +366,6 @@ void OptixEngine::createProgramGroup(const json& j)
 				LOG(DBUG) << "ADDING " << name;
 				config.programs.programs.insert(std::make_pair(name, handle));
 			}
-				
-				//config.programs.hitgroupProgs.push_back(handle);
-			
 			break;
 		}
 			
@@ -394,7 +388,6 @@ PipelineHandle OptixEngine::createPipeline(const json& groups)
 	{
 		programGroups.push_back(it.second->get());
 	}
-
 
 	if (!programGroups.size())
 		throw std::runtime_error("No program groups avaialble for creating pipeline");

@@ -48,6 +48,7 @@ namespace Jahley
 		OpenglWindowHandle window;
 		PropertyService properties;
 		CameraHandle camera = nullptr;
+
 		bool captureScreen = false;
 		bool captureRender = false;
 

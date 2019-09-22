@@ -73,6 +73,7 @@ class Application : public Jahley::App
 			connect(view, &View::emitGroundPlane, model, &Model::createGroundPlane);
 			connect(view, &View::emitFrameGrab, *this, &Application::onFrameGrab);
 			connect(view, &View::emitScreenGrab, *this, &Application::onScreenGrab);
+			connect(view, &View::emitClearScene, *this, &Application::onClearScene);
 			connect(model, &Model::emitRenderable, *this, &Application::addRenderable);
 		}
 		catch (std::exception& e)
@@ -177,6 +178,7 @@ class Application : public Jahley::App
 
 	void onScreenGrab() {captureScreen = true;}
 	void onFrameGrab() { captureRender = true; }
+	void onClearScene() { engine->clearScene(); }
 
   private:
 	  RenderLayerRef optixLayer = nullptr;
