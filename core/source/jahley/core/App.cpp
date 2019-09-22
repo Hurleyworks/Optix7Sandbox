@@ -5,6 +5,9 @@
 #include "berserkpch.h"
 #include "App.h"
 
+using juce::String;
+using juce::File;
+
 namespace Jahley
 {
 	App::App (DesktopWindowSettings settings, bool windowApp)
@@ -142,5 +145,46 @@ namespace Jahley
 		LOG(CRITICAL) << fatal_message.get()->toString();
 
 		g3::internal::pushFatalMessageToLogger(fatal_message);
+	}
+
+	bool App::saveScreen(const std::string& appName)
+	{
+		ImageInfo spec;
+		spec.width = camera->getScreenWidth();
+		spec.height = camera->getScreenHeight();
+		spec.channels = 4;
+
+		PixelBuffer screenShot;
+		screenShot.init(spec);
+
+		glReadPixels(0, 0, spec.width, spec.height, GL_RGBA, GL_UNSIGNED_BYTE, screenShot.uint8Pixels.data());
+
+		// need to flip vertically
+		MatrixXc flipped;
+		screenShot.flipVertical(flipped);
+
+		String screenshotPath = properties.renderProps->getVal<std::string>(RenderKey::ResourceFolder);
+		screenshotPath += "/screenGrabs";
+
+		std::chrono::duration<double> time = std::chrono::system_clock::now() - startTime;
+
+		File f(screenshotPath);
+		if (!f.exists())
+		{
+			f.createDirectory();
+		}
+
+		String name(appName);
+		name += "__screenGrab__" + String(time.count()) + "s.png";
+
+		screenshotPath += File::separator + name;
+
+		String path(screenshotPath);
+		path = path.replaceCharacter('/', '\\');
+
+		captureScreen = false;
+
+		return stbi_write_png(path.toStdString().c_str(), spec.width, spec.height, 4, flipped.data(), 4 * spec.width);
+		
 	}
 }

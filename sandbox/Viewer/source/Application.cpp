@@ -52,7 +52,7 @@ class Application : public Jahley::App
 		{
 			config.init();
 
-			// create the Gui overlay
+			// create the gui overlay
 			NanoguiLayer* const gui = new NanoguiLayer(window->glfw(), properties, camera);
 			view.create(gui);
 			nanoguiLayer = RenderLayerRef(gui);
@@ -69,11 +69,11 @@ class Application : public Jahley::App
 
 			// connect the View with Model using signal/slots
 			connect(view, &View::emitPrimitiveType, model, &Model::addPrimitive);
-			connect(model, &Model::emitRenderable, *this, &Application::addRenderable);
 			connect(view, &View::emitModelPath, model, &Model::loadModelFromIcon);
 			connect(view, &View::emitGroundPlane, model, &Model::createGroundPlane);
 			connect(view, &View::emitFrameGrab, *this, &Application::onFrameGrab);
 			connect(view, &View::emitScreenGrab, *this, &Application::onScreenGrab);
+			connect(model, &Model::emitRenderable, *this, &Application::addRenderable);
 		}
 		catch (std::exception& e)
 		{
@@ -89,7 +89,7 @@ class Application : public Jahley::App
 		checkForErrors();
 
 		if (captureScreen) 
-			saveScreen();
+			saveScreen(APP_NAME);
 
 		// add any meshes that were loaded on the ActiveLoader thread
 		Model::MeshData mesh = model.getNextLoadedMeshBuffer();
@@ -169,49 +169,6 @@ class Application : public Jahley::App
 		}
 	}
 
-	void saveScreen()
-	{
-		ImageInfo spec;
-		spec.width = camera->getScreenWidth();
-		spec.height = camera->getScreenHeight();
-		spec.channels = 4;
-
-		PixelBuffer screenShot;
-		screenShot.init(spec);
-
-		glReadPixels(0, 0, spec.width, spec.height, GL_RGBA, GL_UNSIGNED_BYTE, screenShot.uint8Pixels.data());
-
-		// need to flip vertically
-		MatrixXc flipped;
-		screenShot.flipVertical(flipped);
-
-		String screenshotPath = properties.renderProps->getVal<std::string>(RenderKey::ResourceFolder);
-		screenshotPath += "/screenGrabs";
-
-		std::chrono::duration<double> time = std::chrono::system_clock::now() - startTime;
-
-		File f(screenshotPath);
-		if (!f.exists())
-		{
-			f.createDirectory();
-		}
-
-		String name(APP_NAME);
-		name += "__screenGrab__" + String(time.count()) + "s.png";
-
-		screenshotPath += File::separator + name;
-
-		String path(screenshotPath);
-		path = path.replaceCharacter('/', '\\');
-
-		if (!stbi_write_png(path.toStdString().c_str(), spec.width, spec.height, 4, flipped.data(), 4 * spec.width))
-		{
-			nanoguiLayer->postWarningMessage("Critical", "Screen grab failed " + path.toStdString());
-		}
-
-		captureScreen = false;
-	}
-
 	void createEngine()
 	{
 		engine = std::make_shared<OptixScene>(properties, config.getOptixConfig());
@@ -224,18 +181,12 @@ class Application : public Jahley::App
   private:
 	  RenderLayerRef optixLayer = nullptr;
 	  RenderLayerRef nanoguiLayer = nullptr;
-	  CameraHandle camera = nullptr;
 	  OptixEngineRef engine = nullptr;
-
-	  bool captureScreen = false;
-	  bool captureRender = false;
 
 	  SceneConfig config;
 	  Model model;
 	  View view;
 	  Controller controller;
-
-	  std::chrono::time_point<std::chrono::system_clock>  startTime = std::chrono::system_clock::now();
 };
 
 Jahley::App* Jahley::CreateApplication()

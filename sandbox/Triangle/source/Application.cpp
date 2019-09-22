@@ -139,7 +139,6 @@ class Application : public Jahley::App
   private:
 	  RenderLayerRef optixLayer = nullptr;
 	  RenderLayerRef nanoguiLayer = nullptr;
-	  CameraHandle camera = nullptr;
 	  OptixEngineRef engine = nullptr;
 
 	  SceneConfig config;

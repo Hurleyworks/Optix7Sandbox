@@ -39,12 +39,19 @@ namespace Jahley
 		void preCrash();
 		void onFatalError(g3::FatalMessagePtr fatal_message);
 
+		bool saveScreen(const std::string& appName);
+
 	  protected:
 		App(DesktopWindowSettings settings = DesktopWindowSettings(), bool windowApp = false);
 		bool isRunning = true;
 		InputHandler input;
 		OpenglWindowHandle window;
 		PropertyService properties;
+		CameraHandle camera = nullptr;
+		bool captureScreen = false;
+		bool captureRender = false;
+
+		std::chrono::time_point<std::chrono::system_clock>  startTime = std::chrono::system_clock::now();
 
 	  private:
 		bool windowApp = false;
