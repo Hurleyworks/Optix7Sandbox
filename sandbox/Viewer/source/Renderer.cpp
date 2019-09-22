@@ -124,7 +124,7 @@ void Renderer::initLaunchParams()
 	lights[0].position = make_float3(loffset);
 	lights[0].falloff = OptixLight::Falloff::QUADRATIC;
 	lights[1].color = { 0.8f, 0.8f, 1.0f };
-	lights[1].intensity = 3.0f;
+	lights[1].intensity = 2.0f;
 	lights[1].position =  make_float3(-loffset, 0.5f * loffset, -0.5f * loffset);
 	lights[1].falloff = OptixLight::Falloff::QUADRATIC;
 

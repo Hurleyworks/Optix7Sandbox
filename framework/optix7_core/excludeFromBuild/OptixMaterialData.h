@@ -45,7 +45,7 @@ struct OptixMaterialData
 	struct Pbr
 	{
 		float4               base_color = { 0.5f, 0.0f, 1.0f, 1.0f };
-		float                metallic = .1f;
+		float                metallic = .10f;
 		float                roughness = .1f;
 
 		cudaTextureObject_t  base_color_tex = 0;
@@ -55,7 +55,6 @@ struct OptixMaterialData
 
 	Type type;
 
-	
 	union
 	{
 		Pbr  pbr;

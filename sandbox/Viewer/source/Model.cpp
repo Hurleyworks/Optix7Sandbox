@@ -304,6 +304,7 @@ void Model::removeNode(ItemID itemID)
 
 void Model::clearScene()
 {
+	loadStrategy->reset();
 	world->removeChildren();
 }
 
