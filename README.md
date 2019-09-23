@@ -31,4 +31,3 @@ OptiX uses the CUDA device API, but the CUDA runtime API objects can be cast to 
 4. Go to the newly created /builds folder and open the visual studio solution and compile
 
 
-
