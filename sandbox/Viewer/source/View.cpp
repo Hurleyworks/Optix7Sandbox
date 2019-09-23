@@ -80,7 +80,7 @@ void View::create(NanoguiLayer* const gui, const std::string& appName)
 		});
 
 	b = new Button(window, "Clear scene");
-	b->setCallback([&] { emitClearScene(); });
+	b->setCallback([&] { emitClearScene(true); });
 	b->setTooltip("Clear scene");
 
 	label = new Label(window, "Render:", "sans-bold");

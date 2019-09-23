@@ -22,23 +22,23 @@ class View : public CsSignal::SignalBase
 	// Easily reusable & configurable to display different data
 
 public:
-	SIGNAL_1(void emitPrimitiveType(PrimitiveType type, MeshOptions options))
-	SIGNAL_2(emitPrimitiveType, type, options)
-
 	SIGNAL_1(void emitModelPath(const std::string& path))
 	SIGNAL_2(emitModelPath, path)
 
 	SIGNAL_1(void emitGroundPlane(const Vector2f& size))
 	SIGNAL_2(emitGroundPlane, size)
 
+	// workaround for what looks like a CSsignal bug
+	// added an arg because CS signal calls ClearScreen in 
+	// emitting ScreenGrab and FrameGrab in Release mode only
+	SIGNAL_1(void emitClearScene(bool ignoreMe))
+	SIGNAL_2(emitClearScene, ignoreMe)
+
 	SIGNAL_1(void emitFrameGrab())
 	SIGNAL_2(emitFrameGrab)
 
 	SIGNAL_1(void emitScreenGrab())
-	SIGNAL_2(emitScreenGrab)
-
-	SIGNAL_1(void emitClearScene())
-	SIGNAL_2(emitClearScene)
+	SIGNAL_2(emitScreenGrab)	
 
  public:
 	View (const PropertyService& properties);

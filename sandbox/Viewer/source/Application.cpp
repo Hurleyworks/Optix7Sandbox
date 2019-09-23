@@ -68,12 +68,11 @@ class Application : public Jahley::App
 			pushLayer(optixLayer, true);
 
 			// connect the View with Model using signal/slots
-			connect(view, &View::emitPrimitiveType, model, &Model::addPrimitive);
 			connect(view, &View::emitModelPath, model, &Model::loadModelFromIcon);
 			connect(view, &View::emitGroundPlane, model, &Model::createGroundPlane);
+			connect(view, &View::emitClearScene, *this, &Application::onClearScene);
 			connect(view, &View::emitFrameGrab, *this, &Application::onFrameGrab);
 			connect(view, &View::emitScreenGrab, *this, &Application::onScreenGrab);
-			connect(view, &View::emitClearScene, *this, &Application::onClearScene);
 			connect(model, &Model::emitRenderable, *this, &Application::addRenderable);
 		}
 		catch (std::exception& e)
@@ -178,7 +177,7 @@ class Application : public Jahley::App
 
 	void onScreenGrab() {captureScreen = true;}
 	void onFrameGrab() { captureRender = true; }
-	void onClearScene() { engine->clearScene(); model.clearScene();  App::resetSceneStats(); }
+	void onClearScene(bool dummy) { engine->clearScene(); model.clearScene();  App::resetSceneStats(); }
 
   private:
 	  RenderLayerRef optixLayer = nullptr;
