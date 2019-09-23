@@ -10,13 +10,13 @@ using juce::File;
 
 namespace Jahley
 {
-	App::App (DesktopWindowSettings settings, bool windowApp)
+	App::App(DesktopWindowSettings settings, bool windowApp)
 		: windowApp(windowApp),
-		  errorCallback(std::bind(&App::onFatalError, this, std::placeholders::_1)),
-		  preCrashCallback(std::bind(&App::preCrash, this)),
-		  log(errorCallback, preCrashCallback),
-		  refreshTime(settings.refreshRate)
-	{	
+		errorCallback(std::bind(&App::onFatalError, this, std::placeholders::_1)),
+		preCrashCallback(std::bind(&App::preCrash, this)),
+		log(errorCallback, preCrashCallback),
+		refreshTime(settings.refreshRate)
+	{
 		resetProperties();
 
 		if (windowApp)
@@ -64,9 +64,9 @@ namespace Jahley
 		properties.renderProps->addDefault(RenderKey::Gamma, DEFAULT_RENDER_GAMMA);
 	}
 
-	App::~App ()
-	{	
-	
+	App::~App()
+	{
+
 	}
 
 	void App::run()
@@ -108,7 +108,7 @@ namespace Jahley
 			layer->onAttach();
 	}
 
-	void App::onInputEvent(const InputEvent & e)
+	void App::onInputEvent(const InputEvent& e)
 	{
 		bool sendToClient = true;
 		for (RenderLayerRef layer : layers)
@@ -119,9 +119,9 @@ namespace Jahley
 				break;
 			}
 		}
-			
+
 		// send to client
-		if(sendToClient)
+		if (sendToClient)
 			onInput(e);
 	}
 
@@ -131,13 +131,13 @@ namespace Jahley
 		// let the client throw up a warning if it can
 		onCrash();
 
-	#ifndef NDEBUG
-		#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
-				__debugbreak();
-		#endif
-	#endif
+#ifndef NDEBUG
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+		__debugbreak();
+#endif
+#endif
 	}
-	
+
 	// onFatalError
 	void App::onFatalError(g3::FatalMessagePtr fatal_message)
 	{
@@ -184,13 +184,5 @@ namespace Jahley
 		captureScreen = false;
 
 		return stbi_write_png(path.toStdString().c_str(), spec.width, spec.height, 4, flipped.data(), 4 * spec.width);
-	}
-
-	void App::resetSceneStats()
-	{
-		properties.worldProps->setValue(WorldKey::TotalMeshes, DEFAULT_MESH_COUNT);
-		properties.worldProps->setValue(WorldKey::TotalInstances, DEFAULT_INSTANCES_COUNT);
-		properties.worldProps->setValue(WorldKey::TotalRealTriangles, DEFAULT_TRIANGLE_COUNT);
-		properties.worldProps->setValue(WorldKey::TotalInstancedTriangles, DEFAULT_INSTANCED_TRIANGLE_COUNT);
 	}
 }

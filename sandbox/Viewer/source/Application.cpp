@@ -177,7 +177,7 @@ class Application : public Jahley::App
 
 	void onScreenGrab() {captureScreen = true;}
 	void onFrameGrab() { captureRender = true; }
-	void onClearScene(bool dummy) { engine->clearScene(); model.clearScene();  App::resetSceneStats(); }
+	void onClearScene(bool dummy) { engine->clearScene(); model.clearScene(); }
 
   private:
 	  RenderLayerRef optixLayer = nullptr;

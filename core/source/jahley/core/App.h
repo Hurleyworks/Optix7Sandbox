@@ -40,8 +40,7 @@ namespace Jahley
 		void preCrash();
 		void onFatalError(g3::FatalMessagePtr fatal_message);
 
-		void resetSceneStats();
-
+		
 	  protected:
 		App(DesktopWindowSettings settings = DesktopWindowSettings(), bool windowApp = false);
 		bool isRunning = true;

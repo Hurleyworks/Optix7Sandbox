@@ -306,6 +306,12 @@ void Model::clearScene()
 {
 	loadStrategy->reset();
 	world->removeChildren();
+
+	// reset scene stats
+	properties.worldProps->setValue(WorldKey::TotalMeshes, DEFAULT_MESH_COUNT);
+	properties.worldProps->setValue(WorldKey::TotalInstances, DEFAULT_INSTANCES_COUNT);
+	properties.worldProps->setValue(WorldKey::TotalRealTriangles, DEFAULT_TRIANGLE_COUNT);
+	properties.worldProps->setValue(WorldKey::TotalInstancedTriangles, DEFAULT_INSTANCED_TRIANGLE_COUNT);
 }
 
 void Model::onMeshLoad(MeshBuffersHandle m, std::string path)
