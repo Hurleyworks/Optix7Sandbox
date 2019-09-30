@@ -28,6 +28,21 @@ OptiX uses the CUDA device API, but the CUDA runtime API objects can be cast to 
 
 3. Go back to the root folder and run the *.bat file for the compiler of your choice
 
-4. Go to the newly created /builds folder and open the visual studio solution and compile
+4. Go to the newly created /builds folder and open the visual studio solution and compile the sanbox programs
+
+## Optix7Sandbox/Samples
+
+### Triangle
+
+Based on the Optix7 SDK optixTriangle sample with the added ability to interactively set the background color and mesh color using SBT records
+
+![Triangle screen grab](https://github.com/Hurleyworks/Optix7Sandbox/blob/master/resources/Common/sample_screen_grabs/Triangle.png)
+
+### Viewer
+
+Based on the Optix7 SDK optixMeshView sample but allows dynamic adding of new meshes. A few simple meshes can be added from the gui or you can drag and drop files or folders of objects into the window. OBJ, PLY, OFF and glTF 2.0 files are supported. Currently only the default PBR material from the optixMeshView sample is supported. 
+
+![Viewer screen grab](https://github.com/Hurleyworks/Optix7Sandbox/blob/master/resources/Common/sample_screen_grabs/Viewer.png)
+
 
 
