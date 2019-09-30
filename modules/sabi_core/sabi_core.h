@@ -34,6 +34,7 @@ using Pose = Eigen::Affine3f;
 using Scale = Eigen::Vector3f;
 const float MIN_SCALE_F = std::numeric_limits<float>::min();
 
+
 namespace sabi
 {
 	#include "excludeFromBuild/PixelBuffer.h"

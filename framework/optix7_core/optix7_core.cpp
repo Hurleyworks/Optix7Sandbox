@@ -9,6 +9,7 @@
 #include "excludeFromBuild/OptixMesh.cpp"
 #include "excludeFromBuild/OptixEngine.cpp"
 #include "excludeFromBuild/OptixRenderer.cpp"
+#include "excludeFromBuild/OptixRenderContext.cpp"
 #include "excludeFromBuild/EXRReader.cpp"
 
 

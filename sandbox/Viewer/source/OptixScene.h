@@ -4,59 +4,33 @@
 
 #pragma once
 
-#include "LaunchParams.h"
+#include <optix7_core/optix7_core.h>
 
 class OptixScene : public OptixEngine
 {
-	using RaygenRecord = SbtRecord<RayGenData>;
-	using MissRecord = SbtRecord<MissData>;
-	using HitGroupRecord = SbtRecord<HitGroupSBT>;
 
  public:
-	OptixScene (const PropertyService& properties, const OptixConfig& config);
+	OptixScene (const PropertyService& properties);
 	~OptixScene ();
 
-	void init(CameraHandle& camera, const json& groups) override;
+	void init(CameraHandle& camera) override;
+	void addPipeline(PipelineType type, const json& groups, OptixConfig& config ) override;
 	void addRenderable(RenderableNode& node) override;
 	void clearScene() override;
 
 	void render(CameraHandle& camera) override
 	{		
-		// update app settings on device
-		syncCamera(camera);
-		syncBackgoundColor();
-		
+		if (!ok) return;
+
 		renderer->render(camera, OptixEngine::getPtr());
 	}
 	
  private:
 	RendererHandle renderer = nullptr;
-	
-	std::vector<OptixMeshHandle> meshes;
-
+	bool ok = true;
+	SceneMeshes meshes;
 	CUdeviceptr deviceIASoutputBuffer = 0;
-	CUdeviceptr hitgroup_record_base = 0;
-	const size_t hitgroup_record_size = sizeof(HitGroupRecord);
-	std::vector<HitGroupRecord> hitgroup_records;
-
-	// raygen and miss records
-	RaygenRecord raygenRecord;
-	const size_t raygenRecordSize = sizeof(RaygenRecord);
-
-	MissRecord missRecord;
-	const size_t missRecordSize = sizeof(MissRecord);
-
-	void createRaygenRecord(CameraHandle& camera);
-	void createMissRecord();
-	void createEmptyHitGroupRecord();
 
 	void rebuildSceneAccel();
-	void rebuildHitgroupSBT();
-	void buildSBT(CameraHandle& camera) override;
-	void updateCamera(CameraHandle& camera);
-
-	// sync app settings with device
-	void syncCamera(CameraHandle& camera);
-	void syncBackgoundColor();
-
+	
 }; // end class OptixScene

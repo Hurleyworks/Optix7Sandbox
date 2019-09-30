@@ -5,26 +5,32 @@
 #pragma once
 
 #include <optix7_core/optix7_core.h>
-#include "LaunchParams.h"
 
 using juce::String;
 
-class SceneConfig 
+class SceneConfig
 {
 
- public:
-	SceneConfig (const PropertyService& properties);
-	~SceneConfig ();
+public:
+	SceneConfig(const PropertyService& properties);
+	~SceneConfig();
 
 	void init();
 
-	const json& getProgramGroups();
-	const OptixConfig& getOptixConfig()const { return optixConfig; }
+	const json& getProgramGroups(PipelineType type);
+	const OptixConfig& getOptixConfig(PipelineType type);
 
  private:
 	PropertyService properties;
 	String configFolder;
-	json progGroups;
-	OptixConfig optixConfig;
+
+	json emptyGroup;
+	json whittedGroups;
+
+	OptixConfig whittedConfig;
+	OptixConfig defaultConfigs;
+
+	const json& getWhittedPrograms();
+	const OptixConfig& getWhittedConfigs();
 
 }; // end class SceneConfig

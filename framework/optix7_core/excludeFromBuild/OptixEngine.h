@@ -23,19 +23,25 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	using Modules = std::unordered_map<String, ModuleHandle>;
 	using HitGroupPair = std::pair<ModuleHandle, String>;
 	using HitGroupData = std::vector<HitGroupPair>;
+	using PipelineDB = std::unordered_map<std::string, PipelineHandle>;
 
  public:
 	virtual ~OptixEngine ();
 
-	virtual void init(CameraHandle& camera, const json& groups) = 0;
+	virtual void init(CameraHandle& camera) = 0;
+	virtual void addPipeline(PipelineType type, const json& groups, OptixConfig& config) = 0;
 	virtual void render(CameraHandle& camera) = 0;
-	virtual void buildSBT(CameraHandle& camera) = 0;
 	virtual void clearScene() = 0;
 	virtual void addRenderable(RenderableNode& node) {}
 	virtual void addImage(PixelBufferHandle& image) {}
 
-	const OptixPipeline getPipeline() const { return pipeHandle->get(); }
-	const OptixShaderBindingTable* getSBT() const { return &sbt; }
+	const OptixPipeline getPipeline(std::string& name) const
+	{
+		auto it = pipelineDB.find(name);
+		return it == pipelineDB.end() ? nullptr : it->second->get();
+	}
+
+	const OptixEngine::ProgramDB& getProgramDB() const { return programDB; }
 	const OptixTraversableHandle& getGAS() const { return gAccel; }
 	const OptixTraversableHandle& getIAS() const { return sceneAccel; }
 
@@ -44,10 +50,10 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	const PropertyService& props() const { return properties; }
 
  protected:
-	OptixEngine(const PropertyService& properties, const OptixConfig& config);
+	OptixEngine(const PropertyService& properties);
 
 	PropertyService properties;
-	OptixConfig config;
+	OptixDeviceContextOptions context_options = {};
 
 	StringArray progFuncNames;  
 	StringArray programPrefixes;
@@ -55,28 +61,22 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	Modules modules;
 
 	ContextHandle context = nullptr;
-	PipelineHandle pipeHandle = nullptr;
-	OptixShaderBindingTable sbt = {};
+    PipelineDB pipelineDB;
 	OptixTraversableHandle sceneAccel= 0; 
 	OptixTraversableHandle gAccel = 0;
 
-	PipelineHandle createPipeline(const json& groups);
-	ProgramGroupHandle findProgram(const String& key)
-	{
-		auto it = config.programs.programs.find(key);
-		return it != config.programs.programs.end() ? it->second : nullptr;
-	}
+	PipelineHandle createPipeline(const json& groups, OptixConfig& config);
+	void createProgramDatabase();
 
 private:
-	ModuleHandle createModule(PtxData& data);
+	ModuleHandle createModule(PtxData& data, OptixConfig& config);
 
-	ProgramGroupHandle createRaygenPrograms(ModuleHandle& module, const String& functionName);
-	ProgramGroupHandle createMissPrograms(ModuleHandle& module, const String& functionName);
-	ProgramGroupHandle createHitgroupPrograms(const HitGroupData & hitgroupData);
+	ProgramGroupHandle createRaygenPrograms(ModuleHandle& module, const String& functionName, OptixConfig& config);
+	ProgramGroupHandle createMissPrograms(ModuleHandle& module, const String& functionName, OptixConfig& config);
+	ProgramGroupHandle createHitgroupPrograms(const HitGroupData & hitgroupData, OptixConfig& config);
 	
-	void createProgramDatabase();
-	void createProgramGroups(const json & groups);
-	void createProgramGroup(const json& j);
+	void createProgramGroups(const json & groups, OptixConfig& config);
+	void createProgramGroup(const json& j, OptixConfig& config);
 
 	String extractProgramFunctionName(const String& line, const String& prefix);
 

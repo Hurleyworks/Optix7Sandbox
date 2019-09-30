@@ -9,11 +9,13 @@ using juce::StringArray;
 using mace::FileServices;
 
 // ctor
-OptixEngine::OptixEngine (const PropertyService& properties,const OptixConfig& config)
-	: properties(properties),
-	  config(config)
+OptixEngine::OptixEngine (const PropertyService& properties)
+	: properties(properties)
+	 // config(config)
 {	
-	context = OptixContext::create(config.options.context_options);
+	context_options.logCallbackFunction = &contextLogger;
+	context_options.logCallbackLevel = 4;
+	context = OptixContext::create(context_options);
 	
 	// gather all the standard entry function name prefixes
 	programPrefixes.add(RAYGEN_FUNCTION_PREFIX);
@@ -31,14 +33,8 @@ OptixEngine::~OptixEngine ()
 {	
 	try
 	{
-		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.raygenRecord)));
-		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.missRecordBase)));
-		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.hitgroupRecordBase)));
-
 		// clean up before Context is destroyed
 		modules.clear();
-		config.programs.programs.clear();
-		
 	}
 	catch (std::exception& e)
 	{
@@ -50,7 +46,7 @@ OptixEngine::~OptixEngine ()
 	}
 }
 
-ProgramGroupHandle OptixEngine::createRaygenPrograms(ModuleHandle& module, const String& functionName)
+ProgramGroupHandle OptixEngine::createRaygenPrograms(ModuleHandle& module, const String& functionName, OptixConfig& config)
 {
 	config.desc.raygen_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
 
@@ -63,7 +59,7 @@ ProgramGroupHandle OptixEngine::createRaygenPrograms(ModuleHandle& module, const
 	return handle;
 }
 
-ProgramGroupHandle OptixEngine::createMissPrograms(ModuleHandle& module, const String& functionName)
+ProgramGroupHandle OptixEngine::createMissPrograms(ModuleHandle& module, const String& functionName, OptixConfig& config)
 {
 	config.desc.miss_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_MISS;
 
@@ -76,7 +72,7 @@ ProgramGroupHandle OptixEngine::createMissPrograms(ModuleHandle& module, const S
 	return handle;
 }
 
-ProgramGroupHandle OptixEngine::createHitgroupPrograms(const HitGroupData& hitgroupData)
+ProgramGroupHandle OptixEngine::createHitgroupPrograms(const HitGroupData& hitgroupData, OptixConfig& config)
 {
 	config.desc.hitgroup_prog_group_desc.kind = OPTIX_PROGRAM_GROUP_KIND_HITGROUP;
 	config.desc.hitgroup_prog_group_desc.hitgroup.moduleCH = nullptr;
@@ -147,7 +143,7 @@ ProgramGroupHandle OptixEngine::createHitgroupPrograms(const HitGroupData& hitgr
 	return handle;
 }
 
-ModuleHandle OptixEngine::createModule(PtxData& data)
+ModuleHandle OptixEngine::createModule(PtxData& data, OptixConfig& config)
 {
 	ModuleHandle handle = OptiXModule::create(config.options.pipeline_compile_options, config.options.module_compile_options);
 	if (!handle)
@@ -228,26 +224,29 @@ void OptixEngine::createProgramDatabase()
 	}
 }
 
-void OptixEngine::createProgramGroups(const json& groups)
+void OptixEngine::createProgramGroups(const json& groups,  OptixConfig& config)
 {
 	ScopedStopWatch sw(_FN_);
 
 	// one module per ptx file 
 	for (auto it : programDB)
 	{
+		String moduleName = it.first;
+		if (!config.moduleNames.contains(moduleName)) continue;
+
 		// create a module from the Ptx data
-		ModuleHandle module = createModule(it.second);
+		ModuleHandle module = createModule(it.second, config);
 		modules.insert(std::make_pair(it.first, module));
 	}
 
 	for (auto const& i : json::iterator_wrapper(groups))
 	{
 		json j = i.value();
-		createProgramGroup(j);
+		createProgramGroup(j, config);
 	}
 }
 
-void OptixEngine::createProgramGroup(const json& j)
+void OptixEngine::createProgramGroup(const json& j, OptixConfig& config)
 {
 	if (!j["kind"].is_number_integer()) return;
 	if (!j["name"].is_string()) return;
@@ -268,9 +267,9 @@ void OptixEngine::createProgramGroup(const json& j)
 			if (it != modules.end())
 			{
 				String funcName = j["entryFunctionName"];
-				ProgramGroupHandle handle = createRaygenPrograms(it->second, funcName);
+				ProgramGroupHandle handle = createRaygenPrograms(it->second, funcName, config);
 				if (handle)
-					config.programs.programs.insert(std::make_pair(name, handle));
+					config.programs.insert(std::make_pair(name, handle));
 			}
 			break;
 		}
@@ -281,9 +280,9 @@ void OptixEngine::createProgramGroup(const json& j)
 			if (j["module"].is_null())
 			{
 				ModuleHandle null = nullptr;
-				ProgramGroupHandle handle = createMissPrograms(null, "");
+				ProgramGroupHandle handle = createMissPrograms(null, "", config);
 				if (handle)
-					config.programs.programs.insert(std::make_pair(name, handle));
+					config.programs.insert(std::make_pair(name, handle));
 				break;
 			}
 
@@ -296,9 +295,9 @@ void OptixEngine::createProgramGroup(const json& j)
 				bool nullName = j["entryFunctionName"].is_null();
 				String funcName = nullName ? "" : j["entryFunctionName"];
 
-				ProgramGroupHandle handle = createMissPrograms(it->second, funcName);
+				ProgramGroupHandle handle = createMissPrograms(it->second, funcName, config);
 				if (handle)
-					config.programs.programs.insert(std::make_pair(name, handle));
+					config.programs.insert(std::make_pair(name, handle));
 			}
 			
 			break;
@@ -360,11 +359,11 @@ void OptixEngine::createProgramGroup(const json& j)
 				groupData.push_back(data);
 			}
 
-			ProgramGroupHandle handle = createHitgroupPrograms(groupData);
+			ProgramGroupHandle handle = createHitgroupPrograms(groupData, config);
 			if (handle)
 			{
 				LOG(DBUG) << "ADDING " << name;
-				config.programs.programs.insert(std::make_pair(name, handle));
+				config.programs.insert(std::make_pair(name, handle));
 			}
 			break;
 		}
@@ -377,14 +376,13 @@ void OptixEngine::createProgramGroup(const json& j)
 	}
 }
 
-PipelineHandle OptixEngine::createPipeline(const json& groups)
+PipelineHandle OptixEngine::createPipeline(const json& groups, OptixConfig& config)
 {
-	createProgramDatabase();
-	createProgramGroups(groups);
+	createProgramGroups(groups, config);
 
 	std::vector<OptixProgramGroup> programGroups;
 
-	for (auto it : config.programs.programs)
+	for (auto it : config.programs)
 	{
 		programGroups.push_back(it.second->get());
 	}

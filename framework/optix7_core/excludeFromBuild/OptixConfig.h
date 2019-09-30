@@ -1,11 +1,10 @@
 #pragma once
 
-
-using ProgramMap = std::unordered_map<String, ProgramGroupHandle>;
+using OptixPrograms = std::unordered_map<String, ProgramGroupHandle>;
+using juce::StringArray;
 
 struct OptixOptions
 {
-	OptixDeviceContextOptions context_options = {};
 	OptixAccelBuildOptions accel_options = {};
 	OptixPipelineCompileOptions pipeline_compile_options = {};
 	OptixPipelineLinkOptions pipeline_link_options = {};
@@ -21,14 +20,11 @@ struct OptixDesc
 	OptixProgramGroupDesc hitgroup_prog_group_desc = {};
 };
 
-struct OptixPrograms
-{
-	ProgramMap programs;
-};
-
 struct OptixConfig
 {
 	OptixOptions options;
 	OptixDesc desc;
 	OptixPrograms programs;
+	PipelineType pipelineType = PipelineType::Invalid;
+	StringArray moduleNames;
 };

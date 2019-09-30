@@ -25,66 +25,101 @@ void SceneConfig::init()
 	if (!f.exists())
 		throw std::runtime_error("No resource folder found at " + configFolder.toStdString());
 
-	// context options
-	optixConfig.options.context_options.logCallbackFunction = &contextLogger;
-	optixConfig.options.context_options.logCallbackLevel = 4;
-
 	// module options
-	optixConfig.options.module_compile_options.maxRegisterCount = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
-	optixConfig.options.module_compile_options.optLevel = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
-	optixConfig.options.module_compile_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_LINEINFO;
+	whittedConfig.options.module_compile_options.maxRegisterCount = OPTIX_COMPILE_DEFAULT_MAX_REGISTER_COUNT;
+	whittedConfig.options.module_compile_options.optLevel = OPTIX_COMPILE_OPTIMIZATION_DEFAULT;
+	whittedConfig.options.module_compile_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_LINEINFO;
 
 	// pipeline compile options
-	optixConfig.options.pipeline_compile_options.usesMotionBlur = false;
-	optixConfig.options.pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
-	optixConfig.options.pipeline_compile_options.numPayloadValues = NUM_PAYLOAD_VALUES;
-	optixConfig.options.pipeline_compile_options.numAttributeValues = 3;
-	optixConfig.options.pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;  // TODO: should be OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
-	optixConfig.options.pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
+	whittedConfig.options.pipeline_compile_options.usesMotionBlur = false;
+	whittedConfig.options.pipeline_compile_options.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_SINGLE_LEVEL_INSTANCING;
+	whittedConfig.options.pipeline_compile_options.numPayloadValues = NUM_WHITTED_PAYLOAD_VALUES;
+	whittedConfig.options.pipeline_compile_options.numAttributeValues = 3;
+	whittedConfig.options.pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;  // TODO: should be OPTIX_EXCEPTION_FLAG_STACK_OVERFLOW;
+	whittedConfig.options.pipeline_compile_options.pipelineLaunchParamsVariableName = "params";
 
 	// pipeline line options
-	optixConfig.options.pipeline_link_options.maxTraceDepth = 5;
-	optixConfig.options.pipeline_link_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
-	optixConfig.options.pipeline_link_options.overrideUsesMotionBlur = false;
+	whittedConfig.options.pipeline_link_options.maxTraceDepth = 5;
+	whittedConfig.options.pipeline_link_options.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+	whittedConfig.options.pipeline_link_options.overrideUsesMotionBlur = false;
 
 	// acceleration structure options
-	optixConfig.options.accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
-	optixConfig.options.accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+	whittedConfig.options.accel_options.buildFlags = OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+	whittedConfig.options.accel_options.operation = OPTIX_BUILD_OPERATION_BUILD;
+
+	whittedConfig.pipelineType = PipelineType::Whitted;
+	whittedConfig.moduleNames.add("viewing");
 }
 
-const json & SceneConfig::getProgramGroups()
+const json & SceneConfig::getProgramGroups(PipelineType type)
 {
-	progGroups[radianceHitName] = {
+	switch (type)
+	{
+		case PipelineType::Picking:
+			return emptyGroup;
+		case PipelineType::Whitted:
+			return getWhittedPrograms();
+
+		default:
+			return emptyGroup;
+	}
+	return emptyGroup;
+}
+
+const OptixConfig& SceneConfig::getOptixConfig(PipelineType type)
+{
+	switch (type)
+	{
+		case PipelineType::Picking:
+			return defaultConfigs;
+
+		case PipelineType::Whitted:
+			return getWhittedConfigs();
+
+		default:
+			return defaultConfigs;
+	}
+}
+
+const json& SceneConfig::getWhittedPrograms()
+{
+
+	whittedGroups[radianceHitName] = {
 		{"name", radianceHitName},
 		{"kind", OPTIX_PROGRAM_GROUP_KIND_HITGROUP},
-		{"moduleCH", "programs" },
+		{"moduleCH", "viewing" },
 		{"entryFunctionNameCH", "__closesthit__ch" },
 		{"moduleAH", nullptr },
 		{"entryFunctionNameAH", nullptr },
 		{"moduleIS", nullptr },
 		{"entryFunctionNameIS", nullptr } };
 
-	progGroups[occlusionHitName] = {
+	whittedGroups[occlusionHitName] = {
 		{"name", occlusionHitName },
 		{"kind", OPTIX_PROGRAM_GROUP_KIND_HITGROUP},
-		{"moduleCH", "programs" },
+		{"moduleCH", "viewing" },
 		{"entryFunctionNameCH", "__closesthit__occlusion" },
 		{"moduleAH", nullptr },
 		{"entryFunctionNameAH", nullptr },
 		{"moduleIS", nullptr },
 		{"entryFunctionNameIS", nullptr } };
 
-	progGroups[raygentName] = {
-		{"name", raygentName},
+	whittedGroups[raygenName] = {
+		{"name", raygenName},
 		{"kind", OPTIX_PROGRAM_GROUP_KIND_RAYGEN},
-		{"module", "programs" },
+		{"module", "viewing" },
 		{"entryFunctionName", "__raygen__rg" } };
 
-	progGroups[radianceMissName] = {
+	whittedGroups[radianceMissName] = {
 		{"name", radianceMissName},
 		{"kind", OPTIX_PROGRAM_GROUP_KIND_MISS},
-		{"module", "programs" },
+		{"module", "viewing" },
 		{"entryFunctionName", "__miss__ms" } };
 
-	return progGroups;
+	return whittedGroups;;
+}
+
+const OptixConfig& SceneConfig::getWhittedConfigs()
+{
+	return whittedConfig;
 }

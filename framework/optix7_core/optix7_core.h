@@ -15,11 +15,12 @@
 #include <vector_functions.h>
 #include <vector_types.h>
 
+#include "excludeFromBuild/OptixData.h"
 #include "excludeFromBuild/OptixPreprocessor.h"
 #include "excludeFromBuild/OptixMath.h"
 #include "excludeFromBuild/OptixUtil.h"
 #include "excludeFromBuild/OptixBufferView.h"
-#include "excludeFromBuild/OptixGeometryData.h"
+#include "excludeFromBuild/OptixGeometry.h"
 #include "excludeFromBuild/OptixMaterialData.h"
 #include "excludeFromBuild/OptixLight.h"
 #include "excludeFromBuild/OptixComponents.h"
@@ -29,8 +30,12 @@
 #include "excludeFromBuild/EXRReader.h"
 #include "excludeFromBuild/OptixAccel.h"
 #include "excludeFromBuild/OptixMesh.h"
+#include "excludeFromBuild/OptixRecordData.h"
+#include "excludeFromBuild/OptixLaunchParams.h"
 #include "excludeFromBuild/OptixEngine.h"
+#include "excludeFromBuild/OptixRenderContext.h"
 #include "excludeFromBuild/OptixRenderer.h"
+
 
 
 

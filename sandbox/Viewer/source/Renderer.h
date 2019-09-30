@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "LaunchParams.h"
+#include <optix7_core/optix7_core.h>
 
 class Renderer : public OptixRenderer
 {
@@ -19,15 +19,10 @@ class Renderer : public OptixRenderer
 	Renderer (unsigned int screenWidth, unsigned int screenHeight);
 	~Renderer ();
 
-	void initLaunchParams() override;
 	void resize(unsigned int screenWidth, unsigned int screenHeight) override;
 	void render(CameraHandle& camera, OptixEngineRef& engine) override;
 
  private:
-	LaunchParams params;
-	CUdeviceptr deviceParams = 0;
-	CUstream stream;
-	CUDAOutputBuffer<uchar4> renderBuffer;
 	bool ok = true;
-
+	
 }; // end class Renderer

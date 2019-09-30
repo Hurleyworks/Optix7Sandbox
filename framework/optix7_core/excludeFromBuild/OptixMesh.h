@@ -56,3 +56,5 @@ class OptixMesh
 	void createGAS(ContextHandle& context);
 
 }; // end class OptixMesh
+
+using SceneMeshes = std::vector< OptixMeshHandle>;

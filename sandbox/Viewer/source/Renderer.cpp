@@ -5,144 +5,41 @@
 #include "Renderer.h"
 
 using sabi::PixelBuffer;
+using wabi::Ray3f;
+using Eigen::Vector3f;
 
 // ctor
 Renderer::Renderer (unsigned int screenWidth, unsigned int screenHeight)
 	: OptixRenderer(screenWidth, screenHeight)
 {	
-	renderBuffer.init(CUDAOutputBufferType::ZERO_COPY, screenWidth, screenHeight);
-
-	params.image_width = width;
-	params.image_height = height;
-	params.origin_x = width / 2;
-	params.origin_y = height / 2;
-	
 }
 
 // dtor
 Renderer::~Renderer ()
 {	
-	try
-	{
-		if (deviceParams)
-			CUDA_CHECK(cudaFree(reinterpret_cast<void*>(deviceParams)));
-	}
-	catch (const std::runtime_error& e)
-	{
-		LOG(CRITICAL) << e.what();
-	}
-	catch (...)
-	{
-		LOG(CRITICAL) << "Caught unknow exception";
-	}
 }
 
 void Renderer::resize(unsigned int screenWidth, unsigned int screenHeight)
 {
 	// FIXME
-	params.image_width = width;
-	params.image_height = height;
-	params.origin_x = width / 2;
-	params.origin_y = height / 2;
 }
 
 void Renderer::render(CameraHandle& camera, OptixEngineRef& engine)
 {
-	if (!ok) return;
-
-	try
+	// pre render
+	for (auto renderContext : renderQueue)
 	{
-		params.frame_buffer = renderBuffer.map();
-		params.sceneAccel = engine->getIAS();
-		params.gamma = engine->props().renderProps->getVal<float>(RenderKey::Gamma);
-
-		// if the scene has changed we need 
-		// to resart the accumulator by setting
-		// the params.subframe_index  to 0
-		if (engine->restartRender())
-		{
-			params.subframe_index = 0;
-			engine->setRenderRestart(false);
-		}
-		else
-		{
-			params.subframe_index++;
-		}
-
-		CUDA_CHECK(cudaMemcpy(
-			reinterpret_cast<void*>(deviceParams),
-			&params, sizeof(params),
-			cudaMemcpyHostToDevice
-		));
-
-		OPTIX_CHECK(optixLaunch(engine->getPipeline(), stream, deviceParams, sizeof(LaunchParams), engine->getSBT(), width, height, 1));
-		CUDA_SYNC_CHECK();
-
-		renderBuffer.unmap();
-
-		// acquire the Optix render 
-		PixelBuffer& pixels = camera->getPixelBuffer();
-		std::memcpy(pixels.uint8Pixels.data(), renderBuffer.getHostPointer(), pixels.byteCountUint8());
-
+		renderContext->updateCamera(camera);
+		renderContext->preLaunch(camera, engine);
 	}
-	catch (const std::runtime_error& e)
+
+	renderAll(engine);
+
+	// post render
+	for (auto renderContext : renderQueue)
 	{
-		LOG(CRITICAL) << e.what();
-		ok = false;
+		renderContext->postLaunch(camera, engine);
 	}
-	catch (const std::bad_alloc& e)
-	{
-		ok = false;
-		LOG(CRITICAL) << e.what();
-	}
-	catch (...)
-	{
-		ok = false;
-		LOG(CRITICAL) << "Caught unknow exception";
-	}
-	
+
 }
 
-void Renderer::initLaunchParams()
-{
-	// create the accumulation buffer
-	CUDA_CHECK(cudaMalloc(
-		reinterpret_cast<void**>(&params.accum_buffer),
-		width * height * sizeof(float4)
-	));
-
-	params.frame_buffer = nullptr; // Will be set when output buffer is mapped
-
-	params.subframe_index = 0u;
-
-	const float loffset = 5.0f; //  scene.aabb().maxExtent();
-
-	/// TODO: add light support to sutil::Scene
-	std::vector<OptixLight::Point> lights(2);
-	lights[0].color = { 1.0f, 1.0f, 0.8f };
-	lights[0].intensity = 5.0f;
-	lights[0].position = make_float3(loffset);
-	lights[0].falloff = OptixLight::Falloff::QUADRATIC;
-	lights[1].color = { 0.8f, 0.8f, 1.0f };
-	lights[1].intensity = 2.0f;
-	lights[1].position =  make_float3(-loffset, 0.5f * loffset, -0.5f * loffset);
-	lights[1].falloff = OptixLight::Falloff::QUADRATIC;
-
-	params.lights.count = static_cast<uint32_t>(lights.size());
-	CUDA_CHECK(cudaMalloc(
-		reinterpret_cast<void**>(&params.lights.data),
-		lights.size() * sizeof(OptixLight::Point)
-	));
-	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(params.lights.data),
-		lights.data(),
-		lights.size() * sizeof(OptixLight::Point),
-		cudaMemcpyHostToDevice
-	));
-
-	params.sceneAccel = 0;
-	params.gamma = DEFAULT_RENDER_GAMMA;
-
-	CUDA_CHECK( cudaStreamCreate( &stream ) );
-	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&deviceParams), sizeof(LaunchParams)));
-}

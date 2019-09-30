@@ -57,7 +57,7 @@ Ray3<T>::Ray3 ()
 	  tMax(std::numeric_limits<T>::max()),
 	  hitBodyID(INVALID_ID),
 	  hitPolyID(INVALID_ID),
-	  distToHit(limits<T>::max()),
+	  distToHit(std::numeric_limits<T>::max()),
 	  wasHit(false)
 {	
 	bary0 = bary1 = bary2 = std::numeric_limits<T>::max();

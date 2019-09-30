@@ -36,6 +36,11 @@ class Application : public Jahley::App
 		camera->setPerspective(DEFAULT_FOV_DEGREES, aspect, 1, 1000);
 		camera->lookAt(DEFAULT_CAMERA_POSIIION, DEFAULT_CAMERA_TARGET);
 
+		// make an invalid pickray ( no length )
+		Vector3f o = Vector3f::Zero();
+		Vector3f d = Vector3f::Zero();
+		camera->setPickRay(Ray3f(o, d));
+
 		// setup the camera's PixelBuffer
 		ImageInfo spec;
 		spec.width = DEFAULT_DESKTOP_WINDOW_WIDTH;
@@ -134,7 +139,8 @@ class Application : public Jahley::App
 	{
 		try
 		{
-			engine->addRenderable(node);
+			if(engine)
+				engine->addRenderable(node);
 		}
 		catch (std::exception& e)
 		{
@@ -171,13 +177,16 @@ class Application : public Jahley::App
 
 	void createEngine()
 	{
-		engine = std::make_shared<OptixScene>(properties, config.getOptixConfig());
-		engine->init(camera, config.getProgramGroups());
+		engine = std::make_shared<OptixScene>(properties);
+		engine->init(camera);
+
+		OptixConfig whittedConfig = config.getOptixConfig(PipelineType::Whitted);
+		engine->addPipeline(PipelineType::Whitted, config.getProgramGroups(PipelineType::Whitted), whittedConfig);
 	}
 
 	void onScreenGrab() {captureScreen = true;}
 	void onFrameGrab() { captureRender = true; }
-	void onClearScene(bool dummy) { engine->clearScene(); model.clearScene(); }
+	void onClearScene(bool dummy) { if(engine) engine->clearScene(); model.clearScene(); }
 
   private:
 	  RenderLayerRef optixLayer = nullptr;

@@ -6,6 +6,8 @@
 
 using sabi::CameraHandle;
 using RendererHandle = std::unique_ptr<class OptixRenderer>;
+using RenderQueue = std::deque<OptixRenderContextHandle>;
+using Eigen::Vector3i;
 
 class OptixRenderer
 {
@@ -14,16 +16,29 @@ class OptixRenderer
 	virtual ~OptixRenderer ();
 
 	virtual void updateCameraState(CameraHandle& camera) {}
-	virtual void initLaunchParams() {}
 
 	virtual void resize(unsigned int screenWidth, unsigned int screenHeight) = 0;
 	virtual void render(CameraHandle& camera, OptixEngineRef& engine) = 0;
+	
+	void addRenderContext(OptixRenderContextHandle& context) { renderQueue.push_front(context); }
+	void renderAll(OptixEngineRef& engine)
+	{
+		for (auto renderContext : renderQueue)
+		{
+			renderContext->launch(engine);
+		}
+	}
+
+	RenderQueue& getRenderQueue() { return renderQueue; }
+	Vector3i getDimensions() const { return Vector3i(width, height, depth); }
 
  protected:
 	OptixRenderer(unsigned int screenWidth, unsigned int screenHeight);
 
+	RenderQueue renderQueue;
+
 	unsigned int width = DEFAULT_DESKTOP_WINDOW_WIDTH;
 	unsigned int height = DEFAULT_DESKTOP_WINDOW_HEIGHT;
-	
+	unsigned int depth = 1;
 
 }; // end class OptixRenderer

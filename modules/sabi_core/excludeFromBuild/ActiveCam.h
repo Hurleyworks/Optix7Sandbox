@@ -59,7 +59,7 @@ class ActiveCam
 	Ray3f generateRay(float u, float v, float imagePlaneAspectRatio) const { return calcRay(u, v, imagePlaneAspectRatio); }
 	Ray3f generateRay(const Vector2f & posPixels, const Vector2f & imageSizePixels) const
 	{
-		return calcRay(posPixels.x() / imageSizePixels.x(), (imageSizePixels.y() - posPixels.y()) / imageSizePixels.y(), imageSizePixels.x() / imageSizePixels.y()); 
+		return  calcRay(posPixels.x() / imageSizePixels.x(), (imageSizePixels.y() - posPixels.y()) / imageSizePixels.y(), imageSizePixels.x() / imageSizePixels.y());
 	}
 
 	void getFrustum(float *left, float *top, float *right, float *bottom, float *nearVal, float *farVal) const;
@@ -76,6 +76,10 @@ class ActiveCam
 
 	// PixelBuffer
 	PixelBuffer & getPixelBuffer() {return pixelBuffer;}
+
+	// pick ray
+	const Ray3f getPickRay() const { return pickRay; }
+	void setPickRay(const Ray3f ray) { pickRay = ray; }
 
  protected:
 	ActiveCam()
@@ -125,6 +129,7 @@ class ActiveCam
 	mutable float frustumLeft, frustumRight, frustumTop, frustumButtom;
 
 	PixelBuffer pixelBuffer; // store the render through the camera
+	Ray3f pickRay;
 
 }; // end class ActiveCam
 

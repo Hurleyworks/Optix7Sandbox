@@ -366,7 +366,6 @@ void Model::saveRender(PixelBuffer& pixelBuffer, const std::string& appName, std
 		err.message = "Frame saving failed! " + path.toStdString();
 		errorQueue.push(err);
 	}
-
 }
 
 void Model::addMesh(MeshBuffersHandle mesh,
