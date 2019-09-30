@@ -40,9 +40,7 @@ Based on the Optix7 SDK optixMeshView sample but allows dynamic adding of new me
 
 ### Picking
 
-The Viewer app with mouse picking support
-
-![Viewer screen grab](https://github.com/Hurleyworks/Optix7Sandbox/blob/master/resources/Common/sample_screen_grabs/Viewer.png)
+The Viewer sample with mouse picking support
 
 
 
