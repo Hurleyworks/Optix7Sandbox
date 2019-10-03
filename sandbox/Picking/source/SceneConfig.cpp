@@ -92,41 +92,7 @@ const json & SceneConfig::getProgramGroups(PipelineType type)
 		default:
 			return emptyGroup;
 	}
-#if 0
-	progGroups[radianceHitName] = {
-		{"name", radianceHitName},
-		{"kind", OPTIX_PROGRAM_GROUP_KIND_HITGROUP},
-		{"moduleCH", "programs" },
-		{"entryFunctionNameCH", "__closesthit__ch" },
-		{"moduleAH", nullptr },
-		{"entryFunctionNameAH", nullptr },
-		{"moduleIS", nullptr },
-		{"entryFunctionNameIS", nullptr } };
 
-	progGroups[occlusionHitName] = {
-		{"name", occlusionHitName },
-		{"kind", OPTIX_PROGRAM_GROUP_KIND_HITGROUP},
-		{"moduleCH", "programs" },
-		{"entryFunctionNameCH", "__closesthit__occlusion" },
-		{"moduleAH", nullptr },
-		{"entryFunctionNameAH", nullptr },
-		{"moduleIS", nullptr },
-		{"entryFunctionNameIS", nullptr } };
-
-	progGroups[raygenName] = {
-		{"name", raygenName},
-		{"kind", OPTIX_PROGRAM_GROUP_KIND_RAYGEN},
-		{"module", "programs" },
-		{"entryFunctionName", "__raygen__rg" } };
-
-	progGroups[radianceMissName] = {
-		{"name", radianceMissName},
-		{"kind", OPTIX_PROGRAM_GROUP_KIND_MISS},
-		{"module", "programs" },
-		{"entryFunctionName", "__miss__ms" } };
-
-#endif
-	
 	return emptyGroup;
 }
 

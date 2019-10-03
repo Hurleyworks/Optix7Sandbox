@@ -15,15 +15,17 @@ class PickingContext : public OptixRenderContext
  public:
 	PickingContext ();
 	~PickingContext ();
+
+	void updateCamera(CameraHandle& camera) override;
 		
+	// SBT
 	void createRaygenRecord(const OptixEngineRef& engine) override;
 	void createMissRecord(const OptixEngineRef& engine) override;
 	void createEmptyHitGroupRecord(const OptixEngineRef& engine) override;
-
 	void rebuildHitgroupSBT(const SceneMeshes& meshes) override;
-	void updateCamera(CameraHandle& camera) override;
-	void initializeLaunchParams() override;
 
+	// launch
+	void initializeLaunchParams() override;
 	void preLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) override;
 	void launch(OptixEngineRef& engine) override;
 	void postLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) override;

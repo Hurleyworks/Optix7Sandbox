@@ -57,6 +57,7 @@ const json & SceneConfig::getProgramGroups(PipelineType type)
 	{
 		case PipelineType::Picking:
 			return emptyGroup;
+
 		case PipelineType::Whitted:
 			return getWhittedPrograms();
 

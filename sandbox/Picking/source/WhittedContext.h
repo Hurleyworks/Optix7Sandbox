@@ -15,15 +15,17 @@ class WhittedContext : public OptixRenderContext
  public:
 	WhittedContext ();
 	~WhittedContext ();
+
+	void updateCamera(CameraHandle& camera) override;
 		
+	// SBT
 	void createRaygenRecord(const OptixEngineRef& engine) override;
 	void createMissRecord(const OptixEngineRef& engine) override;
 	void createEmptyHitGroupRecord(const OptixEngineRef& engine) override;
-
 	void rebuildHitgroupSBT(const SceneMeshes& meshes) override;
-	void updateCamera(CameraHandle& camera) override;
+	
+	// lauch
 	void initializeLaunchParams() override;
-
 	void preLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) override;
 	void launch(OptixEngineRef& engine) override;
 	void postLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) override;
