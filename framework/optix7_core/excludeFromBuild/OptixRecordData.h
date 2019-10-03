@@ -38,6 +38,7 @@ struct PickingPayload
 
 const uint32_t NUM_PICKING_PAYLOAD_VALUES = 2u;
 const uint32_t NUM_WHITTED_PAYLOAD_VALUES = 4u;
+const uint32_t NUM_DREAMER_PAYLOAD_VALUES = 6u;
 
 
 struct MissData

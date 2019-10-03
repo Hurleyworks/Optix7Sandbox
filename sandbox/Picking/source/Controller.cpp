@@ -14,32 +14,32 @@ Controller::Controller (const PropertyService& properties)
 {	
 }
 
-void Controller::onInput(const InputEvent& e, CameraHandle& camera)
+void Controller::onInput(InputEvent& e, CameraHandle& camera)
 {
+	mouseCoords = Vector2f(e.getX(), e.getY());
+
 	switch (e.getType())
 	{
 		case InputEvent::Press:
 		{
-			camera->startTracking();
-			camera->track(Vector2f(e.getX(), e.getY()));
-			mouseCoords = Vector2f(e.getX(), e.getY());
-
-			// FIXME
-			Ray3f ray = camera->generateRay(mouseCoords, camera->getScreenSize());
-			camera->setPickRay(ray);
-		}
+			if (e.getButton() == InputEvent::Left)
+			{
+				camera->startTracking();
+				camera->track(Vector2f(e.getX(), e.getY()));
+			}
+			else if (e.getButton() == InputEvent::Right)
+			{
+				Ray3f ray = camera->generateRay(mouseCoords, camera->getScreenSize());
+				e.setPickRay(ray);
+			}
 			break;
+		}
 
 		case InputEvent::Release:
 		{
 			camera->setDirty(false);
-
-			// make an invalid pickray ( no length )
-			Vector3f o = Vector3f::Zero();
-			Vector3f d = Vector3f::Zero();
-			camera->setPickRay(Ray3f(o, d));
-		}
 			break;
+		}
 
 		case InputEvent::Move:
 			break;
@@ -47,17 +47,30 @@ void Controller::onInput(const InputEvent& e, CameraHandle& camera)
 		case InputEvent::ScrollUp:
 			camera->zoom(DEFAULT_ZOOM_FACTOR);
 			properties.renderProps->setValue(RenderKey::ResetAccumulator, true);
+			camera->setDirty(true);
 			break;
 
 		case InputEvent::ScrollDown:
 			camera->zoom(DEFAULT_ZOOM_FACTOR * -1);
 			properties.renderProps->setValue(RenderKey::ResetAccumulator, true);
+			camera->setDirty(true);
 			break;
 
 		case InputEvent::Drag:
-			camera->track(Vector2f(e.getX(), e.getY()));
-			camera->setDirty(true);
-			properties.renderProps->setValue(RenderKey::ResetAccumulator, true);
+
+			// LB for camera, RMB for picking
+			if (e.getButton() == InputEvent::Left)
+			{
+				camera->track(Vector2f(e.getX(), e.getY()));
+				camera->setDirty(true);
+				properties.renderProps->setValue(RenderKey::ResetAccumulator, true);
+			}
+			else if (e.getButton() == InputEvent::Right)
+			{
+				Ray3f ray = camera->generateRay(mouseCoords, camera->getScreenSize());
+				e.setPickRay(ray);
+			}
+		
 			break;
 	}
 }

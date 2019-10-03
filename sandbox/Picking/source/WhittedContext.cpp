@@ -282,7 +282,7 @@ void WhittedContext::initializeLaunchParams()
 	uploadLaunchParameters(whittedParams);
 }
 
-void WhittedContext::preLaunch(CameraHandle& camera, OptixEngineRef& engine)
+void WhittedContext::preLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input)
 {
 	// sync background color from user
 	Vector4f bg = engine->props().renderProps->getVal<Vector4f>(RenderKey::BackgroundColor);
@@ -299,7 +299,7 @@ void WhittedContext::preLaunch(CameraHandle& camera, OptixEngineRef& engine)
 	));
 }
 
-void WhittedContext::postLaunch(CameraHandle& camera, OptixEngineRef& engine)
+void WhittedContext::postLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input)
 {
 	renderBuffer.unmap();
 

@@ -36,11 +36,7 @@ class Application : public Jahley::App
 		camera->setPerspective(DEFAULT_FOV_DEGREES, aspect, 1, 1000);
 		camera->lookAt(DEFAULT_CAMERA_POSIIION, DEFAULT_CAMERA_TARGET);
 
-		// make an invalid pickray ( no length )
-		Vector3f o = Vector3f::Zero();
-		Vector3f d = Vector3f::Zero();
-		camera->setPickRay(Ray3f(o, d));
-
+		
 		// setup the camera's PixelBuffer
 		ImageInfo spec;
 		spec.width = DEFAULT_DESKTOP_WINDOW_WIDTH;
@@ -132,7 +128,8 @@ class Application : public Jahley::App
 
 	void onInput(const InputEvent & e) override
 	{
-		controller.onInput(e, camera);
+		// controller can modify Input by adding pick ray and that's ok
+		controller.onInput(const_cast<InputEvent&>(e), camera);
 	}
 
 	void addRenderable(RenderableNode& node)

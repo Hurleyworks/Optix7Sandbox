@@ -133,7 +133,7 @@ void PickingContext::rebuildHitgroupSBT(const SceneMeshes& meshes)
 		rec.data.material_data.pbr = OptixMaterialData::Pbr();
 
 		// a duplicate record because we had to pad
-		// the PICK_RAY_TYPE_COUNT to match Whitted
+		// the PICK_RAY_TYPE_COUNT to match Whitted RAY_TYPE_COUNT
 		for (int i = 0; i < PICK_RAY_TYPE_COUNT; i++)
 		{
 			hitgroup_records.push_back(rec);
@@ -188,18 +188,23 @@ void PickingContext::launch(OptixEngineRef& engine)
 	OptixRenderContext::launch(engine);
 }
 
-void PickingContext::preLaunch(CameraHandle& camera, OptixEngineRef& engine)
+void PickingContext::preLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input)
 {
 	pickParams.sceneAccel = engine->getIAS();
 	
-	const Ray3f r = camera->getPickRay();
-
-	if (r.dir.norm() > 0.0f)
+	if ((input.getType() == InputEvent::Press || input.getType() == InputEvent::Drag) && input.getButton() == InputEvent::Right)
 	{
+		const Ray3f& r = input.getPickRay();
 		pickParams.picking = 1;
-
 		pickParams.rayOrigin = make_float3(r.origin.x(), r.origin.y(), r.origin.z());
 		pickParams.rayDir = make_float3(r.dir.x(), r.dir.y(), r.dir.z());
+
+		//vecStr3f(r.origin, DBUG, "ORIGIN");
+		//vecStr3f(r.dir, DBUG, "DIR");
+
+		// to stop the stream of mouse press events
+		// if the user keeps the key held down
+		input.setType(InputEvent::Idle);
 	}
 	else
 	{
@@ -207,7 +212,7 @@ void PickingContext::preLaunch(CameraHandle& camera, OptixEngineRef& engine)
 	}
 }
 
-void PickingContext::postLaunch(CameraHandle& camera, OptixEngineRef& engin)
+void PickingContext::postLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input)
 {
 	if (pickParams.picking)
 	{
@@ -223,10 +228,5 @@ void PickingContext::postLaunch(CameraHandle& camera, OptixEngineRef& engin)
 		//LOG(DBUG) << "Picked mesh: " << pickData[0];
 		//LOG(DBUG) << "Picked triangle: " << pickData[1];
 	}
-
-	// make an invalid pickray ( no length )
-	Vector3f o = Vector3f::Zero();
-	Vector3f d = Vector3f::Zero();
-	camera->setPickRay(Ray3f(o, d));
 }
 

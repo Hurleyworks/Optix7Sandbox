@@ -50,19 +50,19 @@ void Renderer::resize(unsigned int screenWidth, unsigned int screenHeight)
 	params.origin_y = height / 2;*/
 }
 
-void Renderer::render(CameraHandle& camera, OptixEngineRef& engine)
+void Renderer::render(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input)
 {
 	for (auto renderContext : renderQueue)
 	{
 		renderContext->updateCamera(camera);
-		renderContext->preLaunch(camera, engine);
+		renderContext->preLaunch(camera, engine, input);
 	}
 
 	renderAll(engine);
 
 	for (auto renderContext : renderQueue)
 	{
-		renderContext->postLaunch(camera, engine);
+		renderContext->postLaunch(camera, engine, input);
 	}
 
 }

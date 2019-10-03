@@ -12,6 +12,7 @@ using sabi::CameraHandle;
 using sabi::RenderableNode;
 using sabi::PixelBufferHandle;
 using sabi::Images;
+using sabi::InputEvent;
 
 class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected Noncopyable
 {
@@ -32,8 +33,10 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	virtual void addPipeline(PipelineType type, const json& groups, OptixConfig& config) = 0;
 	virtual void render(CameraHandle& camera) = 0;
 	virtual void clearScene() = 0;
+
 	virtual void addRenderable(RenderableNode& node) {}
 	virtual void addImage(PixelBufferHandle& image) {}
+	virtual void onInput(const InputEvent& input) {}
 
 	const OptixPipeline getPipeline(std::string& name) const
 	{
@@ -42,8 +45,7 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	}
 
 	const OptixEngine::ProgramDB& getProgramDB() const { return programDB; }
-	const OptixTraversableHandle& getGAS() const { return gAccel; }
-	const OptixTraversableHandle& getIAS() const { return sceneAccel; }
+	const OptixTraversableHandle getIAS() const { return accelServices.getSceneAccel(); }
 
 	bool restartRender() const { return properties.renderProps->getVal<bool>(RenderKey::ResetAccumulator); }
 	void setRenderRestart(bool state) const {properties.renderProps->setValue(RenderKey::ResetAccumulator, state);}
@@ -62,13 +64,19 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 
 	ContextHandle context = nullptr;
     PipelineDB pipelineDB;
-	OptixTraversableHandle sceneAccel= 0; 
-	OptixTraversableHandle gAccel = 0;
+	SceneMeshes meshes;
+	
 
 	PipelineHandle createPipeline(const json& groups, OptixConfig& config);
 	void createProgramDatabase();
 
+	void rebuildSceneAccel()
+	{
+		accelServices.rebuildSceneAccel(context, meshes);
+	}
+
 private:
+	OptixAccel accelServices;
 	ModuleHandle createModule(PtxData& data, OptixConfig& config);
 
 	ProgramGroupHandle createRaygenPrograms(ModuleHandle& module, const String& functionName, OptixConfig& config);

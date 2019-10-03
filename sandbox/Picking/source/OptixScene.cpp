@@ -21,19 +21,7 @@ OptixScene::OptixScene (const PropertyService& properties)
 // dtor
 OptixScene::~OptixScene ()
 {	
-	try
-	{
-		if (deviceIASoutputBuffer)
-			CUDA_CHECK(cudaFree(reinterpret_cast<void*>(deviceIASoutputBuffer)));
-	}
-	catch (const std::runtime_error& e)
-	{
-		LOG(CRITICAL) << e.what();
-	}
-	catch (...)
-	{
-		LOG(CRITICAL) << "Caught unknow exception";
-	}
+	
 }
 
 void OptixScene::init(CameraHandle& camera)
@@ -57,7 +45,7 @@ void OptixScene::addPipeline(PipelineType type, const json& groups, OptixConfig&
 	{
 		case PipelineType::Picking:
 		{
-			pickContext = PickingContext::create();
+			OptixRenderContextHandle pickContext = PickingContext::create();
 
 			pickContext->setConfig(config);
 			pickContext->setPipeline(pipeHandle);
@@ -77,7 +65,7 @@ void OptixScene::addPipeline(PipelineType type, const json& groups, OptixConfig&
 
 		case PipelineType::Whitted:
 		{
-			whittedContext = WhittedContext::create();
+			OptixRenderContextHandle whittedContext = WhittedContext::create();
 
 			whittedContext->setConfig(config);
 			whittedContext->setPipeline(pipeHandle);
@@ -112,9 +100,6 @@ void OptixScene::addRenderable(RenderableNode& node)
 		mesh->init(context);
 		meshes.push_back(mesh);
 
-		OptixShaderBindingTable * wSBT = whittedContext->getSBT();
-		OptixShaderBindingTable* pSBT = pickContext->getSBT();
-
 		for (auto & context : renderer->getRenderQueue())
 		{
 			context->rebuildHitgroupSBT(meshes);
@@ -141,7 +126,6 @@ void OptixScene::addRenderable(RenderableNode& node)
 
 void OptixScene::clearScene()
 {
-
 	meshes.clear();
 	for (auto& context : renderer->getRenderQueue())
 	{
@@ -153,96 +137,10 @@ void OptixScene::clearScene()
 	setRenderRestart(true);
 }
 
-
-void OptixScene::rebuildSceneAccel()
+void OptixScene::onInput(const InputEvent& input)
 {
-	// won't work unless the ray type counts are the same
-	if (PICK_RAY_TYPE_COUNT != WHITTED_RAY_TYPE_COUNT)
-	{
-		ok = false;
-		throw std::runtime_error("Ray type count mismatch");
-	}
-		
-	const size_t instanceCount = meshes.size();
+	this->input = input;
 
-	// out with the old buffer
-	if(deviceIASoutputBuffer)
-		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(deviceIASoutputBuffer)));
-
-	std::vector<OptixInstance> optixInstances(instanceCount);
-
-	unsigned int sbtOffset = 0; 
-	for (size_t i = 0; i < meshes.size(); ++i)
-	{
-		auto& mesh = meshes[i];
-		auto& optixInstance = optixInstances[i];
-		memset(&optixInstance, 0, sizeof(OptixInstance));
-
-		optixInstance.flags = OPTIX_INSTANCE_FLAG_NONE;
-		optixInstance.instanceId = static_cast<unsigned int>(i);
-		optixInstance.sbtOffset = sbtOffset;
-		optixInstance.visibilityMask = 1;
-		optixInstance.traversableHandle = mesh->getGAS();
-		memcpy(optixInstance.transform, mesh->getWorldTransform().data(), sizeof(float) * 12);
-
-		sbtOffset += 1* PICK_RAY_TYPE_COUNT;
-	}
-
-	const size_t instancesSizeInBytes = sizeof(OptixInstance) * instanceCount;
-	CUdeviceptr  deviceInstances;
-	CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&deviceInstances), instancesSizeInBytes));
-	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(deviceInstances),
-		optixInstances.data(),
-		instancesSizeInBytes,
-		cudaMemcpyHostToDevice
-	));
-
-	OptixAccelBuildOptions accelOptions = {};
-	accelOptions.buildFlags = OPTIX_BUILD_FLAG_NONE;
-	accelOptions.operation = OPTIX_BUILD_OPERATION_BUILD;
-
-	OptixBuildInput instanceInput = {};
-	instanceInput.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
-	instanceInput.instanceArray.instances = deviceInstances;
-	instanceInput.instanceArray.numInstances = static_cast<unsigned int>(instanceCount);
-
-	OptixAccelBufferSizes IASbufferSizes;
-	OPTIX_CHECK(optixAccelComputeMemoryUsage(
-		context->get(),
-		&accelOptions,
-		&instanceInput,
-		1, // num build inputs
-		&IASbufferSizes
-	));
-
-	CUdeviceptr deviceTempBuffer;
-	CUDA_CHECK(cudaMalloc(
-		reinterpret_cast<void**>(&deviceTempBuffer),
-		IASbufferSizes.tempSizeInBytes
-	));
-	CUDA_CHECK(cudaMalloc(
-		reinterpret_cast<void**>(&deviceIASoutputBuffer),
-		IASbufferSizes.outputSizeInBytes
-	));
-
-	OPTIX_CHECK(optixAccelBuild(
-		context->get(),
-		nullptr,                  // CUDA stream
-		&accelOptions,
-		&instanceInput,
-		1,                  // num build inputs
-		deviceTempBuffer,
-		IASbufferSizes.tempSizeInBytes,
-		deviceIASoutputBuffer,
-		IASbufferSizes.outputSizeInBytes,
-		&sceneAccel,
-		nullptr,            // emitted property list
-		0                   // num emitted properties
-	));
-
-	CUDA_CHECK(cudaFree(reinterpret_cast<void*>(deviceTempBuffer)));
-	CUDA_CHECK(cudaFree(reinterpret_cast<void*>(deviceInstances)));
 }
 
 

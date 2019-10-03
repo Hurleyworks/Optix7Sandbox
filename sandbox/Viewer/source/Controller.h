@@ -21,7 +21,7 @@ class Controller
 	Controller (const PropertyService& properties);
 	~Controller() = default;
 		
-	void onInput(const InputEvent& e, CameraHandle& camera);
+	void onInput(InputEvent& e, CameraHandle& camera);
 
  private:
 	PropertyService properties;

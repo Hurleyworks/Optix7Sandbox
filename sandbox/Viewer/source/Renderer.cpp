@@ -24,13 +24,13 @@ void Renderer::resize(unsigned int screenWidth, unsigned int screenHeight)
 	// FIXME
 }
 
-void Renderer::render(CameraHandle& camera, OptixEngineRef& engine)
+void Renderer::render(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input)
 {
 	// pre render
 	for (auto renderContext : renderQueue)
 	{
 		renderContext->updateCamera(camera);
-		renderContext->preLaunch(camera, engine);
+		renderContext->preLaunch(camera, engine, input);
 	}
 
 	renderAll(engine);
@@ -38,7 +38,7 @@ void Renderer::render(CameraHandle& camera, OptixEngineRef& engine)
 	// post render
 	for (auto renderContext : renderQueue)
 	{
-		renderContext->postLaunch(camera, engine);
+		renderContext->postLaunch(camera, engine, input);
 	}
 
 }

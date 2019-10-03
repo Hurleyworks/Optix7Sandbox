@@ -77,9 +77,9 @@ class ActiveCam
 	// PixelBuffer
 	PixelBuffer & getPixelBuffer() {return pixelBuffer;}
 
-	// pick ray
-	const Ray3f getPickRay() const { return pickRay; }
-	void setPickRay(const Ray3f ray) { pickRay = ray; }
+	//// pick ray
+	//const Ray3f getPickRay() const { return pickRay; }
+	//void setPickRay(const Ray3f ray) { pickRay = ray; }
 
  protected:
 	ActiveCam()
@@ -129,7 +129,7 @@ class ActiveCam
 	mutable float frustumLeft, frustumRight, frustumTop, frustumButtom;
 
 	PixelBuffer pixelBuffer; // store the render through the camera
-	Ray3f pickRay;
+	//Ray3f pickRay;
 
 }; // end class ActiveCam
 

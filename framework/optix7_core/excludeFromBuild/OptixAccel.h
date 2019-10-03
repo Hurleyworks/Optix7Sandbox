@@ -4,24 +4,18 @@
 
 #pragma once
 
-using sabi::RenderableWeakRef;
-using sabi::RenderableNode;
-using sabi::MeshBuffersHandle;
-
 class OptixAccel
 {
-	struct GASInfo
-	{
-		std::vector<OptixBuildInput> buildInputs;
-		OptixAccelBufferSizes gas_buffer_sizes;
-		MeshBuffersHandle mesh;
-	};
 
  public:
 	OptixAccel ();
 	~OptixAccel ();
 	
-private:
-	OptixAccelBuildOptions accel_options = {};
+	void rebuildSceneAccel(ContextHandle& context, const SceneMeshes& meshes);
+	OptixTraversableHandle getSceneAccel() const { return sceneAccel; }
+
+ private:
+	CUdeviceptr deviceIASoutputBuffer = 0;
+	OptixTraversableHandle sceneAccel = 0;
 
 }; // end class OptixAccel

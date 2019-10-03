@@ -56,6 +56,8 @@ struct DreamerParams
 	int picking;
 	float3 rayOrigin;
 	float3 rayDir;
+	uint32_t screenX;
+	uint32_t screenY;
 	int32_t max_depth;
 	float gamma;
 	uint32_t               image_width;

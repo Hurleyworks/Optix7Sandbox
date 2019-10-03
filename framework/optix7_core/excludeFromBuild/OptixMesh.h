@@ -21,6 +21,7 @@ class OptixMesh
 	~OptixMesh ();
 
 	void init(ContextHandle& context);
+	ItemID getID() { return weakNode.expired() ? INVALID_ID : weakNode.lock()->getID(); }
 
 	OptixTraversableHandle getGAS() const { return weakNode.expired() ? 0 : GAS; }
 	Matrix43f getWorldTransform()

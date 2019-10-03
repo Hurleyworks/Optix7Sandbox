@@ -17,23 +17,19 @@ class OptixScene : public OptixEngine
 	void addPipeline(PipelineType type, const json& groups, OptixConfig& config ) override;
 	void addRenderable(RenderableNode& node) override;
 	void clearScene() override;
+	void onInput(const InputEvent& input) override;
 
 	void render(CameraHandle& camera) override
 	{		
 		if (!ok) return;
 
-		renderer->render(camera, OptixEngine::getPtr());
+		renderer->render(camera, OptixEngine::getPtr(), input);
 	}
 	
  private:
-	RendererHandle renderer = nullptr;
-	bool ok = true;
-	SceneMeshes meshes;
-	CUdeviceptr deviceIASoutputBuffer = 0;
+	 RendererHandle renderer = nullptr;
+	 InputEvent input;
+	 bool ok = true;
 	
-	OptixRenderContextHandle pickContext = nullptr;
-	OptixRenderContextHandle whittedContext = nullptr;
-
-	void rebuildSceneAccel();
 	
 }; // end class OptixScene

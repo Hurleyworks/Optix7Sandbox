@@ -24,9 +24,9 @@ class PickingContext : public OptixRenderContext
 	void updateCamera(CameraHandle& camera) override;
 	void initializeLaunchParams() override;
 
-	void preLaunch(CameraHandle& camera, OptixEngineRef& engine) override;
+	void preLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) override;
 	void launch(OptixEngineRef& engine) override;
-	void postLaunch(CameraHandle& camera, OptixEngineRef& engine) override;
+	void postLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) override;
 
  private:
 	PickParams pickParams;

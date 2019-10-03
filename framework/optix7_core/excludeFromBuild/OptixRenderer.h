@@ -18,7 +18,7 @@ class OptixRenderer
 	virtual void updateCameraState(CameraHandle& camera) {}
 
 	virtual void resize(unsigned int screenWidth, unsigned int screenHeight) = 0;
-	virtual void render(CameraHandle& camera, OptixEngineRef& engine) = 0;
+	virtual void render(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) = 0;
 	
 	void addRenderContext(OptixRenderContextHandle& context) { renderQueue.push_front(context); }
 	void renderAll(OptixEngineRef& engine)

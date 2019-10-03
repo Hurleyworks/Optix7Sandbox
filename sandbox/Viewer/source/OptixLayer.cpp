@@ -38,6 +38,7 @@ bool OptixLayer::onInput(const InputEvent& input)
 {
 	InputEvent::Type type = input.getType();
 
+	engine->onInput(input);
 	return false;
 }
 

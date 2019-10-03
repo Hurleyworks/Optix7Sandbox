@@ -35,9 +35,9 @@ class OptixRenderContext
 	virtual void rebuildHitgroupSBT(const SceneMeshes& meshes) = 0;
 
 	virtual void initializeLaunchParams() = 0;
-	virtual void preLaunch(CameraHandle& camera, OptixEngineRef& engine) = 0;
+	virtual void preLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) = 0;
 	virtual void updateCamera(CameraHandle& camera) = 0;
-	virtual void postLaunch(CameraHandle& camera, OptixEngineRef& engine) = 0;
+	virtual void postLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) = 0;
 
 	virtual void launch(OptixEngineRef& engine)
 	{
@@ -60,6 +60,6 @@ class OptixRenderContext
 	OptixShaderBindingTable sbt = {};
 	OptixTraversableHandle sceneAccel = 0;
 	PipelineHandle pipeline = nullptr;
-	Vector3i size;
-	CUstream stream;
+	Vector3i size = Vector3i(DEFAULT_DESKTOP_WINDOW_WIDTH, DEFAULT_DESKTOP_WINDOW_HEIGHT, 1);
+	CUstream stream = 0;
 };

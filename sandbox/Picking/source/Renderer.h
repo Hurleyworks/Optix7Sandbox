@@ -20,7 +20,7 @@ class Renderer : public OptixRenderer
 	~Renderer ();
 
 	void resize(unsigned int screenWidth, unsigned int screenHeight) override;
-	void render(CameraHandle& camera, OptixEngineRef& engine) override;
+	void render(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) override;
 
  private:
 	CUDAOutputBuffer<uchar4> renderBuffer;

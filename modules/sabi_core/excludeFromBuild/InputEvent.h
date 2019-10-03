@@ -4,6 +4,8 @@
 
 #pragma  once
 
+using wabi::Ray3f;
+
 class InputEvent
 {
 
@@ -62,6 +64,10 @@ class InputEvent
 	 void setScreenMovement( float deltaX, float deltaY ) { dx_ = deltaX; dy_ = deltaY; }
 	 void setKeyboardModifiers(unsigned int state) { keyState_ = state; }
 
+	 void setPickRay(const Ray3f& ray) { pickRay = ray; }
+	 const Ray3f& getPickRay() const { return pickRay; }
+	 Ray3f& getPickRay() { return pickRay; }
+
  private:
 	 Type type_ = Type::Idle;
 	 Type prevType_ = Type::Idle;
@@ -71,5 +77,6 @@ class InputEvent
 	 unsigned int keyState_ = 0;
 	 float dx_ = 0.0f;
 	 float dy_ = 0.0f;
+	 Ray3f pickRay;
 	 
 }; // end class InputEvent
