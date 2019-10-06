@@ -27,8 +27,10 @@ class OptixScene : public OptixEngine
 	}
 	
  private:
-	RendererHandle renderer = nullptr;
-	bool ok = true;
-	InputEvent input;
+	 RendererHandle renderer = nullptr;
+	 OptixConfig whittedConfig;
+	 InputEvent input;
+	 bool ok = true;
+	
 	
 }; // end class OptixScene

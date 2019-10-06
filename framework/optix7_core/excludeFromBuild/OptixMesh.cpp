@@ -10,7 +10,7 @@ using Eigen::Vector3f;
 OptixMesh::OptixMesh (RenderableNode& node)
 	: weakNode(node)
 {	
-	
+	node->setUserData(this);
 }
 
 // dtor
@@ -39,6 +39,22 @@ void OptixMesh::init(ContextHandle& context)
 	if (weakNode.expired()) return;
 
 	ScopedStopWatch sw(_FN_);
+
+	// instances use the GAS from their source
+	if (weakNode.lock()->isInstance())
+	{
+		RenderableNode source = weakNode.lock()->getInstancedFrom();
+		if (source)
+		{
+			OptixMesh* const optixMesh = static_cast<OptixMesh*>(source->getUserdata());
+			if (optixMesh)
+			{
+				GAS = optixMesh->getGAS();
+			}
+		}
+
+		return;
+	}
 
 	MeshBuffersHandle& mesh = weakNode.lock()->getMesh();
 	if (!mesh)

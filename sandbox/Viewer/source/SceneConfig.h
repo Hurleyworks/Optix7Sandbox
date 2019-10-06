@@ -31,6 +31,6 @@ public:
 	OptixConfig defaultConfigs;
 
 	const json& getWhittedPrograms();
-	const OptixConfig& getWhittedConfigs();
+	const OptixConfig& getWhittedConfigs() { return whittedConfig; }
 
 }; // end class SceneConfig

@@ -10,22 +10,20 @@ class WhittedContext : public OptixRenderContext
 {
 
  public:
-	static OptixRenderContextHandle create() { return std::make_shared<WhittedContext>(); }
+	static OptixRenderContextHandle create(PipelineType type) { return std::make_shared<WhittedContext>(type); }
 
  public:
-	WhittedContext() = default;
-	~WhittedContext() = default;
+	WhittedContext (PipelineType type);
+	~WhittedContext ();
 		
-	void updateCamera(CameraHandle& camera) override;
-
-	// SBT
 	void createRaygenRecord(const OptixEngineRef& engine) override;
 	void createMissRecord(const OptixEngineRef& engine) override;
 	void createEmptyHitGroupRecord(const OptixEngineRef& engine) override;
-	void rebuildHitgroupSBT(const SceneMeshes& meshes) override;
-	
-	// lauch
+
+	void rebuildHitgroupSBT(OptixEngineRef& engine) override;
+	void updateCamera(CameraHandle& camera) override;
 	void initializeLaunchParams() override;
+
 	void preLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) override;
 	void launch(OptixEngineRef& engine) override;
 	void postLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) override;
@@ -38,9 +36,10 @@ class WhittedContext : public OptixRenderContext
 	const size_t raygenRecordSize = sizeof(RaygenRecord);
 
 	ProgramGroupHandle hitProg = nullptr;
-	CUdeviceptr hitgroup_record_base = 0;
 	const size_t hitgroup_record_size = sizeof(HitGroupRecord);
-	std::vector<HitGroupRecord> hitgroup_records;
+	/*CUdeviceptr hitgroup_record_base = 0;
+	
+	std::vector<HitGroupRecord> hitgroup_records;*/
 
 	MissRecord missRecord;
 	const size_t missRecordSize = sizeof(MissRecord);

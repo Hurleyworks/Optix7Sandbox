@@ -125,6 +125,7 @@ void PickingContext::rebuildHitgroupSBT(OptixEngineRef& engine)
 
 		OPTIX_CHECK(optixSbtRecordPackHeader(hitProg->get(), &rec));
 
+		// WTF how can this possibly be working with instances??????????
 		rec.data.geometry_data.type = OptixGeometryData::TRIANGLE_MESH;
 		rec.data.geometry_data.triangle_mesh.positions = mesh->getPositions();
 		rec.data.geometry_data.triangle_mesh.normals = mesh->getNormals();
@@ -250,9 +251,6 @@ void PickingContext::postLaunch(CameraHandle& camera, OptixEngineRef& engine, In
 				
 				engine->setRenderRestart(true);
 			}
-				
-
-			
 			//LOG(DBUG) << "Picked triangle: " << pickData[1];
 		}
 	}

@@ -3,7 +3,8 @@
 // Created: 26 Sep 2019 2:36:23 pm
 // Copyright (c) 2019, HurleyWorks
 
-OptixRenderContext::OptixRenderContext()
+OptixRenderContext::OptixRenderContext(PipelineType type)
+	: type(type)
 {
 	CUDA_CHECK(cudaStreamCreate(&stream));
 }

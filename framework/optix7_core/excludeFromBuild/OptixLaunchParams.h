@@ -59,11 +59,6 @@ struct DreamerParams
 	uint32_t screenX;
 	uint32_t screenY;
 	int32_t max_depth;
-	float gamma;
-	uint32_t               image_width;
-	uint32_t               image_height;
-	int32_t                origin_x;
-	int32_t                origin_y;
 
 	OptixBufferView<OptixLight::Point> lights;
 

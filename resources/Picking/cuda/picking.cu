@@ -62,8 +62,8 @@ extern "C" __global__ void __raygen__pickRay()
 	pickData[0] = payload.meshID;
 	pickData[1] = payload.primitiveID;
   
-	printf("Picked mesh: %i\n", pickData[0] ); 
-	 printf("Picked triangle:  %i\n", pickData[1]); 
+	//printf("Picked mesh: %i\n", pickData[0] ); 
+	// printf("Picked triangle:  %i\n", pickData[1]); 
 }
 
 extern "C" __global__ void __closesthit__pickHit()

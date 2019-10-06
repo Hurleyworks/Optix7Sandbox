@@ -186,7 +186,6 @@ class Application : public Jahley::App
 
 		OptixConfig whittedConfig = config.getOptixConfig(PipelineType::Whitted);
 		engine->addPipeline(PipelineType::Whitted, config.getProgramGroups(PipelineType::Whitted), whittedConfig);
-		
 	}
 
 	void onScreenGrab() {captureScreen = true;}

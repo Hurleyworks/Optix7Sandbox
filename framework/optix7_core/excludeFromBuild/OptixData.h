@@ -40,3 +40,5 @@ struct PipelineType
 	const char* ToString() const { return PipelineTypeTable[value]; }
 	static PipelineType FromString(const char* str) { return mace::TableLookup(str, PipelineTypeTable, Count); }
 };
+
+const uint32_t DEFAULT_PREALLOCATED_MESHES_COUNT = 1000;

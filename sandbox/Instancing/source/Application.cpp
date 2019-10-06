@@ -7,7 +7,7 @@
 #include "View.h"
 #include "Controller.h"
 
-const std::string APP_NAME = "Viewer";
+const std::string APP_NAME = "Instancing";
 
 using sabi::PixelBuffer;
 using sabi::PerspectiveCam;
@@ -69,6 +69,7 @@ class Application : public Jahley::App
 
 			// connect the View with Model using signal/slots
 			connect(view, &View::emitModelPath, model, &Model::loadModelFromIcon);
+			connect(view, &View::emitInstances, model, &Model::createInstances);
 			connect(view, &View::emitGroundPlane, model, &Model::createGroundPlane);
 			connect(view, &View::emitClearScene, *this, &Application::onClearScene);
 			connect(view, &View::emitFrameGrab, *this, &Application::onFrameGrab);
@@ -180,6 +181,9 @@ class Application : public Jahley::App
 	{
 		engine = std::make_shared<OptixScene>(properties);
 		engine->init(camera);
+
+		OptixConfig pickConfig = config.getOptixConfig(PipelineType::Picking);
+		engine->addPipeline(PipelineType::Picking, config.getProgramGroups(PipelineType::Picking), pickConfig);
 
 		OptixConfig whittedConfig = config.getOptixConfig(PipelineType::Whitted);
 		engine->addPipeline(PipelineType::Whitted, config.getProgramGroups(PipelineType::Whitted), whittedConfig);

@@ -257,6 +257,52 @@ void Model::createNewInstance(const RenderableData& data)
 {
 }
 
+void Model::createInstances(uint32_t count)
+{
+	LOG(DBUG) << "Creating " << count << " instances";
+
+	RenderableList selected;
+	for (auto it : world->getChildren())
+	{
+		RenderableNode node = it.second;
+		if (node->getState().isSelected() && !node->isInstance()) // not supported yet
+			selected.push_back(node);
+	}
+
+	for (auto node : selected)
+	{
+		for (uint32_t j = 0; j < count; j++)
+		{
+			RenderableNode instance = node->createInstance();
+			instance->setName(node->getName() + "_instance_" + std::to_string(j + 1));
+
+			loadStrategy->addNextItem(instance->getSpaceTime());
+
+			instance->getSpaceTime().startTransform = instance->getSpaceTime().worldTransform;
+			instance->getSpaceTime().worldTransform.translation().y() = -instance->getSpaceTime().modelBound.min().y();
+			
+			RenderableNode source = instance->getInstancedFrom();
+			if (!source) continue;
+
+			LOG(DBUG) << "Creating instance: " << instance->getName() << " from " << source->getName();
+
+			world->addChild(instance);
+
+			// FIXME how about a better way?
+			uint64_t totalInstances = properties.worldProps->getVal<uint64_t>(WorldKey::TotalInstances);
+			properties.worldProps->setValue(WorldKey::TotalInstances, ++totalInstances);
+
+			uint64_t totalInstancedTriangles = properties.worldProps->getVal<uint64_t>(WorldKey::TotalInstancedTriangles);
+			properties.worldProps->setValue(WorldKey::TotalInstancedTriangles, totalInstancedTriangles + source->getMesh()->triangleCount());
+
+			if (instance->getState().isSelected())
+				instance->getState().state ^= PRenderableState::Selected;
+
+			emitRenderable(instance);
+		}
+	}
+}
+
 void Model::loadModelFromIcon(const std::string& iconPath)
 {
 	File f(iconPath);

@@ -11,8 +11,16 @@ using OptixRenderContextHandle = std::shared_ptr<class OptixRenderContext>;
 
 class OptixRenderContext
 {
+	// CUstream
+	// Applications manage the concurrent operations described above through streams.
+	// A stream is a sequence of commands(possibly issued by different host threads) 
+	// that execute in order.Different streams, on the other hand, may execute their 
+	// commands out of order with respect to one another or concurrently; this behavior 
+	// is not guaranteed and should therefore not be relied upon for correctness
+	// (e.g., inter - kernel communication is undefined).
 
  public:
+
 	virtual ~OptixRenderContext();
 	
 	template<typename T>
@@ -21,18 +29,16 @@ class OptixRenderContext
 		deviceParams.upload(&params, 1);
 	}
 
-	virtual void updateCamera(CameraHandle& camera) = 0;
-
-	// SBT
 	virtual void createRaygenRecord(const OptixEngineRef& engine) = 0;
 	virtual void createMissRecord(const OptixEngineRef& engine) = 0;
 	virtual void createEmptyHitGroupRecord(const OptixEngineRef& engine) = 0;
-	virtual void rebuildHitgroupSBT(const SceneMeshes& meshes) = 0;
+	virtual void rebuildHitgroupSBT(OptixEngineRef& engine) = 0;
 
-	// launch
 	virtual void initializeLaunchParams() = 0;
 	virtual void preLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) = 0;
+	virtual void updateCamera(CameraHandle& camera) = 0;
 	virtual void postLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) = 0;
+
 	virtual void launch(OptixEngineRef& engine)
 	{
 		OPTIX_CHECK(optixLaunch(pipeline->get(), stream, deviceParams.d_pointer(), deviceParams.sizeInBytes, &sbt, size.x(), size.y(), size.z()));
@@ -45,9 +51,10 @@ class OptixRenderContext
 
 	OptixShaderBindingTable* getSBT() { return &sbt; }
 	const OptixConfig& getConfig() const { return config; }
+	const PipelineType& getType() const { return type; }
 
  protected:
-	OptixRenderContext();
+	OptixRenderContext(PipelineType type);
 
 	CUDABuffer deviceParams;
 	OptixConfig config;
@@ -56,4 +63,7 @@ class OptixRenderContext
 	PipelineHandle pipeline = nullptr;
 	Vector3i size = Vector3i(DEFAULT_DESKTOP_WINDOW_WIDTH, DEFAULT_DESKTOP_WINDOW_HEIGHT, 1);
 	CUstream stream = 0;
+
+ private:
+	 PipelineType type = PipelineType::Invalid;
 };

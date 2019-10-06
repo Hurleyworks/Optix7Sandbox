@@ -46,13 +46,15 @@ void OptixAccel::rebuildSceneAccel(ContextHandle& context,const SceneMeshes& mes
 		memset(&optixInstance, 0, sizeof(OptixInstance));
 
 		optixInstance.flags = OPTIX_INSTANCE_FLAG_NONE;
-		optixInstance.instanceId = static_cast<unsigned int>(mesh->getID());
+		optixInstance.instanceId = static_cast<unsigned int>(mesh->getNode()->getClientID());
 		optixInstance.sbtOffset = sbtOffset;
 		optixInstance.visibilityMask = 1;
 		optixInstance.traversableHandle = mesh->getGAS();
 		memcpy(optixInstance.transform, mesh->getWorldTransform().data(), sizeof(float) * 12);
 
-		sbtOffset += 1 * WHITTED_RAY_TYPE_COUNT;
+		// FIXME what should this really be???
+		const int FIXME = 1; 
+		sbtOffset += FIXME * WHITTED_RAY_TYPE_COUNT;
 	}
 
 	const size_t instancesSizeInBytes = sizeof(OptixInstance) * instanceCount;

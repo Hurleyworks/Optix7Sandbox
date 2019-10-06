@@ -5,7 +5,6 @@ using juce::StringArray;
 
 struct OptixOptions
 {
-	//OptixDeviceContextOptions context_options = {};
 	OptixAccelBuildOptions accel_options = {};
 	OptixPipelineCompileOptions pipeline_compile_options = {};
 	OptixPipelineLinkOptions pipeline_link_options = {};

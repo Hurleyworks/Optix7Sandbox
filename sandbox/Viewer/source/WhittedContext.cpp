@@ -8,6 +8,20 @@ using sabi::PixelBuffer;
 using Eigen::Vector4f;
 using Eigen::Vector3f;
 
+// ctor
+WhittedContext::WhittedContext (PipelineType type)
+	: OptixRenderContext(type)
+{	
+
+	sbt.hitgroupRecordStrideInBytes = static_cast<unsigned int>(hitgroup_record_size);
+	
+}
+
+// dtor
+WhittedContext::~WhittedContext ()
+{	
+}
+
 void WhittedContext::createRaygenRecord(const OptixEngineRef& engine)
 {
 	ProgramGroupHandle raygen = nullptr;
@@ -81,83 +95,17 @@ void WhittedContext::createEmptyHitGroupRecord(const OptixEngineRef& engine)
 
 	HitGroupRecord rec = {};
 	memset(&rec, 0, hitgroup_record_size);
+
 	OPTIX_CHECK(optixSbtRecordPackHeader(hitProg->get(), &rec));
-	hitgroup_records.push_back(rec);
+	
+	sbt.hitgroupRecordBase = engine->getMeshHandler().getHitGroupRecordBase();
+	sbt.hitgroupRecordCount = static_cast<unsigned int>(engine->getMeshHandler().getRecordCount());
 
-	CUDA_CHECK(cudaMalloc(
-		reinterpret_cast<void**>(&sbt.hitgroupRecordBase),
-		hitgroup_record_size * hitgroup_records.size()
-	));
-	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(sbt.hitgroupRecordBase),
-		hitgroup_records.data(),
-		hitgroup_record_size * hitgroup_records.size(),
-		cudaMemcpyHostToDevice
-	));
-
-	sbt.hitgroupRecordStrideInBytes = static_cast<unsigned int>(hitgroup_record_size);
-	sbt.hitgroupRecordCount = static_cast<unsigned int>(hitgroup_records.size());
 }
 
-void WhittedContext::rebuildHitgroupSBT(const SceneMeshes& meshes)
+void WhittedContext::rebuildHitgroupSBT(OptixEngineRef& engine)
 {
-	ProgramGroupHandle radianceHit = nullptr;
-	auto it = config.programs.find(radianceHitName);
-	if (it != config.programs.end())
-		radianceHit = it->second;
 
-	if (!radianceHit)
-		throw std::runtime_error("No radiance hit program found!");
-
-	ProgramGroupHandle occulsionHit = nullptr;
-	auto itr = config.programs.find(occlusionHitName);
-	if (itr != config.programs.end())
-		occulsionHit = itr->second;
-
-	if (!occulsionHit)
-		throw std::runtime_error("No occulsion hit program found!");
-
-	// delete the old hitgroup records
-	CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.hitgroupRecordBase)));
-	sbt.hitgroupRecordBase = 0;
-	sbt.hitgroupRecordCount = 0;
-	sbt.hitgroupRecordStrideInBytes = 0;
-	hitgroup_records.clear(); // d'uh forgetting to do this was the cause of much crashing
-
-	for (auto mesh : meshes)
-	{
-		HitGroupRecord rec = {};
-
-		OPTIX_CHECK(optixSbtRecordPackHeader(radianceHit->get(), &rec));
-
-		rec.data.geometry_data.type = OptixGeometryData::TRIANGLE_MESH;
-		rec.data.geometry_data.triangle_mesh.positions = mesh->positions;
-		rec.data.geometry_data.triangle_mesh.normals = mesh->normals;
-		rec.data.geometry_data.triangle_mesh.texcoords = mesh->texcoords;
-		rec.data.geometry_data.triangle_mesh.indices = mesh->indices;
-
-		// use default material 
-		rec.data.material_data.pbr = OptixMaterialData::Pbr();
-
-		hitgroup_records.push_back(rec);
-
-		OPTIX_CHECK(optixSbtRecordPackHeader(occulsionHit->get(), &rec));
-		hitgroup_records.push_back(rec);
-	}
-
-	CUDA_CHECK(cudaMalloc(
-		reinterpret_cast<void**>(&sbt.hitgroupRecordBase),
-		hitgroup_record_size * hitgroup_records.size()
-	));
-	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(sbt.hitgroupRecordBase),
-		hitgroup_records.data(),
-		hitgroup_record_size * hitgroup_records.size(),
-		cudaMemcpyHostToDevice
-	));
-
-	sbt.hitgroupRecordStrideInBytes = static_cast<unsigned int>(hitgroup_record_size);
-	sbt.hitgroupRecordCount = static_cast<unsigned int>(hitgroup_records.size());
 }
 
 void WhittedContext::launch(OptixEngineRef& engine)

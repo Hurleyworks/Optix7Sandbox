@@ -11,6 +11,7 @@
 #include "excludeFromBuild/OptixRenderer.cpp"
 #include "excludeFromBuild/OptixRenderContext.cpp"
 #include "excludeFromBuild/EXRReader.cpp"
+#include "excludeFromBuild/OptixMeshHandler.cpp"
 
 
 

@@ -111,12 +111,6 @@ const OptixConfig& SceneConfig::getOptixConfig(PipelineType type)
 	}
 }
 
-const json& SceneConfig::getSimplestPrograms()
-{
-	
-	return emptyGroup;
-}
-
 const json& SceneConfig::getPickingPrograms()
 {
 	
@@ -181,19 +175,4 @@ const json& SceneConfig::getWhittedPrograms()
 		{"entryFunctionName", "__miss__ms" } };
 
 	return whittedGroups;;
-}
-
-const OptixConfig& SceneConfig::getSimplestConfigs()
-{
-	return simplestdConfig;
-}
-
-const OptixConfig& SceneConfig::getPickingConfigs()
-{
-	return pickingConfig;
-}
-
-const OptixConfig& SceneConfig::getWhittedConfigs()
-{
-	return whittedConfig;
 }

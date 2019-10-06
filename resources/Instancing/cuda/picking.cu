@@ -1,4 +1,13 @@
-#include "LaunchParams.h"
+#include <optix.h>
+#include "OptixPreprocessor.h"
+#include "OptixMath.h"
+#include "OptixBufferView.h"
+#include "OptixLight.h"
+#include "OptixGeometry.h"
+#include "OptixMaterialData.h"
+#include "OptixRecordData.h"
+#include "OptixLaunchParams.h"
+#include <string>
 
 extern "C" {
 __constant__ PickParams params;
@@ -22,9 +31,9 @@ static __forceinline__ __device__ void pick(
             0.0f, // rayTime
             OptixVisibilityMask( 1 ),
             OPTIX_RAY_FLAG_NONE,
-            RAY_TYPE_PICK,     // SBT offset
-            RAY_TYPE_COUNT,    // SBT stride
-            RAY_TYPE_PICK,     // missSBTIndex
+            PICK_RAY_TYPE_PICK,     // SBT offset
+            PICK_RAY_TYPE_COUNT,    // SBT stride
+            PICK_RAY_TYPE_PICK,     // missSBTIndex
             u0, u1);
 
 	payload->meshID = u0;
@@ -53,7 +62,7 @@ extern "C" __global__ void __raygen__pickRay()
 	pickData[0] = payload.meshID;
 	pickData[1] = payload.primitiveID;
   
-	// printf("Picked mesh: %i\n", pickData[0] ); 
+	//printf("Picked mesh: %i\n", pickData[0] ); 
 	// printf("Picked triangle:  %i\n", pickData[1]); 
 }
 

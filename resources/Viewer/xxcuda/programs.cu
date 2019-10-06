@@ -26,20 +26,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <optix.h>
-#include "OptixPreprocessor.h"
-#include "OptixMath.h"
-#include "OptixBufferView.h"
-#include "OptixLight.h"
-#include "OptixGeometry.h"
-#include "OptixMaterialData.h"
-#include "OptixRecordData.h"
-#include "OptixLaunchParams.h"
-#include <string>
+#include "LaunchParams.h"
 #include "LocalGeometry.h"
 
 extern "C" {
-__constant__ WhittedParams params;
+__constant__ LaunchParams params;
 }
 
 //------------------------------------------------------------------------------
@@ -103,9 +94,9 @@ static __forceinline__ __device__ bool traceOcclusion(
             0.0f,                    // rayTime
             OptixVisibilityMask( 1 ),
             OPTIX_RAY_FLAG_TERMINATE_ON_FIRST_HIT,
-            WHITTED_RAY_TYPE_OCCLUSION,      // SBT offset
-            WHITTED_RAY_TYPE_COUNT,          // SBT stride
-            WHITTED_RAY_TYPE_OCCLUSION,      // missSBTIndex
+           RAY_TYPE_OCCLUSION,      // SBT offset
+            RAY_TYPE_COUNT,          // SBT stride
+            RAY_TYPE_OCCLUSION,      // missSBTIndex
             occluded );
     return occluded;
 }
@@ -115,7 +106,7 @@ static __forceinline__ __device__ void traceRadiance(
         float3                      ray_direction,
         float                       tmin,
         float                       tmax,
-        WhittedPayload*   payload
+        PayloadRadiance*   payload
         )
 {
     uint32_t u0=0, u1=0, u2=0, u3=0;
@@ -127,9 +118,9 @@ static __forceinline__ __device__ void traceRadiance(
             0.0f,                     // rayTime
             OptixVisibilityMask( 1 ),
             OPTIX_RAY_FLAG_NONE,
-            WHITTED_RAY_TYPE_RADIANCE,        // SBT offset
-            WHITTED_RAY_TYPE_COUNT,           // SBT stride
-            WHITTED_RAY_TYPE_RADIANCE,        // missSBTIndex
+            RAY_TYPE_RADIANCE,        // SBT offset
+            RAY_TYPE_COUNT,           // SBT stride
+            RAY_TYPE_RADIANCE,        // missSBTIndex
             u0, u1, u2, u3 );
 
      payload->result.x = __int_as_float( u0 );
@@ -184,7 +175,7 @@ extern "C" __global__ void __raygen__rg()
     const float3 ray_origin    = rtData->cam_eye;
 	
     // Trace camera ray
-    WhittedPayload payload;
+    PayloadRadiance payload;
     payload.result = make_float3(0.0f);
     payload.importance = 1.0f;
     payload.depth = 0.0f;
@@ -209,6 +200,18 @@ extern "C" __global__ void __raygen__rg()
 	}
 	params.accum_buffer[ image_index ] = make_float4( accum_color, 1.0f);
 	params.frame_buffer[ image_index ] = make_color ( accum_color );
+	if ( subframe_index == 0 )
+	{
+		/* if( launch_idx.y == 0 && launch_idx.x == 0 )
+		{
+			printf("############################################\n");
+			printf("Restarting Render!!\n(within a %ix%i-sized launch)\n",
+				 launch_dims.x,
+				 launch_dims.y);
+			 printf("############################################\n");
+		} */
+		 params.frame_buffer[ image_index ] = make_color ( accum_color );
+	} 
 }
 
 
@@ -216,9 +219,9 @@ extern "C" __global__ void __raygen__rg()
 
 extern "C" __global__ void __miss__ms()
 {
-   MissData* rt_data  = reinterpret_cast<MissData*>( optixGetSbtDataPointer() );
+    MissData* rt_data  = reinterpret_cast<MissData*>( optixGetSbtDataPointer() );
     setPayloadResult( make_float3( rt_data->r, rt_data->g, rt_data->b ) );
-	//setPayloadResult( make_float3( 1.0f, 0.0f, 1.0f ) );
+	//setPayload( make_float3( 1.0f, 0.0f, 0.0f ) );
 }
 
 __forceinline__ __device__ void setPayloadOcclusion( bool occluded )

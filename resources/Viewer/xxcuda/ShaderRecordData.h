@@ -19,32 +19,46 @@ struct RayGenData
 	float3 camera_u, camera_v, camera_w;
 };
 
+
 enum RayType
 {
-	RAY_TYPE_PICK,
+	RAY_TYPE_RADIANCE,
+	RAY_TYPE_OCCLUSION,
 	RAY_TYPE_COUNT,
 };
 
-struct PickingPayload
+struct PayloadRadiance
 {
-	uint32_t meshID;
-	uint32_t primitiveID;
+	float3 result;
+	float  importance;
+	int    depth;
 };
 
-const uint32_t NUM_PAYLOAD_VALUES = 2u;
+const uint32_t NUM_PAYLOAD_VALUES = 4u;
 
 struct MissData
 {
 	float r, g, b;
 };
 
-struct HitGroupSBT
+struct HitData
 {
-	OptixGeometryData geometry_data;
-	OptixMaterialData material_data;
-	
+	float r, g, b;
 };
 
-const std::string pickHitName = "PickHit";
-const std::string pickMissName = "PickMiss";
-const std::string pickGenName = "PickGen";
+
+struct HitGroupSBT
+{
+	
+	OptixGeometryData geometry_data;
+	OptixMaterialData material_data;
+};
+
+// program group names
+const std::string radianceMissName = "radiance_miss_group";
+const std::string occlusionMissName = "occlusion_miss_group";
+
+const std::string radianceHitName = "hit_group_radiance";
+const std::string occlusionHitName = "hit_group_occlusion";
+
+const std::string raygentName = "raygen_group";

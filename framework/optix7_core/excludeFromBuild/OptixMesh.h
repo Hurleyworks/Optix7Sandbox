@@ -21,9 +21,13 @@ class OptixMesh
 	~OptixMesh ();
 
 	void init(ContextHandle& context);
-	ItemID getID() { return weakNode.expired() ? INVALID_ID : weakNode.lock()->getID(); }
 
+	bool isInstances() const { return weakNode.expired() ? false : weakNode.lock()->isInstance(); }
+	ItemID getID() { return weakNode.expired() ? INVALID_ID : weakNode.lock()->getID(); }
+	const RenderableNode& getNode() const { return weakNode.expired() ? nullptr : weakNode.lock(); }
+	RenderableNode getNode() { return weakNode.expired() ? nullptr : weakNode.lock(); }
 	OptixTraversableHandle getGAS() const { return weakNode.expired() ? 0 : GAS; }
+
 	Matrix43f getWorldTransform()
 	{
 		if (weakNode.expired()) return Matrix43f().setIdentity();
@@ -35,16 +39,21 @@ class OptixMesh
 		return m.block<4,3>( 0, 0);
 	}
 
-	// FIXME make accessors
+	const OptixBufferViewUint32& getIndices() const { return indices; }
+	const OptixBufferView3f& getPositions() const { return positions; }
+	const OptixBufferView3f& getNormals() const { return normals; }
+	const OptixBufferView2f& getTextureCoords() const { return texcoords; }
+	const int32_t getMaterialIndex() const { return materialIndex; }
+	
+ private:
+	RenderableWeakRef weakNode;
+	OptixTraversableHandle GAS = 0;
+
 	OptixBufferViewUint32 indices;
 	OptixBufferView3f positions;
 	OptixBufferView3f normals;
 	OptixBufferView2f texcoords;
 	int32_t materialIndex = INVALID_INDEX;
-
- private:
-	RenderableWeakRef weakNode;
-	OptixTraversableHandle GAS = 0;
 
 	// from Ingo Wald tutorial
 	CUDABuffer asBuffer;

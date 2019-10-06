@@ -12,21 +12,23 @@ using Eigen::Vector3f;
 Renderer::Renderer (unsigned int screenWidth, unsigned int screenHeight)
 	: OptixRenderer(screenWidth, screenHeight)
 {	
+	renderBuffer.init(CUDAOutputBufferType::ZERO_COPY, screenWidth, screenHeight);
+
 }
 
 // dtor
 Renderer::~Renderer ()
 {	
+	
 }
 
 void Renderer::resize(unsigned int screenWidth, unsigned int screenHeight)
 {
-	// FIXME
+
 }
 
 void Renderer::render(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input)
 {
-	// pre render
 	for (auto renderContext : renderQueue)
 	{
 		renderContext->updateCamera(camera);
@@ -35,7 +37,6 @@ void Renderer::render(CameraHandle& camera, OptixEngineRef& engine, InputEvent& 
 
 	renderAll(engine);
 
-	// post render
 	for (auto renderContext : renderQueue)
 	{
 		renderContext->postLaunch(camera, engine, input);

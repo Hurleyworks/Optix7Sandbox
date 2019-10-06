@@ -46,10 +46,13 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 
 	const OptixEngine::ProgramDB& getProgramDB() const { return programDB; }
 	const OptixTraversableHandle getIAS() const { return accelServices.getSceneAccel(); }
+	
+	OptixMeshHandler& getMeshHandler() { return meshHandler; }
 
 	bool restartRender() const { return properties.renderProps->getVal<bool>(RenderKey::ResetAccumulator); }
 	void setRenderRestart(bool state) const {properties.renderProps->setValue(RenderKey::ResetAccumulator, state);}
 	const PropertyService& props() const { return properties; }
+
 
  protected:
 	OptixEngine(const PropertyService& properties);
@@ -64,15 +67,15 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 
 	ContextHandle context = nullptr;
     PipelineDB pipelineDB;
-	SceneMeshes meshes;
 	
-
+	OptixMeshHandler meshHandler;
+	
 	PipelineHandle createPipeline(const json& groups, OptixConfig& config);
 	void createProgramDatabase();
 
 	void rebuildSceneAccel()
 	{
-		accelServices.rebuildSceneAccel(context, meshes);
+		accelServices.rebuildSceneAccel(context, meshHandler.getMeshes());
 	}
 
 private:

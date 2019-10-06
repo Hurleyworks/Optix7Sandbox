@@ -20,7 +20,7 @@ OptixScene::OptixScene (const PropertyService& properties)
 // dtor
 OptixScene::~OptixScene ()
 {	
-
+	
 }
 
 void OptixScene::init(CameraHandle& camera)
@@ -29,6 +29,7 @@ void OptixScene::init(CameraHandle& camera)
 	createProgramDatabase();
 	rebuildSceneAccel();
 }
+
 
 void OptixScene::addPipeline(PipelineType type, const json& groups, OptixConfig& config)
 {
@@ -43,7 +44,8 @@ void OptixScene::addPipeline(PipelineType type, const json& groups, OptixConfig&
 	{
 		case PipelineType::Whitted:
 		{
-			OptixRenderContextHandle whittedContext = WhittedContext::create();
+			whittedConfig = config;
+			OptixRenderContextHandle whittedContext = WhittedContext::create(type);
 
 			whittedContext->setConfig(config);
 			whittedContext->setPipeline(pipeHandle);
@@ -76,15 +78,15 @@ void OptixScene::addRenderable(RenderableNode& node)
 	{
 		OptixMeshHandle mesh = OptixMesh::create(node);
 		mesh->init(context);
-		meshes.push_back(mesh);
-
-		// rebuild the hitgroup section of the SBT
+		
 		for (auto & context : renderer->getRenderQueue())
 		{
-			context->rebuildHitgroupSBT(meshes);
+			if(context->getType() == PipelineType::Whitted)
+				meshHandler.addMesh(mesh, context->getSBT(), whittedConfig.programs);
+			else
+				context->rebuildHitgroupSBT(OptixEngine::getPtr());
 		}
 
-		// rebuild the top level IAS
 		rebuildSceneAccel();
 	
 		// must restart render
@@ -92,27 +94,24 @@ void OptixScene::addRenderable(RenderableNode& node)
 	}
 	catch (const std::runtime_error& e)
 	{
-		ok = false;
 		LOG(CRITICAL) << e.what();
 	}
 	catch (const std::bad_alloc& e)
 	{
-		ok = false;
 		LOG(CRITICAL) << e.what();
 	}
 	catch (...)
 	{
-		ok = false;
 		LOG(CRITICAL) << "Caught unknow exception";
 	}
 }
 
 void OptixScene::clearScene()
 {
-	meshes.clear();
+	meshHandler.reset();
 	for (auto& context : renderer->getRenderQueue())
 	{
-		context->rebuildHitgroupSBT(meshes);
+		context->rebuildHitgroupSBT(OptixEngine::getPtr());
 		context->createEmptyHitGroupRecord(getPtr());
 	}
 
@@ -120,10 +119,12 @@ void OptixScene::clearScene()
 	setRenderRestart(true);
 }
 
-
 void OptixScene::onInput(const InputEvent& input)
 {
 	this->input = input;
 
 }
+
+
+
 
