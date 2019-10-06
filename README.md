@@ -40,7 +40,14 @@ Based on the Optix7 SDK optixMeshView sample but allows dynamic adding of new me
 
 ### Picking
 
-The Viewer sample with mouse picking support
+Adds mouse picking support using RMB
 
+![Picking screen grab](https://github.com/Hurleyworks/Optix7Sandbox/blob/master/resources/Common/sample_screen_grabs/Picking.png)
+
+### Instancing
+
+Support for mesh instancing. Use RMB to select a mesh and then click on Create Instances button to generate instances
+
+![Instancing screen grab](https://github.com/Hurleyworks/Optix7Sandbox/blob/master/resources/Common/sample_screen_grabs/Instancing.png)
 
 
