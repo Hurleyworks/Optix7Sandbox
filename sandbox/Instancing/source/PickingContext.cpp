@@ -13,6 +13,16 @@ using sabi::PRenderableState;
 PickingContext::PickingContext (PipelineType type)
 	: OptixRenderContext(type)
 {	
+	// preallocate some meshes
+	// https://devtalk.nvidia.com/default/topic/1063720/optix/dynamic-scene-building/
+
+	uint32_t count = DEFAULT_PREALLOCATED_MESHES_COUNT * WHITTED_RAY_TYPE_COUNT;
+	hitgroup_records.resize(count);
+
+	hitgroup_record_base.alloc_and_upload(hitgroup_records);
+
+	sbt.hitgroupRecordStrideInBytes = static_cast<unsigned int>(hitgroup_record_size);
+	sbt.hitgroupRecordCount = static_cast<unsigned int>(hitgroup_records.size());
 }
 
 // dtor
@@ -81,8 +91,6 @@ void PickingContext::createMissRecord(const OptixEngineRef& engine)
 
 void PickingContext::createEmptyHitGroupRecord(const OptixEngineRef& engine)
 {
-	hitProg = nullptr;
-	
 	auto it = config.programs.find(pickHitName);
 	if (it != config.programs.end())
 		hitProg = it->second;
@@ -90,72 +98,18 @@ void PickingContext::createEmptyHitGroupRecord(const OptixEngineRef& engine)
 	if (!hitProg)
 		throw std::runtime_error("No pick hit program found!");
 
-	HitGroupRecord rec = {};
-	memset(&rec, 0, hitgroup_record_size);
-	OPTIX_CHECK(optixSbtRecordPackHeader(hitProg->get(), &rec));
-	hitgroup_records.push_back(rec);
+	for(auto &rec : hitgroup_records)
+	{
+		OPTIX_CHECK(optixSbtRecordPackHeader(hitProg->get(), &rec));
+	}
+	hitgroup_record_base.upload(hitgroup_records.data(), hitgroup_records.size());
 
-	CUDA_CHECK(cudaMalloc(
-		reinterpret_cast<void**>(&sbt.hitgroupRecordBase),
-		hitgroup_record_size * hitgroup_records.size()
-	));
-	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(sbt.hitgroupRecordBase),
-		hitgroup_records.data(),
-		hitgroup_record_size * hitgroup_records.size(),
-		cudaMemcpyHostToDevice
-	));
-
-	sbt.hitgroupRecordStrideInBytes = static_cast<unsigned int>(hitgroup_record_size);
-	sbt.hitgroupRecordCount = static_cast<unsigned int>(hitgroup_records.size());
+	sbt.hitgroupRecordBase = hitgroup_record_base.d_pointer();
 }
 
 void PickingContext::rebuildHitgroupSBT(OptixEngineRef& engine)
 {
-	// delete the old hitgroup records
-	CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.hitgroupRecordBase)));
-	sbt.hitgroupRecordBase = 0;
-	sbt.hitgroupRecordCount = 0;
-	sbt.hitgroupRecordStrideInBytes = 0;
-	hitgroup_records.clear(); // d'uh forgetting to do this was the cause of much crashing
-
-	for (auto mesh : engine->getMeshHandler().getMeshes())
-	{
-		HitGroupRecord rec = {};
-
-		OPTIX_CHECK(optixSbtRecordPackHeader(hitProg->get(), &rec));
-
-		// WTF how can this possibly be working with instances??????????
-		rec.data.geometry_data.type = OptixGeometryData::TRIANGLE_MESH;
-		rec.data.geometry_data.triangle_mesh.positions = mesh->getPositions();
-		rec.data.geometry_data.triangle_mesh.normals = mesh->getNormals();
-		rec.data.geometry_data.triangle_mesh.texcoords = mesh->getTextureCoords();
-		rec.data.geometry_data.triangle_mesh.indices = mesh->getIndices();
-
-		// use default material 
-		rec.data.material_data.pbr = OptixMaterialData::Pbr();
-
-		// a duplicate record because we had to pad
-		// the PICK_RAY_TYPE_COUNT to match Whitted RAY_TYPE_COUNT
-		for (int i = 0; i < PICK_RAY_TYPE_COUNT; i++)
-		{
-			hitgroup_records.push_back(rec);
-		}
-	}
-
-	CUDA_CHECK(cudaMalloc(
-		reinterpret_cast<void**>(&sbt.hitgroupRecordBase),
-		hitgroup_record_size * hitgroup_records.size()
-	));
-	CUDA_CHECK(cudaMemcpy(
-		reinterpret_cast<void*>(sbt.hitgroupRecordBase),
-		hitgroup_records.data(),
-		hitgroup_record_size * hitgroup_records.size(),
-		cudaMemcpyHostToDevice
-	));
-
-	sbt.hitgroupRecordStrideInBytes = static_cast<unsigned int>(hitgroup_record_size);
-	sbt.hitgroupRecordCount = static_cast<unsigned int>(hitgroup_records.size());
+	// nothing to do since we're preallocated
 }
 
 void PickingContext::updateCamera(CameraHandle& camera)
@@ -251,7 +205,7 @@ void PickingContext::postLaunch(CameraHandle& camera, OptixEngineRef& engine, In
 				
 				engine->setRenderRestart(true);
 			}
-			//LOG(DBUG) << "Picked triangle: " << pickData[1];
+			LOG(DBUG) << "Picked triangle: " << pickData[1];
 		}
 	}
 }

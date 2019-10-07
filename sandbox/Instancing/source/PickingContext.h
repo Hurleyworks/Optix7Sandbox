@@ -38,9 +38,9 @@ class PickingContext : public OptixRenderContext
 	const size_t raygenRecordSize = sizeof(EmptyRecord);
 
 	ProgramGroupHandle hitProg = nullptr;
-	CUdeviceptr hitgroup_record_base = 0;
-	const size_t hitgroup_record_size = sizeof(HitGroupRecord);
-	std::vector<HitGroupRecord> hitgroup_records;
+	CUDABuffer hitgroup_record_base;
+	const size_t hitgroup_record_size = sizeof(EmptyRecord);
+	std::vector<EmptyRecord> hitgroup_records;
 
 	MissRecord missRecord;
 	const size_t missRecordSize = sizeof(MissRecord);

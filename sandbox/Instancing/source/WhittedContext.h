@@ -37,9 +37,6 @@ class WhittedContext : public OptixRenderContext
 
 	ProgramGroupHandle hitProg = nullptr;
 	const size_t hitgroup_record_size = sizeof(HitGroupRecord);
-	/*CUdeviceptr hitgroup_record_base = 0;
-	
-	std::vector<HitGroupRecord> hitgroup_records;*/
 
 	MissRecord missRecord;
 	const size_t missRecordSize = sizeof(MissRecord);

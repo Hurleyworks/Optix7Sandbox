@@ -103,9 +103,7 @@ void OptixScene::addRenderable(RenderableNode& node)
 		for (auto & context : renderer->getRenderQueue())
 		{
 			if(context->getType() == PipelineType::Whitted)
-				meshHandler.addMesh(mesh, context->getSBT(), whittedConfig.programs);
-			else
-				context->rebuildHitgroupSBT(OptixEngine::getPtr());
+				meshHandler.addMesh(mesh, context->getSBT(), whittedConfig.programs); 
 		}
 
 		rebuildSceneAccel();
