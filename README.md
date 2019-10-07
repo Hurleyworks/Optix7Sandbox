@@ -46,7 +46,7 @@ Adds mouse picking support using RMB
 
 ### Instancing
 
-Support for mesh instancing. Use RMB to select a mesh and then click on Create Instances button to generate instances
+Support for mesh instancing. Use RMB to select a mesh and then click on Create Instances button to generate instances. The screen grab shows 80,000 instances of a digitized rock with 1.2 million triangles. There's a total of over 100 billion instanced triangles rendering at 60 fps on a Geforce 2070 Super
 
 ![Instancing screen grab](https://github.com/Hurleyworks/Optix7Sandbox/blob/master/resources/Common/sample_screen_grabs/Instancing.png)
 
