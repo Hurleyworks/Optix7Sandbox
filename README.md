@@ -28,7 +28,7 @@ OptiX uses the CUDA device API, but the CUDA runtime API objects can be cast to 
 
 3. Go back to the root folder and run the *.bat file for the compiler of your choice
 
-4. Go to the newly created /builds folder and open the visual studio solution and compile the sanbox programs
+4. Go to the newly created /builds folder and open the visual studio solution and compile the sandbox programs
 
 ## Optix7Sandbox/Samples
 
