@@ -32,22 +32,10 @@ OptiX uses the CUDA device API, but the CUDA runtime API objects can be cast to 
 
 ## Optix7Sandbox/Samples
 
-### Viewer
+### Dreamer
 
-Based on the Optix7 SDK optixMeshView sample but allows dynamic adding of new meshes. A few simple meshes can be added from the gui or you can drag and drop files or folders of objects into the window. OBJ, PLY, OFF and glTF 2.0 files are supported. Currently only the default PBR material from the optixMeshView sample is supported. 
+Based on the Optix7 SDK optixMeshView sample but allows dynamic adding of new meshes. Supports picking, geometry instancing and basic dynamic transforms. A few simple meshes can be added from the gui or you can drag and drop files or folders of objects into the window. OBJ, PLY, OFF and glTF 2.0 files are supported. Currently does not support glTF2.0 files with multiple meshes 
 
-![Viewer screen grab](https://github.com/Hurleyworks/Optix7Sandbox/blob/master/resources/Common/sample_screen_grabs/Viewer.png)
-
-### Picking
-
-Adds mouse picking support using RMB
-
-![Picking screen grab](https://github.com/Hurleyworks/Optix7Sandbox/blob/master/resources/Common/sample_screen_grabs/Picking.png)
-
-### Instancing
-
-Support for mesh instancing. Use RMB to select a mesh and then click on Create Instances button to generate instances. The screen grab shows 80,000 instances of a digitized rock with 1.2 million triangles. There's a total of over 100 billion instanced triangles rendering at 60 fps on a Geforce RTX 2070 Super
-
-![Instancing screen grab](https://github.com/Hurleyworks/Optix7Sandbox/blob/master/resources/Common/sample_screen_grabs/Instancing.png)
+![Viewer screen grab](https://github.com/Hurleyworks/Optix7Sandbox/blob/master/resources/Common/sample_screen_grabs/Dreamer.png)
 
 
