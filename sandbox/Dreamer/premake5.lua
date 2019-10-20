@@ -1,6 +1,6 @@
 local ROOT = "../../"
 
-project  "Viewer"
+project  "Dreamer"
 	if _ACTION == "vs2019" then
 		cppdialect "C++17"
 		location (ROOT .. "builds/VisualStudio2019/projects")
@@ -14,7 +14,7 @@ project  "Viewer"
 	
 	kind "ConsoleApp"
 	
-	local RESOURCES_ROOT = "../../resources/Viewer/"
+	local RESOURCES_ROOT = "../../resources/Dreamer/"
 	local FRAMEWORK_ROOT = "../../framework/"
 	local ACTIVE_OPTIX7 = FRAMEWORK_ROOT .. "optix7_core/";
 	local SOURCE_DIR = "source/*"

@@ -7,7 +7,7 @@
 #include "View.h"
 #include "Controller.h"
 
-const std::string APP_NAME = "Viewer";
+const std::string APP_NAME = "Dreamer";
 
 using sabi::PixelBuffer;
 using sabi::PerspectiveCam;
@@ -29,6 +29,9 @@ class Application : public Jahley::App
 
 		// store the resource folder shared by all projects
 		properties.renderProps->setValue(RenderKey::CommonFolder, getResourcePath("Common").toStdString());
+
+		// can't set this in App cause it knows nothing about Optix
+		properties.worldProps->addDefault(WorldKey::InstanceCount, DEFAULT_PREALLOCATED_MESHES_COUNT);
 
 		// create a camera
 		camera = PerspectiveCam::create();
@@ -69,11 +72,13 @@ class Application : public Jahley::App
 
 			// connect the View with Model using signal/slots
 			connect(view, &View::emitModelPath, model, &Model::loadModelFromIcon);
+			connect(view, &View::emitInstances, model, &Model::createInstances);
 			connect(view, &View::emitGroundPlane, model, &Model::createGroundPlane);
 			connect(view, &View::emitClearScene, *this, &Application::onClearScene);
 			connect(view, &View::emitFrameGrab, *this, &Application::onFrameGrab);
 			connect(view, &View::emitScreenGrab, *this, &Application::onScreenGrab);
 			connect(model, &Model::emitRenderable, *this, &Application::addRenderable);
+			connect(model, &Model::emitRenderableList, *this, &Application::addRenderableList);
 		}
 		catch (std::exception& e)
 		{
@@ -97,6 +102,14 @@ class Application : public Jahley::App
 		{
 			MeshOptions options = MeshOptions::CenterVertices | MeshOptions::NormalizeSize | MeshOptions::RestOnGround | MeshOptions::LoadStrategy;
 			model.addMesh(mesh.first, mesh.second,  INVALID_ID, Pose::Identity(), Scale::Constant(1.0f), RenderableDesc(), options);
+		}
+
+		// get any images that were loaded on the ActiveLoader thread
+		PixelBufferHandle image = model.getNextLoadedImage();
+		if(image)
+		{
+			if (engine)
+				engine->addImage(image);
 		}
 
 		// display the render from Optix 
@@ -133,7 +146,8 @@ class Application : public Jahley::App
 		// don't put this in OptixLayer becasue it will
 		// get called before the Controller has a chance to
 		// compute a pick ray 
-		engine->onInput(e);
+		if(engine)
+			engine->onInput(e);
 	}
 
 	void addRenderable(RenderableNode& node)
@@ -151,7 +165,21 @@ class Application : public Jahley::App
 			LOG(CRITICAL) << e.what();
 		}
 	}
+	void addRenderableList(const RenderableList& nodes)
+	{
+		try
+		{
+			if (engine)
+				engine->addRenderableList(std::move(nodes));
+		}
+		catch (std::exception & e)
+		{
+			if (nanoguiLayer)
+				nanoguiLayer->postWarningMessage("Fatal Error", e.what());
 
+			LOG(CRITICAL) << e.what();
+		}
+	}
 	void checkForErrors()
 	{
 		if (!nanoguiLayer) return;
@@ -181,8 +209,8 @@ class Application : public Jahley::App
 		engine = std::make_shared<OptixScene>(properties);
 		engine->init(camera);
 
-		OptixConfig whittedConfig = config.getOptixConfig(PipelineType::Whitted);
-		engine->addPipeline(PipelineType::Whitted, config.getProgramGroups(PipelineType::Whitted), whittedConfig);
+		OptixConfig dreamerConfig = config.getOptixConfig(PipelineType::Dreamer);
+		engine->addPipeline(PipelineType::Dreamer, config.getProgramGroups(PipelineType::Dreamer), dreamerConfig);
 	}
 
 	void onScreenGrab() {captureScreen = true;}

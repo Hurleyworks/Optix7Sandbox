@@ -145,7 +145,4 @@ project "CoreLibrary"
 -- add sandbox projects here
 include "sandbox/HelloWorld"
 include "sandbox/HelloNanogui"
-include "sandbox/Picking"
-include "sandbox/Viewer"
-include "sandbox/Instancing"
-include "sandbox/Transformer"
+include "sandbox/Dreamer"
