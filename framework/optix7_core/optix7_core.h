@@ -33,6 +33,7 @@
 #include "excludeFromBuild/OptixRecordData.h"
 #include "excludeFromBuild/OptixLaunchParams.h"
 #include "excludeFromBuild/OptixMeshHandler.h"
+#include "excludeFromBuild/OptixImageHandler.h"
 #include "excludeFromBuild/OptixEngine.h"
 #include "excludeFromBuild/OptixRenderContext.h"
 #include "excludeFromBuild/OptixRenderer.h"

@@ -38,6 +38,7 @@ class SpaceTime
 	void updateWorldBounds(bool includeScale = false);
 	void updateLocalBounds(bool includeScale = false);
 	void makeCurrentPoseStartPose() { startTransform = worldTransform; }
+	void resetMotion() { worldTransform = startTransform; }
 
 	bool convertToRightHandCoordinateSystem = false;
 

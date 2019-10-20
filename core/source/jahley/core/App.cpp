@@ -12,35 +12,35 @@ namespace Jahley
 {
 	App::App(DesktopWindowSettings settings, bool windowApp)
 		: windowApp(windowApp),
-		errorCallback(std::bind(&App::onFatalError, this, std::placeholders::_1)),
-		preCrashCallback(std::bind(&App::preCrash, this)),
-		log(errorCallback, preCrashCallback),
-		refreshTime(settings.refreshRate)
+		  errorCallback(std::bind(&App::onFatalError, this, std::placeholders::_1)),
+		  preCrashCallback(std::bind(&App::preCrash, this)),
+		  log(errorCallback, preCrashCallback),
+		  refreshTime(settings.refreshRate)
 	{
-		resetProperties();
+	resetProperties();
 
-		if (windowApp)
+	if (windowApp)
+	{
+		try
 		{
-			try
-			{
-				window = std::make_unique<OpenglWindow>(input);
-				window->create(Vector2i(settings.width, settings.height), settings.name, settings.resizable);
+			window = std::make_unique<OpenglWindow>(input);
+			window->create(Vector2i(settings.width, settings.height), settings.name, settings.resizable);
 
-				// broadcast InputHandler events to the render layers
-				connect(input, &InputHandler::onEvent, *this, &App::onInputEvent);
+			// broadcast InputHandler events to the render layers
+			connect(input, &InputHandler::onEvent, *this, &App::onInputEvent);
 
-				// send drop to client to handle
-				connect(input, &InputHandler::onDragAndDrop, *this, &App::onDrop);
-			}
-			catch (std::exception& e)
-			{
-				LOG(CRITICAL) << e.what();
-			}
-			catch (...)
-			{
-				LOG(CRITICAL) << "Caught unknown exception!";
-			}
+			// send drop to client to handle
+			connect(input, &InputHandler::onDragAndDrop, *this, &App::onDrop);
 		}
+		catch (std::exception & e)
+		{
+			LOG(CRITICAL) << e.what();
+		}
+		catch (...)
+		{
+			LOG(CRITICAL) << "Caught unknown exception!";
+		}
+	}
 	}
 
 	void App::resetProperties()
@@ -52,6 +52,8 @@ namespace Jahley
 		properties.worldProps->addDefault(WorldKey::TotalInstances, DEFAULT_INSTANCES_COUNT);
 		properties.worldProps->addDefault(WorldKey::TotalRealTriangles, DEFAULT_TRIANGLE_COUNT);
 		properties.worldProps->addDefault(WorldKey::TotalInstancedTriangles, DEFAULT_INSTANCED_TRIANGLE_COUNT);
+		properties.worldProps->addDefault(WorldKey::MotionType, DEFAULT_MOTION_TYPE);
+
 
 		// FIXME mayber should let the client set these?
 		// render properties
@@ -110,19 +112,25 @@ namespace Jahley
 
 	void App::onInputEvent(const InputEvent& e)
 	{
-		bool sendToClient = true;
 		for (RenderLayerRef layer : layers)
 		{
-			if (layer->onInput(e))
+			if ((layer->getType() == LayerType::Nanogui)) 
 			{
-				sendToClient = false;
-				break;
+				bool sendToClient = true;
+
+				// eat the input if the gui is being used
+				if (layer->onInput(e))
+				{
+					sendToClient = false;
+				}
+
+				// maybe send to client
+				if (sendToClient)
+				{
+					onInput(e);
+				}
 			}
 		}
-
-		// send to client
-		if (sendToClient)
-			onInput(e);
 	}
 
 	// preCrash

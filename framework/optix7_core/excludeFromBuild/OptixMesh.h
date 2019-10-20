@@ -6,6 +6,7 @@
 
 using sabi::RenderableWeakRef;
 using sabi::RenderableNode;
+using sabi::MeshBuffersHandle;
 using Eigen::Matrix4f;
 
 using OptixMeshHandle = std::shared_ptr<class OptixMesh>;
@@ -22,7 +23,7 @@ class OptixMesh
 
 	void init(ContextHandle& context);
 
-	bool isInstances() const { return weakNode.expired() ? false : weakNode.lock()->isInstance(); }
+	bool isInstance() const { return weakNode.expired() ? false : weakNode.lock()->isInstance(); }
 	ItemID getID() { return weakNode.expired() ? INVALID_ID : weakNode.lock()->getID(); }
 	const RenderableNode& getNode() const { return weakNode.expired() ? nullptr : weakNode.lock(); }
 	RenderableNode getNode() { return weakNode.expired() ? nullptr : weakNode.lock(); }
@@ -44,26 +45,48 @@ class OptixMesh
 	const OptixBufferView3f& getNormals() const { return normals; }
 	const OptixBufferView2f& getTextureCoords() const { return texcoords; }
 	const int32_t getMaterialIndex() const { return materialIndex; }
-	
+	OptixMaterialData::Pbr getMaterial(size_t index)
+	{
+		if(!materials.size() ) return OptixMaterialData::Pbr();
+
+		auto it = materials.begin();
+		std::advance(it, index);
+
+		return it != materials.end() ? *it : OptixMaterialData::Pbr();
+	}
  private:
 	RenderableWeakRef weakNode;
 	OptixTraversableHandle GAS = 0;
-
+	std::vector<OptixMaterialData::Pbr>  materials;
 	OptixBufferViewUint32 indices;
 	OptixBufferView3f positions;
 	OptixBufferView3f normals;
 	OptixBufferView2f texcoords;
 	int32_t materialIndex = INVALID_INDEX;
 
-	// from Ingo Wald tutorial
 	CUDABuffer asBuffer;
 
-	// from OptixSDK meshViewer sample
 	size_t byteOffset = 0;
 	CUdeviceptr deviceBuffer = 0;
 	
+	std::vector<cudaTextureObject_t> samplers;
+	std::vector<cudaArray_t> images;
+
 	void createBuffer(const uint64_t buf_size, const void* data);
 	void createGAS(ContextHandle& context);
+	void createMaterials(MeshBuffersHandle& mesh);
+	void addImage( const int32_t width,
+				   const int32_t height,
+				   const int32_t bits_per_component,
+				   const int32_t num_components,
+				   const void* data
+	);
+
+	void addSampler(cudaTextureAddressMode address_s,
+		            cudaTextureAddressMode address_t,
+		            cudaTextureFilterMode  filter_mode,
+		            const int32_t image_idx
+	);
 
 }; // end class OptixMesh
 

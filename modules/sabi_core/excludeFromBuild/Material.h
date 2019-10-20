@@ -4,44 +4,17 @@
 
 #pragma  once
 
-enum BrdfType
-{
-	DISNEY, GLASS
-};
-
+using Eigen::Vector4f;
 
 struct Material
 {
-	Material()
-	{
-		color = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
-		emission = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-		metallic = 0.0;
-		subsurface = 0.0f;
-		specular = 0.5f;
-		roughness = 0.5f;
-		specularTint = 0.0f;
-		anisotropic = 0.0f;
-		sheen = 0.0f;
-		sheenTint = 0.5f;
-		clearcoat = 0.0f;
-		clearcoatGloss = 1.0f;
-		brdf = DISNEY;
-		albedoID = 0;
-	}
+	Vector4f base_color = { 1.0f,1.0f, 1.0f, 1.0f };
+	float metallic = 1.0f;
+	float roughness = 1.0f;
 
-	int albedoID;
-	Eigen::Vector3f color;
-	Eigen::Vector3f emission;
-	float metallic;
-	float subsurface;
-	float specular;
-	float roughness;
-	float specularTint;
-	float anisotropic;
-	float sheen;
-	float sheenTint;
-	float clearcoat;
-	float clearcoatGloss;
-	BrdfType brdf;
+	TextureHandlerRef base_color_tex = nullptr;
+	TextureHandlerRef metallic_roughness_tex = nullptr;
+	TextureHandlerRef normal_tex = nullptr;
 };
+
+using Materials = std::vector<Material>;

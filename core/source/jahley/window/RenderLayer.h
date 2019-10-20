@@ -4,6 +4,7 @@
 
 #pragma once
 #include <sabi_core/sabi_core.h>
+#include "WindowData.h"
 
 // https://www.youtube.com/user/TheChernoProject
 
@@ -17,11 +18,12 @@ class RenderLayer
 {
 
  public:
-	RenderLayer (const PropertyService& properties, CameraHandle  camera = nullptr);
+	RenderLayer (const PropertyService& properties, CameraHandle camera = nullptr);
 	~RenderLayer ();
 
 	virtual void onUpdate() = 0;
 	virtual bool onInput(const InputEvent& input) = 0;
+	virtual LayerType getType() const = 0;
 
 	virtual void onAttach() {}
 	virtual void onDetach() {}
@@ -35,5 +37,6 @@ class RenderLayer
  protected:
 	PropertyService properties;
 	CameraHandle camera = nullptr;
+	LayerType type = LayerType::Invalid;
 
 }; // end class RenderLayer

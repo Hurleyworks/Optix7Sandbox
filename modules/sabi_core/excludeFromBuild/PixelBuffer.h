@@ -89,7 +89,7 @@ struct PixelBuffer
 		floatPixels.resize(0, 0);
 	}
 
-	ImageInfo spec;
+   ImageInfo spec;
 	MatrixXc uint8Pixels;
 	MatrixXf floatPixels;
 };

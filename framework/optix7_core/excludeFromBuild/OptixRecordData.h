@@ -38,7 +38,7 @@ struct PickingPayload
 
 const uint32_t NUM_PICKING_PAYLOAD_VALUES = 2u;
 const uint32_t NUM_WHITTED_PAYLOAD_VALUES = 4u;
-const uint32_t NUM_DREAMER_PAYLOAD_VALUES = 6u;
+const uint32_t NUM_DREAMER_PAYLOAD_VALUES = 5u;
 
 
 struct MissData
@@ -67,6 +67,14 @@ struct WhittedPayload
 	int    depth;
 };
 
+struct DreamerPayload
+{
+	float3 result;
+	uint32_t meshID;
+	uint32_t primitiveID;
+};
+
+
 using RaygenRecord = SbtRecord<RayGenData>;
 using MissRecord = SbtRecord<MissData>;
 using HitGroupRecord = SbtRecord<HitGroupSBT>;
@@ -83,3 +91,5 @@ const std::string radianceHitName = "hit_group_radiance";
 const std::string occlusionHitName = "hit_group_occlusion";
 
 const std::string raygenName = "raygen_group";
+
+const std::string exceptionName = "exception_group";

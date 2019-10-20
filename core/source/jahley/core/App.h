@@ -64,7 +64,7 @@ namespace Jahley
 		std::chrono::milliseconds refreshTime;
 		
 		RenderStack layers;
-
+		bool usingGUI = false;
 		void resetProperties();
 		
 	}; // end class App

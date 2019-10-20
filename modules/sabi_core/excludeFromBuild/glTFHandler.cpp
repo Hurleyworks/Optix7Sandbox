@@ -3,8 +3,46 @@
 // Created: 11 Sep 2019 6:50:03 pm
 // Copyright (c) 2019, HurleyWorks
 
+#include <glad/glad.h>
+#include "glTFHandler.h"
+
 using sabi::PixelBuffer;
 using sabi::PixelBufferHandle;
+using sabi::TextureHandlerRef;
+using sabi::Material;
+using sabi::Vector4d;
+
+void glTFLoader::load(const std::string& path, LoadMeshCallback meshCallback)
+{
+	ScopedStopWatch sw(_FN_);
+
+	filePath = path;
+	this->meshCallback = meshCallback;
+
+	// must clear containers because we're using the same model on every call
+	reset();
+
+	tinygltf::TinyGLTF loader;
+	std::string err;
+	std::string warn;
+
+	bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, path);
+
+	if (!warn.empty())
+		LOG(WARNING) << warn.c_str();
+
+	if (!err.empty())
+		LOG(CRITICAL) << err.c_str();
+
+	if (!ret)
+		throw std::runtime_error("Failed to parse glTF: " + path);
+
+
+	processImages();
+	processTextures();
+	processMaterials();
+	processNodes();
+}
 
 void glTFLoader::loadGeometry(const std::string& path, LoadMeshCallback meshCallback)
 {
@@ -31,33 +69,6 @@ void glTFLoader::loadGeometry(const std::string& path, LoadMeshCallback meshCall
 	processNodes();
 }
 
-void glTFLoader::loadAll(const std::string& path, LoadImagesCallback imageCallback, LoadMeshCallback meshCallback)
-{
-	ScopedStopWatch sw(_FN_);
-
-	filePath = path;
-	
-	this->meshCallback = meshCallback;
-	this->imageCallback = imageCallback;
-
-	tinygltf::TinyGLTF loader;
-	std::string err;
-	std::string warn;
-
-	bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, path);
-
-	if (!warn.empty())
-		LOG(WARNING) << warn.c_str();
-
-	if (!err.empty())
-		LOG(CRITICAL) << err.c_str();
-
-	if (!ret)
-		throw std::runtime_error("Failed to parse glTF: " + path);
-
-	processImages();
-	processNodes();
-}
 
 void glTFLoader::getTextureCoords_0(const Node& node, const int32_t accessorIndex, MeshBuffersHandle& m)
 {
@@ -130,7 +141,7 @@ void glTFLoader::getVertices(const Node& node, const int32_t accessorIndex, Mesh
 	std::memcpy(m->V.data(), &buffer.data.at(bufferOffset), m->V.size() * sizeof(float));
 }
 
-void glTFLoader::getIndices(const Node& node, const int32_t accessorIndex, MeshBuffersHandle& m)
+void glTFLoader::getIndices(const Node& node, const int32_t accessorIndex, MeshBuffersHandle& m, int materialIndex)
 {
 	const auto& accessor = model.accessors[accessorIndex];
 	const auto& bufferView = model.bufferViews[accessor.bufferView];
@@ -163,7 +174,35 @@ void glTFLoader::getIndices(const Node& node, const int32_t accessorIndex, MeshB
 
 	Surface s;
 	s.indices() = F.cast<uint32_t>();
+	if (materials.size() && materialIndex >= 0 && materialIndex < materials.size())
+	{
+		s.setMaterail(materials[materialIndex]);
+	}
+	
 	m->S.push_back(s);
+}
+
+void glTFLoader::reset()
+{
+	// must reset containers because we're using the same Model every time!
+	model.accessors.clear();
+	model.animations.clear();
+	model.buffers.clear();
+	model.bufferViews.clear();
+	model.materials.clear();
+	model.meshes.clear();
+	model.nodes.clear();
+	model.textures.clear();
+	model.images.clear();
+	model.skins.clear();
+	model.samplers.clear();
+	model.cameras.clear();
+	model.scenes.clear();
+	model.lights.clear();
+
+	materials.clear();
+	textures.clear();
+	images.clear();
 }
 
 void glTFLoader::processNodes()
@@ -206,8 +245,6 @@ void glTFLoader::processNodes()
 
 void glTFLoader::processImages()
 {
-	Images images;
-
 	for (const auto& gltf_image : model.images)
 	{
 		std::cerr << "Processing image '" << gltf_image.name << "'\n"
@@ -234,7 +271,142 @@ void glTFLoader::processImages()
 		}
 	}
 
-	imageCallback(std::move(images));
+//	imageCallback(std::move(images));
+}
+
+void glTFLoader::processTextures()
+{
+	
+	for (const auto& gltf_texture : model.textures)
+	{
+		TextureHandlerRef texture = TextureHandler::create();
+
+		if (gltf_texture.sampler == -1)
+		{
+			TextureSampler sampler;
+			sampler.imageIndex = gltf_texture.source;
+			auto it = images.begin();
+			std::advance(it, sampler.imageIndex);
+			if (it != images.end())
+				texture->addTextureImage(*it);
+			texture->addTextureSampler(sampler); 
+			textures.push_back(texture);
+			//scene.addSampler(cudaAddressModeWrap, cudaAddressModeWrap, cudaFilterModeLinear, gltf_texture.source);
+			continue;
+		}
+
+		const auto& gltf_sampler = model.samplers[gltf_texture.sampler];
+		TextureSampler sampler;
+		sampler.wrapS = gltf_sampler.wrapS == GL_CLAMP_TO_EDGE ? TextureMode::clamp :
+			gltf_sampler.wrapS == GL_MIRRORED_REPEAT ? TextureMode::mirror :
+			TextureMode::wrap;
+		sampler.wrapS = gltf_sampler.wrapT == GL_CLAMP_TO_EDGE ? TextureMode::clamp :
+			gltf_sampler.wrapT == GL_MIRRORED_REPEAT ? TextureMode::mirror :
+			TextureMode::wrap;
+		sampler.filter = gltf_sampler.minFilter == GL_NEAREST ? TextureFilterMode::point :
+			TextureFilterMode::linear;
+		
+		sampler.imageIndex = gltf_texture.source;
+		auto it = images.begin();
+		std::advance(it, sampler.imageIndex);
+		if (it != images.end())
+			texture->addTextureImage(*it);
+		texture->addTextureSampler(sampler);
+
+		textures.push_back(texture);
+	}
+
+	//textureCallback(std::move(textures));
+}
+
+void glTFLoader::processMaterials()
+{
+	for (auto& gltf_material : model.materials)
+	{
+		LOG(DBUG) << "Processing glTF material: '" << gltf_material.name;
+		
+		Material material;
+		{
+			const auto base_color_it = gltf_material.values.find("baseColorFactor");
+			if (base_color_it != gltf_material.values.end())
+			{
+				const tinygltf::ColorValue c = base_color_it->second.ColorFactor();
+				material.base_color = Vector4d(c[0], c[1], c[2], c[3]).cast<float>();
+				wabi::vecStr4f(material.base_color, DBUG, "BASE_COLOR");
+			}
+			else
+			{
+				LOG(DBUG) << "Using default base color factor";
+			}
+		}
+
+		{
+			const auto base_color_it = gltf_material.values.find("baseColorTexture");
+			if (base_color_it != gltf_material.values.end())
+			{
+				LOG(DBUG) << "Found base color tex: " << base_color_it->second.TextureIndex();
+				material.base_color_tex = textures[base_color_it->second.TextureIndex()];
+			}
+			else
+			{
+				LOG(DBUG) << "No base color tex";
+			}
+		}
+
+		{
+			const auto roughness_it = gltf_material.values.find("roughnessFactor");
+			if (roughness_it != gltf_material.values.end())
+			{
+				material.roughness = static_cast<float>(roughness_it->second.Factor());
+				LOG(DBUG) << "Rougness:  " << material.roughness;
+			}
+			else
+			{
+				LOG(DBUG) << "Using default roughness factor";
+			}
+		}
+
+		{
+			const auto metallic_it = gltf_material.values.find("metallicFactor");
+			if (metallic_it != gltf_material.values.end())
+			{
+				material.metallic = static_cast<float>(metallic_it->second.Factor());
+				LOG(DBUG) << "Metallic:  " << material.metallic;
+			}
+			else
+			{
+				LOG(DBUG) << "Using default metallic factor";
+			}
+		}
+
+		{
+			const auto metallic_roughness_it = gltf_material.values.find("metallicRoughnessTexture");
+			if (metallic_roughness_it != gltf_material.values.end())
+			{
+				LOG(DBUG) << "Found metallic roughness texture: " << metallic_roughness_it->second.TextureIndex();
+				material.metallic_roughness_tex = textures[metallic_roughness_it->second.TextureIndex()];
+			}
+			else
+			{
+				LOG(DBUG) << "No metallic roughness texture";
+			}
+		}
+
+		{
+			const auto normal_it = gltf_material.additionalValues.find("normalTexture");
+			if (normal_it != gltf_material.additionalValues.end())
+			{
+				LOG(DBUG) << "Found normal color texture: " << normal_it->second.TextureIndex();
+				material.normal_tex = textures[normal_it->second.TextureIndex()];
+			}
+			else
+			{
+				LOG(DBUG) << "No normal texture";
+			}
+		}
+
+		materials.push_back(material);
+	}
 }
 
 void glTFLoader::processMesh(Node& node, Mesh& mesh, LoadMeshCallback meshCallback)
@@ -247,8 +419,11 @@ void glTFLoader::processMesh(Node& node, Mesh& mesh, LoadMeshCallback meshCallba
 			continue;
 		}
 
+		LOG(DBUG) << "Material index: " << primitive.material;
+
 		MeshBuffersHandle m = std::make_shared<MeshBuffers>();
-		getIndices(node, primitive.indices, m);
+		getIndices(node, primitive.indices, m, primitive.material);
+		
 
 		for (auto& attrib : primitive.attributes)
 		{

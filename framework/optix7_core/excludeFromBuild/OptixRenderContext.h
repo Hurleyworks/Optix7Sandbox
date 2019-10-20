@@ -19,10 +19,10 @@ class OptixRenderContext
 	// is not guaranteed and should therefore not be relied upon for correctness
 	// (e.g., inter - kernel communication is undefined).
 
- public:
+public:
 
 	virtual ~OptixRenderContext();
-	
+
 	template<typename T>
 	void uploadLaunchParameters(T& params)
 	{
@@ -35,7 +35,7 @@ class OptixRenderContext
 	virtual void rebuildHitgroupSBT(OptixEngineRef& engine) = 0;
 
 	virtual void initializeLaunchParams() = 0;
-	virtual void preLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) = 0;
+	virtual bool preLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) = 0;
 	virtual void updateCamera(CameraHandle& camera) = 0;
 	virtual void postLaunch(CameraHandle& camera, OptixEngineRef& engine, InputEvent& input) = 0;
 
@@ -52,6 +52,9 @@ class OptixRenderContext
 	OptixShaderBindingTable* getSBT() { return &sbt; }
 	const OptixConfig& getConfig() const { return config; }
 	const PipelineType& getType() const { return type; }
+
+	void setLaunchDimensions(Vector3i dim) { size = dim; }
+	
 
  protected:
 	OptixRenderContext(PipelineType type);

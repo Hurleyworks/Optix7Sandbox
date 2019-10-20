@@ -10,9 +10,12 @@ using tinygltf::Mesh;
 using tinygltf::Buffer;
 using sabi::Images;
 using sabi::MeshBuffersHandle;
+using sabi::TextureHandlerRef;
+using sabi::Textures;
 
 using LoadMeshCallback = std::function<void(MeshBuffersHandle, std::string)>;
 using LoadImagesCallback = std::function<void(Images)>;
+using LoadTexturesCallback = std::function<void(Textures)>;
 
 class glTFLoader
 {
@@ -22,20 +25,27 @@ class glTFLoader
 	 ~glTFLoader() = default;
 
 	 void loadGeometry(const std::string& path, LoadMeshCallback meshCallback);
-	 void loadAll(const std::string& path, LoadImagesCallback imageCallback, LoadMeshCallback meshCallback);
+	 void load(const std::string& path, LoadMeshCallback meshCallback);
 	 
  private:
 	 tinygltf::Model model;
 	 LoadMeshCallback meshCallback = nullptr;
-	 LoadImagesCallback imageCallback = nullptr;
+	
 	 std::string filePath;
+
+	 Images images;
+	 Textures textures;
+	 Materials materials;
 	 
+	 void reset();
 	 void processNodes();
 	 void processImages();
+	 void processTextures();
+	 void processMaterials();
 	 void processMesh(Node& node, Mesh& mesh, LoadMeshCallback meshCallback);
 	 void getTextureCoords_0(const Node& node, const int32_t accessorIndex, MeshBuffersHandle& m);
 	 void getNormals(const Node& node, const int32_t accessorIndex, MeshBuffersHandle& m);
 	 void getVertices(const Node& node, const int32_t accessorIndex, MeshBuffersHandle& m);
-	 void getIndices(const Node& node, const int32_t accessorIndex, MeshBuffersHandle& m);
+	 void getIndices(const Node& node, const int32_t accessorIndex, MeshBuffersHandle& m, int materialIndex);
 
 }; // end class glTFLoader

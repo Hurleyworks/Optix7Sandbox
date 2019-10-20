@@ -29,6 +29,7 @@ class NanoguiLayer : public RenderLayer, public nanogui::Screen
 
 	void onUpdate() override;
 	bool onInput(const InputEvent& input) override;
+	LayerType getType() const override { return LayerType::Nanogui; }
 
 	void postInfoMessage(const std::string& title, const std::string& msg) override;
 	void postWarningMessage(const std::string& title, const std::string& msg) override;

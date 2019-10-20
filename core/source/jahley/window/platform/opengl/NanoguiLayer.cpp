@@ -44,23 +44,30 @@ bool NanoguiLayer::onInput(const InputEvent& input)
 	switch (input.getType())
 	{
 		case InputEvent::Press:
-			return Screen::mouseButtonCallbackEvent(input.getButton(), MOUSE_PRESS, 0);
 			//LOG(DBUG) << "PRESS";
+			return Screen::mouseButtonCallbackEvent(input.getButton(), MOUSE_PRESS, 0);
+			
 			break;
 
 		case InputEvent::Release:
-			return Screen::mouseButtonCallbackEvent(input.getButton(), MOUSE_RELEASE, 0);
 			//LOG(DBUG) << "RELEASE";
+			return Screen::mouseButtonCallbackEvent(input.getButton(), MOUSE_RELEASE, 0);
 			break;
 
 		case InputEvent::Move:
-			return Screen::cursorPosCallbackEvent((float)input.getX(), (float)input.getY());
 			//LOG(DBUG) << "MOVE";
+			return Screen::cursorPosCallbackEvent((float)input.getX(), (float)input.getY());
+			
 			break;
 
 		case InputEvent::Drag:
-			return Screen::cursorPosCallbackEvent((float)input.getX(), (float)input.getY());
 			//LOG(DBUG) << "DRAG";
+			Screen::cursorPosCallbackEvent((float)input.getX(), (float)input.getY());
+
+			// calling just the cursorPosCallbackEvent() was the cause of the gui event mess
+			// we need to call mouseButtonCallbackEvent() during drags too
+			return Screen::mouseButtonCallbackEvent(input.getButton(), MOUSE_PRESS, 0);
+			
 			break;
 	}
 

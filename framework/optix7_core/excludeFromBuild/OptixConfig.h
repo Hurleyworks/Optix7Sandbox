@@ -18,6 +18,7 @@ struct OptixDesc
 	OptixProgramGroupDesc raygen_prog_group_desc = {};
 	OptixProgramGroupDesc miss_prog_group_desc = {};
 	OptixProgramGroupDesc hitgroup_prog_group_desc = {};
+	OptixProgramGroupDesc exception_prog_group_desc = {};
 };
 
 struct OptixConfig

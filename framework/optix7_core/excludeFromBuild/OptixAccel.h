@@ -10,12 +10,25 @@ class OptixAccel
  public:
 	OptixAccel ();
 	~OptixAccel ();
-	
-	void rebuildSceneAccel(ContextHandle& context, const SceneMeshes& meshes);
-	OptixTraversableHandle getSceneAccel() const { return sceneAccel; }
 
+	void preallocate(ContextHandle& context);
+	void rebuildSceneAccel(ContextHandle& context, const SceneMeshes& meshes, bool justUpdate = false);
+
+	OptixTraversableHandle getIAS() const { return IAS; }
+	
  private:
-	CUdeviceptr deviceIASoutputBuffer = 0;
-	OptixTraversableHandle sceneAccel = 0;
+	CUdeviceptr deviceIAS = 0;
+	OptixTraversableHandle IAS = 0;
+	OptixAccelBufferSizes IASbufferSizes;
+	CUdeviceptr deviceTempBuffer = 0;
+
+	size_t instanceCount = DEFAULT_PREALLOCATED_MESHES_COUNT;
+	std::vector<OptixInstance> optixInstances;
+	CuBuffer<OptixInstance> deviceInstances;
+
+	OptixAccelBuildOptions accelOptions = {};
+	OptixBuildInput instanceInput = {};
+	
+	void updateInstanceTransforms(const SceneMeshes& meshes);
 
 }; // end class OptixAccel

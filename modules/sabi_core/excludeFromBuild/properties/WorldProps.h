@@ -1,5 +1,38 @@
 #pragma once
 
+static const char* MotionTypeTable[] =
+{
+	"None",
+	"RandomJitter",
+	"Reset",
+	"Invalid"
+};
+
+struct MotionType
+{
+	enum EMotionType
+	{
+		None,
+		RandomJitter,
+		Reset,
+		Count,
+		Invalid = Count
+	};
+
+	union
+	{
+		EMotionType name;
+		unsigned int value;
+	};
+
+	MotionType(EMotionType name) : name(name) {}
+	MotionType(unsigned int value) : value(value) {}
+	MotionType() : value(Invalid) {}
+	operator EMotionType() const { return name; }
+	const char* ToString() const { return MotionTypeTable[value]; }
+	static MotionType FromString(const char* str) { return mace::TableLookup(str, MotionTypeTable, Count); }
+};
+
 static const char* WorldKeyTable[] =
 {
 	"TotalMeshes",
@@ -7,6 +40,8 @@ static const char* WorldKeyTable[] =
 	"TotalVertices",
 	"TotalRealTriangles",
 	"TotalInstancedTriangles",
+	"InstanceCount",
+	"MotionType",
 	"Invalid"
 };
 
@@ -19,6 +54,8 @@ struct WorldKey
 		TotalVertices,
 		TotalRealTriangles,
 		TotalInstancedTriangles,
+		InstanceCount,
+		MotionType,
 		Count,
 		Invalid = Count
 	};
@@ -44,3 +81,4 @@ const uint64_t DEFAULT_MESH_COUNT = 0;
 const uint64_t DEFAULT_TRIANGLE_COUNT = 0;
 const uint64_t DEFAULT_INSTANCES_COUNT = 0;
 const uint64_t DEFAULT_INSTANCED_TRIANGLE_COUNT = 0;
+const MotionType DEFAULT_MOTION_TYPE = MotionType(MotionType::None);

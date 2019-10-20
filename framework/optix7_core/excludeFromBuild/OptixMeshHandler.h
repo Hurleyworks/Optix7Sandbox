@@ -14,14 +14,29 @@ class OptixMeshHandler
 	const SceneMeshes& getMeshes() const { return meshes; }
 	SceneMeshes& getMeshes() { return meshes; }
 
+	void resetMotion()
+	{
+		for (auto mesh : meshes)
+		{
+			RenderableWeakRef weakNode(mesh->getNode());
+			if (weakNode.expired()) continue;
+
+			weakNode.lock()->getSpaceTime().resetMotion();
+		}
+	}
 	void reset()
 	{
+		hitgroup_records.clear();
+		hitgroup_record_base.free();
 		meshes.clear();
+		nextSlot = 0;
+		preallocate();
 	}
 
 	void onSelectionChange(OptixMeshHandle& mesh);
 
-	CUdeviceptr getHitGroupRecordBase() { return hitgroup_record_base.d_pointer(); }
+
+	CUdeviceptr getHitGroupRecordBase() { return hitgroup_record_base.get(); }
 	size_t getRecordCount() const { return hitgroup_records.size(); }
 
 	void addMesh(OptixMeshHandle mesh, OptixShaderBindingTable* const sbt, const OptixPrograms& programs);
@@ -42,11 +57,12 @@ class OptixMeshHandler
 	ProgramGroupHandle radianceHit = nullptr;
 	ProgramGroupHandle occulsionHit = nullptr;
 
-	CUDABuffer hitgroup_record_base;
+	CuBuffer<HitGroupRecord> hitgroup_record_base;
 	const size_t hitgroup_record_size = sizeof(HitGroupRecord);
 	std::vector<HitGroupRecord> hitgroup_records;
 	int nextSlot = 0;
 
 	void getPrograms(const OptixPrograms& programs);
+	void preallocate();
 	
 }; // end class OptixMeshHandler

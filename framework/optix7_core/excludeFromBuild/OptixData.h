@@ -41,4 +41,4 @@ struct PipelineType
 	static PipelineType FromString(const char* str) { return mace::TableLookup(str, PipelineTypeTable, Count); }
 };
 
-const uint32_t DEFAULT_PREALLOCATED_MESHES_COUNT = 1000;
+const uint32_t DEFAULT_PREALLOCATED_MESHES_COUNT = 10000;

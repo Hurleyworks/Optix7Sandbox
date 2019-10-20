@@ -10,14 +10,15 @@ using juce::StringArray;
 using juce::String;
 using sabi::CameraHandle;
 using sabi::RenderableNode;
+using sabi::RenderableList;
 using sabi::PixelBufferHandle;
 using sabi::Images;
 using sabi::InputEvent;
 
 class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected Noncopyable
 {
-	
- public:
+
+public:
 	OptixEngineRef getPtr() { return shared_from_this(); }
 
 	using ProgramDB = std::unordered_map<String, PtxData>;
@@ -26,16 +27,17 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	using HitGroupData = std::vector<HitGroupPair>;
 	using PipelineDB = std::unordered_map<std::string, PipelineHandle>;
 
- public:
-	virtual ~OptixEngine ();
+public:
+	virtual ~OptixEngine();
 
 	virtual void init(CameraHandle& camera) = 0;
 	virtual void addPipeline(PipelineType type, const json& groups, OptixConfig& config) = 0;
 	virtual void render(CameraHandle& camera) = 0;
 	virtual void clearScene() = 0;
 
-	virtual void addRenderable(RenderableNode& node) {}
-	virtual void addImage(PixelBufferHandle& image) {}
+	virtual void addRenderable(RenderableNode& node, bool rebuildAccel = true) {}
+	virtual void addRenderableList(const RenderableList&& nodes) {}
+	virtual void addImage(PixelBufferHandle& image) { imageHandler.addImage(image); }
 	virtual void onInput(const InputEvent& input) {}
 
 	const OptixPipeline getPipeline(std::string& name) const
@@ -45,37 +47,43 @@ class OptixEngine : public std::enable_shared_from_this<OptixEngine>, protected 
 	}
 
 	const OptixEngine::ProgramDB& getProgramDB() const { return programDB; }
-	const OptixTraversableHandle getIAS() const { return accelServices.getSceneAccel(); }
-	
+	const OptixTraversableHandle getIAS() const { return accelServices.getIAS(); }
+
 	OptixMeshHandler& getMeshHandler() { return meshHandler; }
 
 	bool restartRender() const { return properties.renderProps->getVal<bool>(RenderKey::ResetAccumulator); }
-	void setRenderRestart(bool state) const {properties.renderProps->setValue(RenderKey::ResetAccumulator, state);}
+	void setRenderRestart(bool state) const { properties.renderProps->setValue(RenderKey::ResetAccumulator, state); }
 	const PropertyService& props() const { return properties; }
 
 
- protected:
+protected:
 	OptixEngine(const PropertyService& properties);
 
 	PropertyService properties;
 	OptixDeviceContextOptions context_options = {};
 
-	StringArray progFuncNames;  
+	StringArray progFuncNames;
 	StringArray programPrefixes;
 	ProgramDB programDB;
 	Modules modules;
 
 	ContextHandle context = nullptr;
-    PipelineDB pipelineDB;
-	
+	PipelineDB pipelineDB;
+
 	OptixMeshHandler meshHandler;
-	
+	OptixImageHandler imageHandler;
+
 	PipelineHandle createPipeline(const json& groups, OptixConfig& config);
 	void createProgramDatabase();
 
-	void rebuildSceneAccel()
+	void rebuildSceneAccel(bool update = false)
 	{
-		accelServices.rebuildSceneAccel(context, meshHandler.getMeshes());
+		accelServices.rebuildSceneAccel(context, meshHandler.getMeshes(),update);
+	}
+
+	void resetSceneAccell()
+	{
+		accelServices.preallocate(context);
 	}
 
 private:
@@ -83,6 +91,7 @@ private:
 	ModuleHandle createModule(PtxData& data, OptixConfig& config);
 
 	ProgramGroupHandle createRaygenPrograms(ModuleHandle& module, const String& functionName, OptixConfig& config);
+	ProgramGroupHandle createExceptionPrograms(ModuleHandle& module, const String& functionName, OptixConfig& config);
 	ProgramGroupHandle createMissPrograms(ModuleHandle& module, const String& functionName, OptixConfig& config);
 	ProgramGroupHandle createHitgroupPrograms(const HitGroupData & hitgroupData, OptixConfig& config);
 	

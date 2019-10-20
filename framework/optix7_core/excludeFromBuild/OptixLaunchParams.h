@@ -44,22 +44,27 @@ struct WhittedParams
 
 };
 
-struct DreamerParams
+
+struct SystemData
 {
-	OptixTraversableHandle sceneAccel;
-	uint32_t subframe_index;
+	// https://devtalk.nvidia.com/default/topic/1063868/optix/pick-ray-in-optix7/post/5391297/#5391297
+
+	// 8-byte alignment
+	OptixTraversableHandle topObject;
+
+	// The accumulated linear color space output buffer.
+	// This is always sized to the resolution, not always matching the launch dimension.
+	// Using a CUdeviceptr here to allow for different buffer formats without too many casts.
+	CUdeviceptr outputBuffer;
 	float4* accum_buffer;
-	uchar4* frame_buffer;
-	CUdeviceptr pickBuffer; // CUDA device pointer with room for at least two unsigned int.
+	int2 resolution;   // The resolution of the full image in outputBuffer. Independent from the launch dimensions for some rendering strategies.
 
-	// 4-byte aligned
-	int picking;
-	float3 rayOrigin;
-	float3 rayDir;
-	uint32_t screenX;
-	uint32_t screenY;
-	int32_t max_depth;
+	CUdeviceptr pickingBuffer; // Buffer which will receive all information of the primary hit when pickingEnabled != 0.
+	float2 pickingFragment;  // Pixel center coordinate on the full resolution image to shoot a primary picking ray for with the current projection.
 
-	OptixBufferView<OptixLight::Point> lights;
+	// 4 byte alignment 
+	int pickingEnabled; // Flag indicating that the pickingPixel should be used to calculate the primary ray. Launch at 1x1 size in that case.
+	uint32_t subframe_index;
 
+	OptixBufferView<OptixLight::Point> lights; // alignment???
 };

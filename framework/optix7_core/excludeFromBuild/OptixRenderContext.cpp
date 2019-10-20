@@ -17,7 +17,10 @@ OptixRenderContext::~OptixRenderContext()
 
 		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.raygenRecord)));
 		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.missRecordBase)));
-		CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.hitgroupRecordBase)));
+
+		// Don't free sbt.hitgroupRecordBase here because it's already 
+		// been freed in the OptixMeshHandler destructor
+		//CUDA_CHECK(cudaFree(reinterpret_cast<void*>(sbt.hitgroupRecordBase)));
 
 	}
 	catch (const std::runtime_error& e)

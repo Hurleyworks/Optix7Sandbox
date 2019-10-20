@@ -4,6 +4,8 @@
 // Copyright (c) 2019, HurleyWorks
 
 using sabi::MeshBuffersHandle;
+using sabi::Material;
+using sabi::VertexMapRef;
 using Eigen::Vector3f;
 
 // ctor
@@ -38,7 +40,7 @@ void OptixMesh::init(ContextHandle& context)
 {
 	if (weakNode.expired()) return;
 
-	ScopedStopWatch sw(_FN_);
+	//ScopedStopWatch sw(_FN_);
 
 	// instances use the GAS from their source
 	if (weakNode.lock()->isInstance())
@@ -51,6 +53,10 @@ void OptixMesh::init(ContextHandle& context)
 			{
 				GAS = optixMesh->getGAS();
 			}
+
+			// we want each instance to be able to have it's own unique material
+			// so we create a new one here instead of just using the source's material
+			//createMaterials(source->getMesh());
 		}
 
 		return;
@@ -95,7 +101,22 @@ void OptixMesh::init(ContextHandle& context)
 
 	byteOffset += mesh->N.size() * sizeof(float);
 
+	
+	auto it = mesh->vmaps.find("UV");
+	if (it != mesh->vmaps.end())
+	{
+		VertexMapRef vmap = it->second;
+
+		texcoords.data = deviceBuffer + byteOffset;
+		texcoords.byte_stride = static_cast<uint16_t>(byteStride);
+		texcoords.count = static_cast<uint32_t>(vmap->values.cols());
+		texcoords.elmt_byte_size = static_cast<uint16_t>(sizeof(float));
+	}
+	
+
 	createGAS(context);
+
+	createMaterials(weakNode.lock()->getMesh());
 }
 
 void OptixMesh::createBuffer(const uint64_t buf_size, const void* data)
@@ -209,5 +230,149 @@ void OptixMesh::createGAS(ContextHandle& context)
 	outputBuffer.free(); // << the UNcompacted, temporary output buffer
 	tempBuffer.free();
 	compactedSizeBuffer.free();
+}
+
+void OptixMesh::createMaterials(MeshBuffersHandle& mesh)
+{
+
+	for (auto s : mesh->S)
+	{
+		const Material& m = s.getMaterial();
+		OptixMaterialData::Pbr mtl;
+		mtl.base_color = make_float4(m.base_color.x(), m.base_color.y(), m.base_color.z(), m.base_color.w());
+		mtl.metallic = m.metallic;
+		mtl.roughness = m.roughness;
+
+		if (m.base_color_tex)
+		{
+			for (auto image : m.base_color_tex->getImages())
+			{
+				ImageInfo& spec = image->spec;
+				addImage(spec.width, spec.height, 8, spec.channels, static_cast<void*>(image->uint8Pixels.data()));
+			}
+
+			for (auto& s : m.base_color_tex->getSamplers())
+			{
+				addSampler(static_cast<cudaTextureAddressMode>(s.wrapS),
+						   static_cast<cudaTextureAddressMode>(s.wrapT),
+					       static_cast<cudaTextureFilterMode>(s.filter), s.imageIndex);
+
+				mtl.base_color_tex = samplers.back();
+			}
+			
+		}
+
+		if (m.metallic_roughness_tex)
+		{
+			for (auto image : m.metallic_roughness_tex->getImages())
+			{
+				ImageInfo& spec = image->spec;
+				addImage(spec.width, spec.height, 8, spec.channels, static_cast<void*>(image->uint8Pixels.data()));
+			}
+
+			for (auto& s : m.metallic_roughness_tex->getSamplers())
+			{
+				addSampler(static_cast<cudaTextureAddressMode>(s.wrapS),
+					static_cast<cudaTextureAddressMode>(s.wrapT),
+					static_cast<cudaTextureFilterMode>(s.filter), s.imageIndex);
+			}
+			
+			mtl.metallic_roughness_tex = samplers.back();
+		}
+
+		if (m.normal_tex)
+		{
+			for (auto image : m.normal_tex->getImages())
+			{
+				ImageInfo& spec = image->spec;
+				addImage(spec.width, spec.height, 8, spec.channels, static_cast<void*>(image->uint8Pixels.data()));
+			}
+
+			for (auto& s : m.normal_tex->getSamplers())
+			{
+				addSampler(static_cast<cudaTextureAddressMode>(s.wrapS),
+					static_cast<cudaTextureAddressMode>(s.wrapT),
+					static_cast<cudaTextureFilterMode>(s.filter), s.imageIndex);
+			}
+			
+			mtl.normal_tex = samplers.back();
+		}
+
+		materials.push_back(mtl);
+		
+	}
+}
+
+void OptixMesh::addImage(const int32_t width, const int32_t height, const int32_t bits_per_component, const int32_t num_components, const void* data)
+{
+	// Allocate CUDA array in device memory
+	int32_t               pitch;
+	cudaChannelFormatDesc channel_desc;
+	if (bits_per_component == 8)
+	{
+		pitch = width * num_components * sizeof(uint8_t);
+		channel_desc = cudaCreateChannelDesc<uchar4>();
+	}
+	else if (bits_per_component == 16)
+	{
+		pitch = width * num_components * sizeof(uint16_t);
+		channel_desc = cudaCreateChannelDesc<uchar4>();
+	}
+	else
+	{
+		throw Exception("Unsupported bits/component in glTF image");
+	}
+
+
+	cudaArray_t   cuda_array = nullptr;
+	CUDA_CHECK(cudaMallocArray(
+		&cuda_array,
+		&channel_desc,
+		width,
+		height
+	));
+	CUDA_CHECK(cudaMemcpy2DToArray(
+		cuda_array,
+		0,     // X offset
+		0,     // Y offset
+		data,
+		pitch,
+		pitch,
+		height,
+		cudaMemcpyHostToDevice
+	));
+	images.push_back(cuda_array);
+}
+
+void OptixMesh::addSampler(cudaTextureAddressMode address_s, cudaTextureAddressMode address_t, cudaTextureFilterMode filter_mode, const int32_t image_idx)
+{
+	cudaResourceDesc res_desc = {};
+	res_desc.resType = cudaResourceTypeArray;
+	if (images.size() && image_idx >= 0 && image_idx < images.size())
+	{
+		res_desc.res.array.array = images[image_idx];
+	}
+	else
+	{
+		throw std::runtime_error("Invalid image index in Sampler .... can't create OptixMesh for " + weakNode.lock()->getName());
+	}
+		
+	cudaTextureDesc tex_desc = {};
+	tex_desc.addressMode[0] = address_s;
+	tex_desc.addressMode[1] = address_t;
+	tex_desc.filterMode = filter_mode;
+	tex_desc.readMode = cudaReadModeNormalizedFloat;
+	tex_desc.normalizedCoords = 1;
+	tex_desc.maxAnisotropy = 1;
+	tex_desc.maxMipmapLevelClamp = 99;
+	tex_desc.minMipmapLevelClamp = 0;
+	tex_desc.mipmapFilterMode = cudaFilterModePoint;
+	tex_desc.borderColor[0] = 1.0f;
+	tex_desc.sRGB = 0; // TODO: glTF assumes sRGB for base_color -- handle in shader
+
+	// Create texture object
+	cudaTextureObject_t cuda_tex = 0;
+	CUDA_CHECK(cudaCreateTextureObject(&cuda_tex, &res_desc, &tex_desc, nullptr));
+	samplers.push_back(cuda_tex);
 }
 

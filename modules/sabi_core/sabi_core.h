@@ -45,6 +45,7 @@ namespace sabi
 	#include "excludeFromBuild/VertexMap.h"
 	#include "excludeFromBuild/MeshOptions.h"
 	#include "excludeFromBuild/SpaceTime.h"
+	#include "excludeFromBuild/TextureHandler.h"
 	#include "excludeFromBuild/Material.h"
 	#include "excludeFromBuild/Surface.h"
 	#include "excludeFromBuild/MeshBUffers.h"
