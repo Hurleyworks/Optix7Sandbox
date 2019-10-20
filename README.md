@@ -34,7 +34,7 @@ OptiX uses the CUDA device API, but the CUDA runtime API objects can be cast to 
 
 ### Dreamer
 
-Based on the Optix7 SDK optixMeshView sample but allows dynamic adding of new meshes. Supports picking, geometry instancing and basic dynamic transforms. A few simple meshes can be added from the gui or you can drag and drop files or folders of objects into the window. OBJ, PLY, OFF and glTF 2.0 files are supported. Currently does not support glTF2.0 files with multiple meshes 
+Based on the Optix7 SDK optixMeshView sample but allows dynamic adding of new meshes. Supports picking, geometry instancing and basic dynamic transforms. A few simple meshes can be added from the gui or you can drag and drop files or folders of objects into the window. OBJ, PLY, OFF and glTF 2.0 files are supported. Currently does not support glTF2.0 files with multiple meshes and only glTF2.0 files have support for PBR materials
 
 ![Viewer screen grab](https://github.com/Hurleyworks/Optix7Sandbox/blob/master/resources/Common/sample_screen_grabs/Dreamer.png)
 
